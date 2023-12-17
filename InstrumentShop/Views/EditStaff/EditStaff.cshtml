@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Example</title>
+
+    <link href="~/Content/modal.css" rel="stylesheet" />
+</head>
+
+<body>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">STAFF</span>
+        </div>
+
+        <!-- Button trigger modal -->
+        <button type="button" id="showModalBtn" class="btn btn-primary">Launch demo modal</button>
+
+        <!-- Modal -->
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <span class="close" id="closeBtn">&times;</span>
+                <h2>Modal Title</h2>
+                <div class="modal-body">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" placeholder="Enter First Name">
+
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" placeholder="Enter Last Name">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="mainCloseBtn">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+
+
+        <script src="~/Scripts/modal.js"></script>
+    </section>
+</body>
+
+</html>
