@@ -21,7 +21,7 @@ namespace InstrumentShop.Models
         public string email { get; set; }
         public int depId { get; set; }
         public string depName { get; set; }
-        public List<Department> Departments { get; set; } = new List<Department>();
+       /* public List<Department> Departments { get; set; } = new List<Department>();*/
 
 
         //@staff.userId, '@staff.fname', '@staff.mi', '@staff.lname', '@staff.department','@staff.dob','@staff.phone','@staff.address','@staff.email

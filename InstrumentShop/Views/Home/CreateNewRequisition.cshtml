@@ -1,0 +1,270 @@
+﻿@model InstrumentShop.Models.requisitionModel
+@{
+    ViewBag.Title = "CreateNewRequisition";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Create new</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Home/Index">Home</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/Requisition">Requisition</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Create new requisition</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!--Requisition Block-->
+<section class="w3l-servicesblock py-5 mb-lg-5" id="requisition">
+    <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+        <p class="text-uppercase">Create a requisition</p>
+        <h3 class="title-style">Add a new requisition</h3>
+    </div>
+
+    <!--Add Requisition Items-->
+    <div class="row requisition-block">
+        <div class="col-md-7 mx-auto requisition-right">
+            <form id="requisitionForm" method="post" action="@Url.Action("AddRequisition", "Home")">
+                <div class="input-grids">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <select name="ReqItem_Prod" id="ReqItem_Prod" class="requisition-select" required="">
+                                <option value="" disabled selected>--- Select Product ---</option>
+
+                                @foreach (var product in Model.requisitionItemList)
+                                {
+                                    bool excludeItem = false;
+
+                                    // Check if the item should be excluded
+                                    foreach (var canvasItem in Model.canvas)
+                                    {
+                                        if (product.ReqItem_Item == canvasItem.CanvasItem)
+                                        {
+                                            excludeItem = true;
+                                            break;  // No need to check further, as we found a match
+                                        }
+                                    }
+
+                                    // If the item should not be excluded, add it to the dropdown
+                                    if (!excludeItem)
+                                    {
+                                        <option value="@product.ReqItem_ID" data-desc="@product.ReqItem_Desc" data-price="@product.ReqItem_Price">@product.ReqItem_Item</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="number" min="1" name="ReqItem_Qt" id="ReqItem_Qt" placeholder="Quantity" class="requisition-input" required="" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="ReqItem_Unit" id="ReqItem_Unit" placeholder="Unit" class="requisition-input" required="" />
+                        </div>
+                    </div>
+                    <input type="text" name="desc" id="desc" placeholder="Description" class="requisition-input" disabled />
+                    <div class="row">
+                        <div class="col-sm-6" style="width: 50%">
+                            <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled />
+                        </div>
+                        <div class="col-sm-6" style="width: 50%">
+                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled />
+                            <input type="hidden" name="ReqItem_Total" id="ReqItem_Total" />
+                        </div>
+                    </div>
+                </div>
+                <div class="text-start">
+                    <button type="submit" class="btn btn-style btn-style-3">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--Add Requisition Items-->
+
+    <div>
+        <br /><br />
+    </div>
+
+    <!--View Requisition Items-->
+    @if (Model.canvas != null && Model.canvas.Any())
+    {
+        <div class="row requisition-block">
+            <div class="col-md-7 mx-auto requisition-right" style="width: 80%">
+                <p><strong>List of items to be requested:</strong></p>
+                <table class="table-striped table-bordered" id="item-list" style="width: 100%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="10%">
+                        <col width="31%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="5%">
+                        <col width="5%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                            <th class="px-1 py-1 text-center"></th>
+                            <th class="px-1 py-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var canvas in Model.canvas)
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td>@canvas.CanvasItem</td>
+                                <td>@canvas.CanvasDesc</td>
+                                <td>@canvas.CanvasQuantity</td>
+                                <td>@canvas.CanvasUnit</td>
+                                <td style="text-align: center"> @canvas.CanvasPrice</td>
+                                <td class="canvas-total-value">@canvas.CanvasTotal</td>
+                                <td>
+                                    <form class="edit-form" method="post" action="@Url.Action("EditItemView", "Home")">
+                                        <input type="hidden" name="ItemEdit_ID" value="@canvas.CanvasID" />
+                                        <button class="btn btn-style-3 edit-btn" type="submit">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="delete-form" method="post" action="@Url.Action("DeleteItem", "Home")">
+                                        <input type="hidden" name="ItemDelete" value="@canvas.CanvasID" />
+                                        <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+
+                        <tr style="text-align: center; font-weight:600">
+                            <td colspan="6" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td style="border-right-color: transparent"><p class="total-cost"></p></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-start">
+                    <br />
+                    <form class="submit-form" method="post" action="@Url.Action("SubmitDataRF", "Home")">
+                        <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
+                        <button type="button" class="btn btn-style btn-style-3" onclick="confirmSubmit(this)" style="margin-left: 82%">Submit requisition</button> <br />
+                        <p style="font-size:12px; text-align: right"><strong>Note: </strong><i>Review thoroughly the items you intend to request.</i></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    <!--View Requisition Items-->
+</section>
+<!--Requisition Block-->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+
+    // ===Add row numbers to each row in the table
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = document.getElementById('item-list');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            var cell = rows[i].getElementsByTagName('td')[0];
+            cell.innerHTML = i + 1;
+        }
+    });
+
+    // ===When a quantity is added total will automatically computed multiplied by its original price
+    $(document).ready(function () {
+        // Handle change event of the dropdown
+        $("#ReqItem_Prod").change(function () {
+            // Get the selected option
+            var selectedOption = $(this).find(":selected");
+
+            // Update description and price fields
+            $("#desc").val(selectedOption.data("desc"));
+            $("#price").val(selectedOption.data("price"));
+
+            // Recalculate and update total
+            calculateTotal();
+        });
+
+        // Handle input changes for quantity and price
+        $("#ReqItem_Qt, #price").on("input", function () {
+            // Recalculate and update total
+            calculateTotal();
+        });
+
+        function calculateTotal() {
+            // Get quantity and price values
+            var quantity = parseFloat($("#ReqItem_Qt").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+
+            // Calculate total
+            var total = quantity * price;
+
+            // Display total with label inside the input
+            $("#total").val(total.toFixed(2));
+
+            // Set the total value to the hidden input field
+            $("#ReqItem_Total").val(total.toFixed(2));
+        }
+
+
+        // Trigger change event on page load (if pre-selected option exists)
+        $("#ReqItem_Prod").change();
+    });
+
+    // Function to update the total cost based on canvas-total-value elements
+    function updateTotalCost() {
+        // Get all elements with class 'canvas-total-value'
+        var canvasTotalElements = document.getElementsByClassName('canvas-total-value');
+
+        // Initialize total cost
+        var totalCost = 0;
+
+        // Iterate through each canvas total and update total cost
+        for (var i = 0; i < canvasTotalElements.length; i++) {
+            totalCost += parseFloat(canvasTotalElements[i].textContent);
+        }
+
+        // Set the total value to the hidden input field
+        $("#EstimateTotal").val(totalCost.toFixed(2));
+
+        // Display total cost in the 'Total estimated cost' cell with commas for better readability
+        document.querySelector('.total-cost').textContent = "₱ " + totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', updateTotalCost);
+
+    // ===To delete an item
+    function confirmDelete(button) {
+        var confirmation = confirm("Are you sure you want to delete this item?");
+        if (confirmation) {
+            var form = button.closest('.delete-form');
+            form.submit();
+        }
+    }
+
+    // ===To submit a requisition form
+    function confirmSubmit(button) {
+        var confirmation = confirm("Are you sure you want to submit this requisition?");
+        if (confirmation) {
+            var form = button.closest('.submit-form');
+            form.submit();
+        }
+    }
+
+</script>

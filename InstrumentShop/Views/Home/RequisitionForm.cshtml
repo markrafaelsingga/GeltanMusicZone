@@ -1,0 +1,124 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "RequisitionForm";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+@model List<ViewRequisitionForm>
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">View requisition</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Home/Index">Home</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/Requisition">Requisition</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/CreateNewRequisition">Create new requisition</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>View requisition</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- //Content block -->
+<section class="w3l-servicesblock py-5 mb-lg-5" id="requisition">
+    <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+        <p class="text-uppercase">Requisition form details</p>
+        <h3 class="title-style">View requisition</h3>
+    </div>
+
+    <!--Requisition number, Status and Date requested Block-->
+    <div class="row requisition-block">
+        <div class="col-sm-6" style="margin-left: 90px; width:20% ">
+            <p>Status:</p>
+            <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" />
+        </div>
+        <div class="col-md-7 requisition-right" style="margin-left: 870px">
+            <div class="input-grids">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p>Requisition Form #:</p>
+                        <input type="text" name="price" id="price" placeholder="Requisition code #" class="requisition-input" disabled value="@Model.First().RF_Code" />
+                    </div>
+                    <div class="col-sm-6">
+                        <p>Date requested:</p>
+                        <input type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().RF_Daterequested" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Requisition number, Status and Date requested Block-->
+    <!--Data table-->
+    <div class="row requisition-block">
+        <div class="col-md-7 mx-auto requisition-right" style="width: 90%">
+            <table class="table-striped table-bordered" id="item-list" style="width: 100%">
+                <colgroup>
+                    <col width="3%">
+                    <col width="12%">
+                    <col width="12%">
+                    <col width="10%">
+                    <col width="25%">
+                    <col width="6%">
+                    <col width="6%">
+                    <col width="8%">
+                    <col width="8%">
+                </colgroup>
+                <thead>
+                    <tr style="background-color: #fbb034; color: #000000;">
+                        <th class="px-1 py-1 text-center">#</th>
+                        <th class="px-1 py-1 text-center">Requisition code</th>
+                        <th class="px-1 py-1 text-center">Supplier</th>
+                        <th class="px-1 py-1 text-center">Item</th>
+                        <th class="px-1 py-1 text-center">Description</th>
+                        <th class="px-1 py-1 text-center">Quantity</th>
+                        <th class="px-1 py-1 text-center">Unit</th>
+                        <th class="px-1 py-1 text-center">Price</th>
+                        <th class="px-1 py-1 text-center">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var form in Model)
+                    {
+                        <tr style="text-align: center">
+                            <td><p class="row-number"></p></td>
+                            <td> @form.RF_Itemcode</td>
+                            <td> @form.RF_Suppliercompany</td>
+                            <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
+                            <td> @form.RF_Item</td>
+                            <td> @form.RF_Description</td>
+                            <td> @form.RF_Quantity</td>
+                            <td> @form.RF_Unit</td>
+                            <td style="text-align: center">  @form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            <td class="canvas-total-value"> @form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                        </tr>
+                    }
+
+                    <tr style="text-align: center; font-weight:600">
+                        <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                        <td>
+                            <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                            <!-- "C2" format specifier represents currency with two decimal places -->
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--Data table-->
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // ===Add row numbers to each row in the table
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = document.getElementById('item-list');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            var cell = rows[i].getElementsByTagName('td')[0];
+            cell.innerHTML = i + 1;
+        }
+    });
+</script>

@@ -1,0 +1,109 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "Requisition";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Requisition</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Home/Index">Home</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Requisition</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!-- Content block -->
+<div class="w3l-grids-block-5 py-5">
+    <div class="container py-md-5 py-4">
+        <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+            <p class="text-uppercase">Geltan's Music Zone</p>
+            <h3 class="title-style">Requisitions</h3>
+        </div>
+        <div class="text-start" style="margin-left: 82%">
+            <form class="submit-form" method="post" action="@Url.Action("CreateNewRequisition", "Home")">
+                <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-plus-circle"></i>&emsp;Create new</button>
+            </form>
+        </div>
+        <br />
+        <!-- Search for suppliers -->
+        <div class="search-container">
+            <form @*action="@Url.Action("SearchRequisition", "Home")"*@ method="post">
+                <div class="search-wrapper">
+                    <input type="text" placeholder="Search date requested.." name="search" class="search-box" id="searchBox">
+                    <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+        <!-- Search for suppliers -->
+        <div class="row justify-content-center">
+            @model List<requisitionDetails>
+            <div class="row">
+                @foreach (var details in Model)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
+                        <div class="supplier-card-single">
+                            <div class="content-main-top">
+                                <ul class="list-unstyled d-flex align-items-center justify-content-between">
+                                    <li>
+                                        <i class="fas fa-id-card"></i>&nbsp; Requisition code:
+                                    </li>
+                                </ul>
+                                <h4><a>@details.rf_code</a></h4>
+                                <p><strong>Date requested:</strong>&emsp; @details.rf_date_requested</p>
+                                <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                                <p><strong>Status:</strong>&emsp; @details.rf_status</p>
+                                <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
+                                    <a class="btn btn-style-primary" style="margin-left: 200px" href="/Home/RequisitionDetails?request_ID=@details.rf_id">
+                                        Know Details <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- pagination -->
+        <div class="pagination-style text-center mt-5">
+            <ul>
+                <li>
+                    <a href="@Url.Action("Requisition", new { page = 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber == 1 ? "not-allowed disabled" : "")">
+                        <span class="fa fa-angle-double-left" aria-hidden="true"></span>
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+                {
+                    <li class="@(i == ViewBag.PageNumber ? "active" : "")">
+                        <a href="@Url.Action("Requisition", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                    </li>
+                }
+
+                <li>
+                    <a href="@Url.Action("Requisition", new { page = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber >= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "not-allowed disabled" : "")">
+                        <span class="fa fa-angle-double-right" aria-hidden="true"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- Pagination -->
+    </div>
+</div>
+<!-- Content block -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    //$(document).ready(function () {
+    //    // Trigger form submission on search box change
+    //    $('#searchBox').on('input', function () {
+    //        // Submit the form
+    //        $('form').submit();
+    //    });
+    //});
+</script>

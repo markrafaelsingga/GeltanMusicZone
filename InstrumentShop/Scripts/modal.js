@@ -35,8 +35,7 @@
 });
 
 
-function openEditModal(userId, fname, mi, lname, department, dob, phone, address, email) {
-
+function openEditModal(userId, fname, mi, lname, department, dob, phone, address, email, depList) {
     document.getElementById('editModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editModal')" style="font-size: 35px !important;"></i>
@@ -45,46 +44,56 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
             </div>
             <div class="form-container">
                 <div class="form-group">
-                    <label for="Firstname">Firstname:</label>
-                    <input type="text" id="Firstname" name="Firstname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus />
+                    <label for="userId">ID:</label>
+                    <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus />
                 </div>
                 <div class="form-group">
-                    <label for="MI">M.I:</label>
-                    <input type="text" id="MI" name="MI" class="textbox-style" style="width: 300px !important;" value="${mi}" required />
+                    <label for="fname">Firstname:</label>
+                    <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus />
                 </div>
                 <div class="form-group">
-                    <label for="Lastname">Lastname:</label>
-                    <input type="text" id="Lastname" name="Lastname" class="textbox-style" style="width: 300px !important;" value="${lname}" required />
+                    <label for="mi">M.I:</label>
+                    <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required />
+                </div>
+                <div class="form-group">
+                    <label for="lname">Lastname:</label>
+                    <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required />
+                </div>
+                <div class="form-group">
+                    <label for="DepartmentLabel">Department:</label>
+                    <input type="text" id="Department" name="Department" class="textbox-style" style="width: 300px !important;" value="${department}" required autofocus />
                 </div>
 
                 <div class="form-group">
-                    <label for="Phone">Phone:</label>
-                    <input type="text" id="Phone" name="Phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required />
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="Address">Address:</label>
-                    <input type="text" id="Address" name="Address" class="textbox-style" style="width: 300px !important;" value="${address}" required />
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required />
                 </div>
 
-                 <div class="form-group">
-                    <label for="Email">Email:</label>
-                    <input type="text" id="Email" name="Email" class="textbox-style" style="width: 300px !important;" value="${email}" required />
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required />
                 </div>
-
-              
-
-             
-
-                <!-- Add more fields as needed -->
+                
+                <div class="form-group">
+                    <label for="DepartmentSelect">Department:</label>
+                    <select asp-for="depId" class="form-control">
+                        <option selected disabled>${department}</option>
+                        @foreach (var dep in ViewBag.DepList)
+                        {
+                            <option value="@dep.Value">@dep.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="depId" class="text-danger"></span>
+                </div>
             </div>
 
-            <!-- Add your form or other content for editing staff here -->
+            <i class='bx bxs-edit-alt' onclick="editStaff(${userId}, '${fname}', '${mi}', '${lname}', '${phone}', '${address}', '${email}')" style="margin-left: 1000px; font-size: 30px !important;"></i>
             </br></br>
-       <i class='bx bxs-edit-alt' onclick="editStaff('${userId}')" style="margin-left: 1000px; font-size: 30px !important;"></i>
-
-
-
         </div>
     `;
 
@@ -92,10 +101,35 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
     document.getElementById('editModal').style.display = 'block';
 }
 
-function editStaff(userId) {
-    // Redirect to the edit action on the server
-    window.location.href = `/Staff/EditStaff/${userId}`;
+function editStaff(userId, fname, mi, lname, phone, address, email) {
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/Staff/EditStaff');
+
+    function createHiddenInput(name, value) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", name);
+        input.setAttribute("value", value);
+        form.appendChild(input);
+    }
+
+    createHiddenInput("userId", userId);
+    createHiddenInput("fname", fname);
+    createHiddenInput("mi", mi);
+    createHiddenInput("lname", lname);
+    createHiddenInput("phone", phone);
+    createHiddenInput("address", address);
+    createHiddenInput("email", email);
+
+    document.body.appendChild(form);
+    form.submit();
 }
+
+
+
+
+
 
 
 function openDetailModal(userId, fname, mi, lname, department, status) {

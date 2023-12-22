@@ -12,8 +12,11 @@ namespace InstrumentShop.Controllers
     public class LoginController : Controller
     {
         // GET: Login
+      
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
-       
+        int? id,role_id,dep_id;
+        string user;
+        string pass;
         public ActionResult Login(Login model)
         {
             string uname = model.Username;
@@ -27,7 +30,7 @@ namespace InstrumentShop.Controllers
                     cmd.CommandType = CommandType.Text;
                     try
                     {
-                        cmd.CommandText = "SELECT USER_ID, ROLE_ID ,USER_USERNAME, USER_PASSWORD FROM [USERS] WHERE USER_USERNAME LIKE '" + uname + "' AND USER_PASSWORD LIKE '" + pword + "'";
+                        cmd.CommandText = "SELECT USER_ID, DEP_ID ,ROLE_ID ,USER_USERNAME, USER_PASSWORD FROM [USERS] WHERE USER_USERNAME LIKE '" + uname + "' AND USER_PASSWORD LIKE '" + pword + "'";
                     }
                     catch (Exception e)
                     {
@@ -38,12 +41,30 @@ namespace InstrumentShop.Controllers
                     {
                         if (reader.Read())
                         {
-                            int role_id = Convert.ToInt32(reader["ROLE_ID"]);
-                            Session["user"] = uname;
-                            Session["pass"] = pword;
-                            Session["role_id"] = role_id;
-                            return RedirectToAction("AdminPage", "Home");
+                            id = Convert.ToInt32(reader["USER_ID"]);
+                            role_id = Convert.ToInt32(reader["ROLE_ID"]);
+                            user = Convert.ToString(reader["USER_USERNAME"]);
+                            pass = Convert.ToString(reader["USER_PASSWORD"]);
+                            dep_id = (reader["DEP_ID"] as int?) ?? 0;
 
+                            Session["user_id"] = id;
+                            Session["role_id"] = role_id;
+                            if (uname == user & pword == pass)
+                            {
+                                if (dep_id == 1)
+                                {
+                                    return RedirectToAction("Index", "Home");
+                                }
+                                else
+                                {
+                                    return RedirectToAction("AdminPage", "Home");
+                                }
+                            }
+                            else
+                            {
+                                return Json(new { success = false, message = "Invalid Account" });
+                            }
+                           
                         }
                         else
                         {
@@ -52,7 +73,8 @@ namespace InstrumentShop.Controllers
                     }
                 }
             }
+            
         }
-
+       
     }
 }

@@ -1,0 +1,103 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "EditItemView";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+@model EditItemViewModel
+
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Edit item</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Home/Index">Home</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/Requisition">Requisition</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/CreateNewRequisition">Create new requisition</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Edit item</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!-- //Content block -->
+<section class="w3l-servicesblock py-5 mb-lg-5" id="requisition">
+    <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+        <p class="text-uppercase">Requisition item details</p>
+        <h3 class="title-style">Update details</h3>
+    </div>
+    <!--edit form-->
+    <div class="row requisition-block">
+        <div class="col-md-7 mx-auto requisition-right">
+            <form id="editForm" method="post" action="@Url.Action("EditItem", "Home")">
+                <div class="input-grids">
+                    <div class="row">
+                        <p>Product name:</p>
+                        <div class="col-sm-6">
+                            <input type="text" placeholder="Product" class="requisition-input" disabled value="@Model.CanvasItem" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="number" name="ItemEdit_Qty" id="ItemEdit_Qty" placeholder="Quantity" class="requisition-input" required="" value="@Model.CanvasQuantity" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="ItemEdit_Unit" id="ItemEdit_Unit" placeholder="Unit" class="requisition-input" required="" value="@Model.CanvasUnit" />
+                        </div>
+                    </div>
+                    <p>Product description:</p>
+                    <input type="text" name="desc" id="desc" placeholder="Description" class="requisition-input" disabled value="@Model.CanvasDesc" />
+                    <div class="row">
+                        <p>
+                            Product price: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                            Total:
+                        </p>
+                        <div class="col-sm-6" style="width: 50%">
+                            <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled value="@Model.CanvasPrice" />
+                        </div>
+                        <div class="col-sm-6" style="width: 50%">
+                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled value="@Model.CanvasTotal" />
+                        </div>
+                    </div>
+                    <input type="hidden" value="@Model.CanvasID" name="ItemEdit_ID" />
+                    <input type="hidden" name="ItemEdit_Total" id="ItemEdit_Total" value="@Model.CanvasTotal" />
+                </div>
+                <div class="text-start">
+                    <button type="submit" class="btn btn-style btn-style-3">SAVE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--edit form-->
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // ===When a quantity is added total will automatically computed multiplied by its original price
+    $(document).ready(function () {
+        // Handle input changes for quantity and price
+        $("#ItemEdit_Qty, #price").on("input", function () {
+            // Recalculate and update total
+            calculateTotal();
+        });
+
+        function calculateTotal() {
+            // Get quantity and price values
+            var quantity = parseFloat($("#ItemEdit_Qty").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+
+            // Calculate total
+            var total = quantity * price;
+
+            // Display total with label inside the input
+            $("#total").val(total.toFixed(2));
+
+            // Set the total value to the hidden input field
+            $("#ItemEdit_Total").val(total.toFixed(2));
+        }
+
+        // Trigger input change event on page load
+        $("#ItemEdit_Qty, #price").trigger("input");
+    });
+</script>
+

@@ -13,11 +13,11 @@ namespace InstrumentShop.Controllers
     {
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
 
-        public ActionResult Staff()
+        public ActionResult Staff(Staff model)
         {
             List<Staff> staffList = new List<Staff>();
             List<Department> departments = new List<Department>();
-
+  
             using (var db1 = new SqlConnection(connString))
             {
                 db1.Open();
@@ -77,6 +77,7 @@ namespace InstrumentShop.Controllers
             }
             return View(staffList);
         }
+
         public ActionResult DeleteStaff(int userId)
         {
             using (var db = new SqlConnection(connString))
@@ -124,69 +125,38 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-
-        public ActionResult EditStaff(int userId, Staff model)
+        [HttpPost]
+        public ActionResult EditStaff(int userId,string fname,string mi,string lname, string phone,string address, string email, Staff model)
         {
-            int dep_id = model.depId;
-           /* List<Department> departments = new List<Department>();
-
-            using (var db1 = new SqlConnection(connString))
-            {
-                db1.Open();
-                using (var cmd1 = db1.CreateCommand())
-                {
-                    cmd1.CommandType = CommandType.Text;
-                    cmd1.CommandText = "SELECT dep_id, dep_name FROM DEPARTMENT";
-                    DataTable dt = new DataTable();
-                    SqlDataAdapter sda = new SqlDataAdapter(cmd1);
-                    sda.Fill(dt);
-
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        Department department = new Department
-                        {
-                            DepartmentId = Convert.ToInt32(row["dep_id"]),
-                            DepartmentName = row["dep_name"].ToString()
-                        };
-                        departments.Add(department);
-
-                    }
-                    ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
-                    model.Departments = departments;
-                }
-            }*/
-
+            
             using (var db = new SqlConnection(connString))
             {
                 db.Open();
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_DOB =@dob, USER_PHONE = @phone, USER_ADDRESS = @address, USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
+                    cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_PHONE = @phone, USER_ADDRESS = @address, USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
                     cmd.Parameters.AddWithValue("@id", userId);
-                    cmd.Parameters.AddWithValue("@fname", model.fname);
-                    cmd.Parameters.AddWithValue("@mi", model.mi);
-                    cmd.Parameters.AddWithValue("@lname", model.lname);
-                    cmd.Parameters.AddWithValue("@dob", model.dob);
-                    cmd.Parameters.AddWithValue("@phone", model.phone);
-                    cmd.Parameters.AddWithValue("@address", model.address);
-                    cmd.Parameters.AddWithValue("@email", model.email);
-                    cmd.Parameters.AddWithValue("@dep", dep_id);
+                    cmd.Parameters.AddWithValue("@fname", fname);
+                    cmd.Parameters.AddWithValue("@mi", mi);
+                    cmd.Parameters.AddWithValue("@lname", lname);
+                    cmd.Parameters.AddWithValue("@phone", phone);
+                    cmd.Parameters.AddWithValue("@address", address);
+                    cmd.Parameters.AddWithValue("@email", email);
+                    cmd.Parameters.AddWithValue("@dep", 1);
 
-                    // Execute the SQL command to update the user's information
                     var ctr = cmd.ExecuteNonQuery();
                     if (ctr >= 1)
                     {
-                        return Json(new { success = true, message = "Updated Successfully!" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = true, message = "Updated Successfully!" });
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Unsuccessful" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, message = "Unsuccessful" });
                     }
                 }
             }
         }
-
-
     }
 }
+

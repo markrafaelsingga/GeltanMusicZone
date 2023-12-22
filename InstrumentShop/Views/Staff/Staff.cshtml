@@ -28,49 +28,50 @@
             <tbody>
                 @foreach (var staff in Model)
                 {
-                <tr>
-                    <td>@staff.userId</td>
-                    <td>@Html.Raw($"<i class='bx bxs-user'></i> {staff.fname} {staff.mi} {staff.lname}")</td>
-                    <td>@Html.Raw($"<i class='bx bxs-building' style='color: darkgreen'></i> {staff.dep}")</td>
-                    <td>
-                        @if (staff.status == "ACTIVE")
-                        {
-                            <i class='bx bxs-check-circle' style="color: green"></i><strong>ACTIVE</strong>
-                        }
-                        else if (staff.status == "INACTIVE")
-                        {
-                            <i class='bx bxs-x-circle' style="color: red"></i><strong>INACTIVE</strong>
-                        }
-                    </td>
-                    <td>
-                        <a href="javascript:void(0);" onclick="openDetailModal(@staff.userId, '@staff.fname', '@staff.mi', '@staff.lname', '@staff.dep', '@staff.status')">
-                            <i class='bx bxs-user-detail' style="color: darkblue"></i>
-                        </a>
+                    <tr>
+                        <td>@staff.userId</td>
+                        <td>@Html.Raw($"<i class='bx bxs-user'></i> {staff.fname} {staff.mi} {staff.lname}")</td>
+                        <td>@Html.Raw($"<i class='bx bxs-building' style='color: darkgreen'></i> {staff.dep}")</td>
+                        <td>
+                            @if (staff.status == "ACTIVE")
+                            {
+                                <i class='bx bxs-check-circle' style="color: green"></i><strong>ACTIVE</strong>
+                            }
+                            else if (staff.status == "INACTIVE")
+                            {
+                                <i class='bx bxs-x-circle' style="color: red"></i><strong>INACTIVE</strong>
+                            }
+                        </td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="openDetailModal(@staff.userId, '@staff.fname', '@staff.mi', '@staff.lname', '@staff.dep', '@staff.status')">
+                                <i class='bx bxs-user-detail' style="color: darkblue"></i>
+                            </a>
 
-                        &nbsp;&nbsp;
-                        <a href="javascript:void(o);" onclick="openEditModal('@staff.userId', '@staff.fname', '@staff.mi', '@staff.lname', '@staff.Department', '@staff.dob', '@staff.phone', '@staff.address', '@staff.email')">
-                            <i class='bx bxs-edit-alt' style="color: orange"></i>
-                        </a>
-                        &nbsp;&nbsp;
-                        <a href="@Url.Action("DeleteStaff", new { userId = staff.userId })">
-                            <i class='bx bxs-trash' style="color: red"></i>
-                        </a>
-                      
-                    </td>
-                </tr>
+                            &nbsp;&nbsp;
+                            <a href="javascript:void(o);" onclick="openEditModal('@staff.userId', '@staff.fname', '@staff.mi', '@staff.lname', '@staff.dep', '@staff.dob', '@staff.phone', '@staff.address', '@staff.email')">
+                                <i class='bx bxs-edit-alt' style="color: orange"></i>
+                            </a>
+                            &nbsp;&nbsp;
+                            <a href="@Url.Action("DeleteStaff", new { userId = staff.userId })">
+                                <i class='bx bxs-trash' style="color: red"></i>
+                            </a>
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>
     </div>
-
-
+    
 
 
 
     <div id="detailModal"></div>
-    <div id="editModal"></div>
+    <div id="editModal">
+
+    </div>
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>
+
 
 </section>
