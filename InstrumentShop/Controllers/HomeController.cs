@@ -12,7 +12,7 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         public ActionResult AdminPage()
         {
             
@@ -109,7 +109,9 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM requisition where rf_status not like 'Cancelled'";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != @Cancelled";
+                    cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -118,7 +120,7 @@ namespace InstrumentShop.Controllers
 
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        requisitionDetails supplier = new requisitionDetails
+                        requisitionDetails request = new requisitionDetails
                         {
                             // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
@@ -128,10 +130,18 @@ namespace InstrumentShop.Controllers
                             rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
                         };
 
-                        lemp.Add(supplier);
+                        lemp.Add(request);
                     }
 
                     db.Close();
+
+                    // Call GetMinDate with a requisitionDetails instance
+                    requisitionDetails minDateModel = new requisitionDetails();
+                    GetMinDate(minDateModel);
+
+                    // Call GetMaxDate with a requisitionDetails instance
+                    requisitionDetails maxDateModel = new requisitionDetails();
+                    GetMaxDate(maxDateModel);
 
                     // Perform pagination logic
                     var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -140,9 +150,66 @@ namespace InstrumentShop.Controllers
                     ViewBag.PageSize = pageSize;
                     ViewBag.TotalItems = lemp.Count;
 
+                    // Pass the paginated list and minimum date model to the view
+                    ViewBag.MinDate = minDateModel.fromRequestdate;
+                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+
                     // Pass the paginated list to the view
                     return View(paginatedModel);
                 }
+            }
+        }
+        private void GetMinDate(requisitionDetails model)
+        {
+            model.fromRequestdate = DateTime.MinValue; // Initialize with a default value
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition";
+
+
+                    // Execute the command and retrieve the result
+                    object result = cmd.ExecuteScalar();
+
+                    // Check if the result is not DBNull and update fromRequestdate
+                    if (result != DBNull.Value)
+                    {
+                        model.fromRequestdate = (DateTime)result;
+                    }
+
+                }
+                db.Close();
+            }
+        }
+
+        private void GetMaxDate(requisitionDetails model)
+        {
+            model.toRequestdate = DateTime.MaxValue; // Initialize with a default value
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition";
+
+
+                    // Execute the command and retrieve the result
+                    object result = cmd.ExecuteScalar();
+
+                    // Check if the result is not DBNull and update minDate
+                    if (result != DBNull.Value)
+                    {
+                        model.toRequestdate = (DateTime)result;
+                    }
+
+                }
+                db.Close();
             }
         }
 
@@ -501,6 +568,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult SubmitDataRF(decimal EstimateTotal)
         {
+            int user = (int)Session["user_id"];
             try
             {
                 using (var db = new SqlConnection(mainconn))
@@ -512,7 +580,7 @@ namespace InstrumentShop.Controllers
                         cmd.CommandText = "INSERT INTO [dbo].[requisition] (rf_date_requested, rf_status, rf_estimated_cost, user_id, dep_id) " +
                             "VALUES (GETDATE(), 'Pending', @estimate, @user, 1)";
                         cmd.Parameters.AddWithValue("@estimate", EstimateTotal);
-                        cmd.Parameters.AddWithValue("@user", 1);
+                        cmd.Parameters.AddWithValue("@user", user);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 

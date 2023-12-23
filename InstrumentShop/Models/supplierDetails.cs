@@ -26,6 +26,8 @@ namespace InstrumentShop.Models
         public string rf_date_requested { get; set; }
         public string rf_status { get; set; }
         public decimal rf_estimated_cost { get; set; }
+        public DateTime fromRequestdate { get; set; }
+        public DateTime toRequestdate { get; set; }
 
     }
 }

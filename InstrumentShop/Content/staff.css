@@ -19836,10 +19836,7 @@ h4.inner-text-title {
 /* //search section */
 .search-container {
     margin-left: 800px;
-    width: 348.5px;
-    border-radius: 5px;
-    border: 2px solid black;
-    background-color: #ffffff;
+    width: 400px;
     margin-bottom: 20px;
 }
 
@@ -19850,9 +19847,11 @@ h4.inner-text-title {
 
 .search-box {
     padding-right: 30px;
-    width: 300px;
+    width: 150px;
     height: 35px;
-    border-color: transparent;
+    border-radius: 5px;
+    border: 2px solid black;
+    background-color: #ffffff;
 }
 /* //search section */
 

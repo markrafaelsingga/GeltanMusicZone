@@ -193,6 +193,7 @@
     <Content Include="images\image.jpg" />
     <Content Include="images\img1.jpg" />
     <Content Include="images\logo.jpg" />
+    <Content Include="images\mark.jpg" />
     <Content Include="images\profile.jpg" />
     <Content Include="images\supp_back.jpg" />
     <Content Include="images\team1.png" />

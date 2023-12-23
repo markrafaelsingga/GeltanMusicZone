@@ -81,7 +81,7 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
                 
                 <div class="form-group">
                     <label for="DepartmentSelect">Department:</label>
-                    <select asp-for="depId" class="form-control">
+                    <select id="DepartmentSelect" name="DepartmentSelect" class="form-control">
                         <option selected disabled>${department}</option>
                         @foreach (var dep in ViewBag.DepList)
                         {
@@ -92,7 +92,8 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
                 </div>
             </div>
 
-            <i class='bx bxs-edit-alt' onclick="editStaff(${userId}, '${fname}', '${mi}', '${lname}', '${phone}', '${address}', '${email}')" style="margin-left: 1000px; font-size: 30px !important;"></i>
+           <i class='bx bxs-edit-alt' onclick="editStaff(${userId}, '${fname}', '${mi}', '${lname}', '${phone}', '${address}', '${email}')" style="margin-left: 1000px; font-size: 30px !important;"></i>
+
             </br></br>
         </div>
     `;
@@ -137,6 +138,7 @@ function openDetailModal(userId, fname, mi, lname, department, status) {
     document.getElementById('detailModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('detailModal')" style="font-size: 35px !important;"></i>
+            
             <div class="centered-text">
                 <h1>Staff Details</h1>
             </div>
@@ -149,6 +151,7 @@ function openDetailModal(userId, fname, mi, lname, department, status) {
             </div>
 
             <!-- Add any additional content for viewing details -->
+
         </div>
     `;
 
