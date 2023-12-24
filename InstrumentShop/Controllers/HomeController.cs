@@ -109,8 +109,10 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != @Cancelled";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status not like @Cancelled AND rf_status not like @Deleted";
                     cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+                    cmd.Parameters.AddWithValue("@Deleted", "Deleted");
+
 
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();

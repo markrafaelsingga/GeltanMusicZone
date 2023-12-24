@@ -1,0 +1,128 @@
+﻿@using InstrumentShop.Models
+@model List<requisitionDetails>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+    <link href="~/Content/staff.css" rel="stylesheet" />
+</head>
+<body>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Recycle bin</span>
+        </div>
+
+        <div style="margin-left: 50px">
+            <form class="edit-form" method="post" action="@Url.Action("Requisition", "AdminRequisition")">
+                <button class="btn btn-style-3 edit-btn" type="submit">
+                    <strong>Back</strong>
+                </button>
+            </form>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="text-start" style="margin-left: 55%">
+                <p>
+                    <strong>
+                        Note:
+                    </strong>
+                    <i>
+                        After restoring the requisition form, its status will be changed to 'pending'.
+                    </i>
+                </p>
+            </div>
+            <div class="table-wrapper" style="width: 90%; margin-top: 40px;">
+                <table class="fl-table" id="item-list" style="width: 100%; font-size: 14px">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="5%">
+                        <col width="5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Requisition code</th>
+                            <th>Requested date</th>
+                            <th>Estimated cost</th>
+                            <th>Status</th>
+                            <th>View</th>
+                            <th>Restore</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var details in Model)
+                        {
+                            <tr style="text-align: center;">
+                                <td><p class="row-number"></p></td>
+                                <td>@details.rf_code</td>
+                                <td>@DateTime.Parse(details.rf_date_requested).ToShortDateString()</td>
+                                <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td>@details.rf_status</td>
+                                <td>
+                                    <form class="edit-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="request_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
+                                            <strong>View</strong>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="restore-form" method="post" action="@Url.Action("restoreRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="restore_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 restore-btn" type="button" onclick="confirmRestore(this)" style="color: white">
+                                            <strong>Restore</strong>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper" style="width: 90%; margin-top: 40px; text-align: center;">
+                <p style="font-size: large"><strong>No deleted requisitions</strong></p>
+            </div>
+        }
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // ===Add row numbers to each row in the table
+        document.addEventListener("DOMContentLoaded", function () {
+            var rowNumbers = document.querySelectorAll('.row-number');
+            rowNumbers.forEach(function (element, index) {
+                element.textContent = index + 1;
+            });
+        });
+
+        // ===To restore a requisition
+        function confirmRestore(button) {
+            var confirmation = confirm("Are you sure you want to restore this requisition?");
+            if (confirmation) {
+                var form = button.closest('.restore-form');
+                if (form) {
+                    // Perform additional actions or show a message
+                    alert("Requisition restored successfully!");
+                    form.submit();
+                }
+            }
+            // Prevent the default confirm box from showing
+            return false;
+        }
+
+    </script>
+
+</body>
+</html>

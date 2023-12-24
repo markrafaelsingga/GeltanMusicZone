@@ -1,0 +1,117 @@
+﻿@using InstrumentShop.Models
+@model List<requisitionDetails>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+    <link href="~/Content/staff.css" rel="stylesheet" />
+</head>
+<body>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">REQUISITION</span>
+        </div>
+        <div class="text-start" style="margin-left: 82%">
+            <form class="submit-form" method="post" action="@Url.Action("RecycleBin", "AdminRequisition")">
+                <button type="submit" class="btn btn-style btn-style-3">Recycle bin&emsp;<i class="bx bxs-trash"></i></button>
+            </form>
+        </div>
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-wrapper" style="width: 90%; margin-top: 40px;">
+                <table class="fl-table" id="item-list" style="width: 100%; font-size: 14px">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="5%">
+                        <col width="5%">
+                        <col width="5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Requisition code</th>
+                            <th>Requested date</th>
+                            <th>Estimated cost</th>
+                            <th>Status</th>
+                            <th>View</th>
+                            <th>Edit</th>
+                            <th style="background-color: #e53f31">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var details in Model)
+                        {
+                            <tr style="text-align: center;">
+                                <td><p class="row-number"></p></td>
+                                <td>@details.rf_code</td>
+                                <td>@DateTime.Parse(details.rf_date_requested).ToShortDateString()</td>
+                                <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td>@details.rf_status</td>
+                                <td>
+                                    <form class="edit-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="request_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
+                                            <strong>View</strong>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="edit-form" method="post" action="@Url.Action("Requisition", "AdminRequisition")">
+                                        <input type="hidden" name="ItemEdit_ID" value="CanvasID" />
+                                        <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
+                                            <i class="bx bxs-edit-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="delete-form" method="post" action="@Url.Action("DeleteRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="delete_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
+                                            <i class="bx bxs-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper" style="width: 90%; margin-top: 40px; text-align: center;">
+                <p style="font-size: large"><strong>No requisitions</strong></p>
+            </div>
+        }
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // ===Add row numbers to each row in the table
+        document.addEventListener("DOMContentLoaded", function () {
+            var rowNumbers = document.querySelectorAll('.row-number');
+            rowNumbers.forEach(function (element, index) {
+                element.textContent = index + 1;
+            });
+        });
+
+        // ===To delete an item
+        function confirmDelete(button) {
+            var confirmation = confirm("Are you sure you want to delete this requisition?");
+            if (confirmation) {
+                var form = button.closest('.delete-form');
+                form.submit();
+            }
+        }
+    </script>
+
+</body>
+</html>

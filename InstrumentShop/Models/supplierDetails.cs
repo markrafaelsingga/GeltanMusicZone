@@ -20,6 +20,8 @@ namespace InstrumentShop.Models
 
     public class requisitionDetails
     {
+        public int restore_ID { get; set; }
+        public int delete_ID { get; set; }
         public int request_ID { get; set; }
         public int rf_id { get; set; }
         public string rf_code { get; set; }
