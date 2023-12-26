@@ -1,6 +1,6 @@
-﻿@using InstrumentShop.Models
+﻿@using InstrumentShop.Models;
 @{
-    ViewBag.Title = "Requisition";
+    ViewBag.Title = "CancelledRequest";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
     DateTime minDate = ViewBag.MinDate;
     DateTime maxDate = ViewBag.MaxDate;
@@ -11,10 +11,12 @@
 <section class="inner-banner py-5">
     <div class="w3l-breadcrumb py-lg-5">
         <div class="container pt-4 pb-sm-4">
-            <h4 class="inner-text-title pt-5">Requisition</h4>
+            <h4 class="inner-text-title pt-5">Cancelled requisition</h4>
             <ul class="breadcrumbs-custom-path">
                 <li><a href="/Home/Index">Home</a></li>
-                <li class="active"><i class="fas fa-angle-right"></i>Requisition</li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Home/Requisition">Requisition</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Cancelled requisition</li>
             </ul>
         </div>
     </div>
@@ -22,22 +24,13 @@
 <!-- //inner banner -->
 <!-- Content block -->
 <div class="w3l-grids-block-5 py-5">
-    <div class="container py-md-5 py-4">
-        @if (Model != null && Model.Any())
-        {
+    @if (Model != null && Model.Any())
+    {
+        <div class="container py-md-5 py-4">
             <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
                 <p class="text-uppercase">Geltan's Music Zone</p>
-                <h3 class="title-style">Requisitions</h3>
+                <h3 class="title-style">Cancelled Requisitions</h3>
             </div>
-            <div class="text-start" style="margin-left: 71%; display: flex;">
-                <form class="submit-form" method="post" action="@Url.Action("CreateNewRequisition", "Home")">
-                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-plus-circle"></i>&emsp;Create new</button>
-                </form>&emsp;
-                <form class="bin-form" method="post" action="@Url.Action("CancelledRequest", "Home")">
-                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-trash"></i>&emsp;Bin</button>
-                </form>
-            </div>
-
             <br />
             <!-- Search for requisition -->
             <div class="search-container">
@@ -105,23 +98,17 @@
                 </ul>
             </div>
             <!-- Pagination -->
-        }
-        else
-        {
+        </div>
+    }
+    else
+    {
+        <div class="container py-md-5 py-4">
             <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
                 <p class="text-uppercase">Geltan's Music Zone</p>
-                <h3 class="title-style">No Requisitions</h3>
+                <h3 class="title-style">No Cancelled Requisitions</h3>
             </div>
-            <div class="text-start" style="margin-left: 71%; display: flex;">
-                <form class="submit-form" method="post" action="@Url.Action("CreateNewRequisition", "Home")">
-                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-plus-circle"></i>&emsp;Create new</button>
-                </form>&emsp;
-                <form class="bin-form" method="post" action="@Url.Action("CancelledRequest", "Home")">
-                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-trash"></i>&emsp;Bin</button>
-                </form>
-            </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 <!-- Content block -->
 
@@ -136,3 +123,4 @@
     //    });
     //});
 </script>
+

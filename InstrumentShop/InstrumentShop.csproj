@@ -257,6 +257,9 @@
     <Content Include="Views\AdminRequisition\Requisition.cshtml" />
     <Content Include="Views\AdminRequisition\ViewRequisition.cshtml" />
     <Content Include="Views\AdminRequisition\RecycleBin.cshtml" />
+    <Content Include="Views\Home\CancelledRequest.cshtml" />
+    <Content Include="Views\AdminRequisition\editRequisition.cshtml" />
+    <Content Include="Views\AdminRequisition\EditItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

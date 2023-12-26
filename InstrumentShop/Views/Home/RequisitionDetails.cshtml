@@ -31,7 +31,7 @@
             <p>Status:</p>
             <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" />
         </div>
-        <div class="col-md-7 requisition-right" style="margin-left: 790px">
+        <div class="col-md-7 requisition-right" style="margin-left: 850px">
             <div class="input-grids">
                 <div class="row">
                     <div class="col-sm-6">
@@ -103,10 +103,21 @@
             </table>
             <div class="text-start">
                 <br />
-                <form class="cancel-form" method="post" action="@Url.Action("CancelRequisition", "Home")">
-                    <input type="hidden" name="Cancel" id="Cancel" value="@Model.First().RF_ID" />
-                    <button type="button" class="btn btn-style btn-style-3" onclick="cancelRequest(this)" style="margin-left: 82%">Cancel requisition ?</button>
-                </form>
+                @if (Model.First().RF_Status == "Pending")
+                {
+                    <form class="cancel-form" method="post" action="@Url.Action("CancelRequisition", "Home")">
+                        <input type="hidden" name="Cancel" id="Cancel" value="@Model.First().RF_ID" />
+                        <button type="button" class="btn btn-style btn-style-3" onclick="cancelRequest(this)" style="margin-left: 82%">Cancel requisition?</button>
+                    </form>
+                }
+                else if (Model.First().RF_Status == "Cancelled")
+                {
+                    <form class="restore-form" method="post" action="@Url.Action("restoreRequisition", "Home")">
+                        <input type="hidden" name="Restore" id="Restore" value="@Model.First().RF_ID" />
+                        <button type="button" class="btn btn-style btn-style-3" onclick="restoreRequest(this)" style="margin-left: 82%">Restore requisition?</button>
+                    </form>
+                }
+
             </div>
         </div>
     </div>
@@ -131,6 +142,15 @@
         var confirmation = confirm("Are you sure you want to cancel this requisition?");
         if (confirmation) {
             var form = button.closest('.cancel-form');
+            form.submit();
+        }
+    }
+
+    // ===To restore a cancelled requisition form
+    function restoreRequest(button) {
+        var confirmation = confirm("Are you sure you want to restore this requisition?");
+        if (confirmation) {
+            var form = button.closest('.restore-form');
             form.submit();
         }
     }

@@ -1,0 +1,113 @@
+﻿@using InstrumentShop.Models
+
+@model EditItemViewModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Requisition Details</title>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+    <link href="~/Content/staff.css" rel="stylesheet" />
+    <style>
+        .home-section {
+            font-family: Helvetica;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .requisition-input {
+            font-size: 15px;
+        }
+
+        .total-cost {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Edit item</span>
+        </div>
+
+        <div class="table-wrapper">
+            <br /><br /><br />
+            <div class="row requisition-block">
+                <div class="col-md-7 mx-auto requisition-right">
+                    <form id="editForm" method="post" action="@Url.Action("Edit", "AdminRequisition")">
+                        <div class="input-grids">
+                            <div class="row">
+                                <p>Product name:</p>
+                                <div class="col-sm-6">
+                                    <input type="text" placeholder="Product" class="requisition-input" disabled value="@Model.CanvasItem" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="number" name="ItemEdit_Qty" id="ItemEdit_Qty" placeholder="Quantity" class="requisition-input" required="" value="@Model.CanvasQuantity" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" name="ItemEdit_Unit" id="ItemEdit_Unit" placeholder="Unit" class="requisition-input" required="" value="@Model.CanvasUnit" />
+                                </div>
+                            </div>
+                            <p>Product description:</p>
+                            <input type="text" name="desc" id="desc" placeholder="Description" class="requisition-input" disabled value="@Model.CanvasDesc" />
+                            <div class="row">
+                                <p>
+                                    Product price: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                                    Total:
+                                </p>
+                                <div class="col-sm-6" style="width: 50%">
+                                    <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled value="@Model.CanvasPrice" />
+                                </div>
+                                <div class="col-sm-6" style="width: 50%">
+                                    <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled value="@Model.CanvasTotal" />
+                                </div>
+                            </div>
+                            <input type="hidden" value="@Model.CanvasID" name="ItemEdit_ID" />
+                            <input type="hidden" name="ItemEdit_Total" id="ItemEdit_Total" value="@Model.CanvasTotal" />
+                            <input type="hidden" name="edit_ID" id="edit_ID" value="@Model.Canvas_FormID"/>
+                        </div>
+                        <div class="text-start">
+                            <button type="submit" class="btn btn-style btn-style-3">SAVE</button>
+                            <a href="/AdminRequisition/editRequisition?edit_ID=@Model.Canvas_FormID" class="btn btn-style btn-style-3">CANCEL</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br /><br /><br />
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+    // ===When a quantity is added total will automatically computed multiplied by its original price
+    $(document).ready(function () {
+        // Handle input changes for quantity and price
+        $("#ItemEdit_Qty, #price").on("input", function () {
+            // Recalculate and update total
+            calculateTotal();
+        });
+
+        function calculateTotal() {
+            // Get quantity and price values
+            var quantity = parseFloat($("#ItemEdit_Qty").val()) || 0;
+            var price = parseFloat($("#price").val()) || 0;
+
+            // Calculate total
+            var total = quantity * price;
+
+            // Display total with label inside the input
+            $("#total").val(total.toFixed(2));
+
+            // Set the total value to the hidden input field
+            $("#ItemEdit_Total").val(total.toFixed(2));
+        }
+
+        // Trigger input change event on page load
+        $("#ItemEdit_Qty, #price").trigger("input");
+    });
+    </script>
+</body>
+</html>

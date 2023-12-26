@@ -14,13 +14,22 @@
 <body>
     <div class="sidebar close">
         <div class="logo-details">
-            <i class='bx bxl-c-plus-plus'></i>
+            <i class='bx bxs-music'></i>
             <span class="logo_name">Geltan Music Zone</span>
         </div>
         <ul class="nav-links">
             <li>
+                <a href="@Url.Action("AdminPage","Home")">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Dashboard</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="#">Dashboard</a></li>
+                </ul>
+            </li>
+            <li>
                 <a href="@Url.Action("Requisition","AdminRequisition")">
-                    <i class='bx bx-file'></i>
+                    <i class='bx bxs-file'></i>
                     <span class="link_name">Requisition</span>
                 </a>
                 <ul class="sub-menu blank">
@@ -49,7 +58,7 @@
 
             <li>
                 <a href="@Url.Action("AdminDepartment", "AdminDepartment")">
-                    <i class='bx bx-building'></i>
+                    <i class='bx bxs-buildings'></i>
                     <span class="link_name">Department</span>
                 </a>
                 <ul class="sub-menu blank">

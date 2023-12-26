@@ -25,6 +25,7 @@ namespace InstrumentShop.Models
 
     public class EditItemViewModel
     {
+        public int Canvas_FormID { get; set; }
         public int CanvasID { get; set; }
         public string CanvasItem { get; set; }
         public string CanvasDesc { get; set; }
@@ -36,6 +37,7 @@ namespace InstrumentShop.Models
 
     public class ViewRequisitionForm
     {
+        public int RF_ItemID { get; set; }
         public int RF_ID { get; set; }
         public string RF_Status { get; set; }
         public string RF_Code { get; set; }
@@ -51,6 +53,8 @@ namespace InstrumentShop.Models
         public decimal RF_Total { get; set; }
         public decimal RF_Estimatecost { get; set; }
         public int Cancel { get; set; }
+        public int Restore { get; set; }
+        public int Edit { get; set; }
 
     }
 }

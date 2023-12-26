@@ -100,6 +100,65 @@ namespace InstrumentShop.Controllers
                 return View("Error");
             }
         }
+        public ActionResult CancelledRequest(int page = 1, int pageSize = 6)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status like @Cancelled";
+                    cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+
+
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    DataSet ds = new DataSet();
+                    sda.Fill(ds);
+
+                    List<requisitionDetails> lemp = new List<requisitionDetails>();
+
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        requisitionDetails request = new requisitionDetails
+                        {
+                            // Populate properties based on your database columns
+                            rf_id = Convert.ToInt32(dr["rf_id"]),
+                            rf_date_requested = dr["rf_date_requested"].ToString(),
+                            rf_code = dr["rf_code"].ToString(),
+                            rf_status = dr["rf_status"].ToString(),
+                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
+                        };
+
+                        lemp.Add(request);
+                    }
+
+                    db.Close();
+
+                    // Call GetMinDate with a requisitionDetails instance
+                    requisitionDetails minDateModel = new requisitionDetails();
+                    GetMinDate(minDateModel);
+
+                    // Call GetMaxDate with a requisitionDetails instance
+                    requisitionDetails maxDateModel = new requisitionDetails();
+                    GetMaxDate(maxDateModel);
+
+                    // Perform pagination logic
+                    var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                    ViewBag.PageNumber = page;
+                    ViewBag.PageSize = pageSize;
+                    ViewBag.TotalItems = lemp.Count;
+
+                    // Pass the paginated list and minimum date model to the view
+                    ViewBag.MinDate = minDateModel.fromRequestdate;
+                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+
+                    // Pass the paginated list to the view
+                    return View(paginatedModel);
+                }
+            }
+        }
 
         public ActionResult Requisition(int page = 1, int pageSize = 6)
         {
@@ -699,7 +758,7 @@ namespace InstrumentShop.Controllers
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
                         "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
                         "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
-                        "WHERE rf.rf_id = @id and rf_status != 'Cancelled'";
+                        "WHERE rf.rf_id = @id";
 
                     cmd.Parameters.AddWithValue("@id", request_ID);
 
@@ -744,6 +803,33 @@ namespace InstrumentShop.Controllers
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "UPDATE requisition set rf_status = 'Cancelled' where rf_id = @id";
                     cmd.Parameters.AddWithValue("@id", Cancel);
+
+                    // Execute the UPDATE statement.
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        // Redirect to the "Requisition" action
+                        return RedirectToAction("Requisition");
+                    }
+                    else
+                    {
+                        // Item not found or no changes were made
+                        return View("Error");
+                    }
+                }
+            }
+        }
+        public ActionResult restoreRequisition(int Restore)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE requisition set rf_status = 'Pending' where rf_id = @id";
+                    cmd.Parameters.AddWithValue("@id", Restore);
 
                     // Execute the UPDATE statement.
                     int rowsAffected = cmd.ExecuteNonQuery();

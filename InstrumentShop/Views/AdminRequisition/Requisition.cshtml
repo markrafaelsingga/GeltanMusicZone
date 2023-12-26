@@ -49,37 +49,37 @@
                     <tbody>
                         @foreach (var details in Model)
                         {
-                            <tr style="text-align: center;">
-                                <td><p class="row-number"></p></td>
-                                <td>@details.rf_code</td>
-                                <td>@DateTime.Parse(details.rf_date_requested).ToShortDateString()</td>
-                                <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                                <td>@details.rf_status</td>
-                                <td>
-                                    <form class="edit-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
-                                        <input type="hidden" name="request_ID" value="@details.rf_id" />
-                                        <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
-                                            <strong>View</strong>
-                                        </button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form class="edit-form" method="post" action="@Url.Action("Requisition", "AdminRequisition")">
-                                        <input type="hidden" name="ItemEdit_ID" value="CanvasID" />
-                                        <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
-                                            <i class="bx bxs-edit-alt"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form class="delete-form" method="post" action="@Url.Action("DeleteRequisition", "AdminRequisition")">
-                                        <input type="hidden" name="delete_ID" value="@details.rf_id" />
-                                        <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
-                                            <i class="bx bxs-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
+                        <tr style="text-align: center;">
+                            <td><p class="row-number"></p></td>
+                            <td>@details.rf_code</td>
+                            <td>@DateTime.Parse(details.rf_date_requested).ToString("MMMM dd, yyyy")</td>
+                            <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            <td>@details.rf_status</td>
+                            <td>
+                                <form class="view-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
+                                    <input type="hidden" name="request_ID" value="@details.rf_id" />
+                                    <button class="btn btn-style-3 view-btn" type="submit" style="color: white">
+                                        <i class='bx bx-detail'></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <form class="edit-form" method="post" action="@Url.Action("editRequisition", "AdminRequisition")">
+                                    <input type="hidden" name="edit_ID" value="@details.rf_id" />
+                                    <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
+                                        <i class='bx bxs-edit-alt'></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <form class="delete-form" method="post" action="@Url.Action("DeleteRequisition", "AdminRequisition")">
+                                    <input type="hidden" name="delete_ID" value="@details.rf_id" />
+                                    <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
+                                        <i class="bx bxs-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
                         }
                     </tbody>
                 </table>
