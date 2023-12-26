@@ -37,6 +37,13 @@ namespace InstrumentShop.Models
 
     public class ViewRequisitionForm
     {
+        //Update edit
+        public int ItemEdit_ID { get; set; } //ID to edit
+        public decimal EstimateTotal { get; set; } //Total estimate cost
+        public int ItemEdit_Qty { get; set; } //Quantity to edit
+        public string ItemEdit_Unit { get; set; } //Unit to edit
+        public decimal ItemEdit_Total { get; set; } //Total cost to edit
+
         public int RF_ItemID { get; set; }
         public int RF_ID { get; set; }
         public string RF_Status { get; set; }

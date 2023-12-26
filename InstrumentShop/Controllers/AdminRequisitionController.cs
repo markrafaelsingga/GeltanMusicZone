@@ -274,15 +274,21 @@ namespace InstrumentShop.Controllers
         public ActionResult EditItem(ViewRequisitionForm model, int edit_ID)
         {
             var status = model.selectedStatus;
+
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
 
+                // Update the requisition table
                 Approve(db, status, edit_ID);
+
+                // You can also update the canvas table if needed
+                Edit(db, edit_ID, model.RF_Quantity, model.RF_Unit, model.RF_Total);
             }
 
             return RedirectToAction("Requisition");
         }
+
         public void Edit(SqlConnection db, int id, int qty, string unit, decimal total)
         {
             using (var cmd = db.CreateCommand())

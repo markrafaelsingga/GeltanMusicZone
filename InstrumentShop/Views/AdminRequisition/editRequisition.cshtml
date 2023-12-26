@@ -40,10 +40,11 @@
                 <div class="col-sm-6" style="margin-left: 20px; width:20%;">
                     <p style="font-size: 15px">Status:</p>
                     <select name="selectedStatus" id="selectedStatus" class="requisition-select" required="">
-                        <option value="Pending" @(Model.First().RF_Status == "Pending" ? "disabled selected" : "")>Pending</option>
-                        <option value="Approved" @(Model.First().RF_Status == "Approved" ? "disabled selected" : "")>Approve</option>
-                        <option value="Declined" @(Model.First().RF_Status == "Declined" ? "disabled selected" : "")>Decline</option>
+                        <option value="Pending" @(Model.First().RF_Status == "Pending" ? "selected" : "")>Pending</option>
+                        <option value="Approved" @(Model.First().RF_Status == "Approved" ? "selected" : "")>Approve</option>
+                        <option value="Declined" @(Model.First().RF_Status == "Declined" ? "selected" : "")>Decline</option>
                     </select>
+
                 </div>
 
                 <div class="col-sm-7 requisition-right">
@@ -98,10 +99,18 @@
                         <td>@form.RF_Item</td>
                         <td>@form.RF_Suppliercompany</td>
                         <td>@form.RF_Description</td>
-                        <td><input type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
-                        <td><input type="text" name="ItemEdit_Unit" id="ItemEdit_Unit" placeholder="Unit" class="requisition-input" required="" value="@form.RF_Unit" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
-                        <td><input type="text" name="price" id="price_@form.RF_ItemID" placeholder="Price" class="requisition-input" disabled value="@form.RF_Price" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
-                        <td><input type="text" name="total" id="total_@form.RF_ItemID" placeholder="Total" class="requisition-input" disabled value="@form.RF_Total" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
+                        <td>
+                            <input type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
+                        </td>
+                        <td>
+                            <input type="text" name="ItemEdit_Unit" id="ItemEdit_Unit" placeholder="Unit" class="requisition-input" required="" value="@form.RF_Unit" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
+                        </td>
+                        <td>
+                            <input type="text" name="price" id="price_@form.RF_ItemID" placeholder="Price" class="requisition-input" disabled value="@form.RF_Price" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
+                        </td>
+                        <td>
+                            <input type="text" name="total" id="total_@form.RF_ItemID" placeholder="Total" class="requisition-input" disabled value="@form.RF_Total" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
+                        </td>
                         <td>
                             <form class="delete-form" method="post" action="@Url.Action("DeleteItem", "AdminRequisition")">
                                 <input type="hidden" name="delete_ID" value="@form.RF_ItemID" />
@@ -110,11 +119,6 @@
                                 </button>
                             </form>
                         </td>
-                        <!-- Hidden input fields for each property -->
-                        @foreach (var property in typeof(ViewRequisitionForm).GetProperties())
-                        {
-                            <input type="hidden" name="ItemEdit_@property.Name" value="@property.GetValue(form)" />
-                        }
                     </tr>
                     }
 
