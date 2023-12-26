@@ -20,6 +20,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult Index()
         {
+            DeleteCanvasItem();
             return View();
         }
 
@@ -162,6 +163,7 @@ namespace InstrumentShop.Controllers
 
         public ActionResult Requisition(int page = 1, int pageSize = 6)
         {
+            DeleteCanvasItem();
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -220,6 +222,22 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
+        public void DeleteCanvasItem()
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "DELETE FROM [dbo].[canvas] WHERE canvas_status = 0";
+
+                    cmd.ExecuteNonQuery();
+                }
+                db.Close();
+            }
+        }
+
         private void GetMinDate(requisitionDetails model)
         {
             model.fromRequestdate = DateTime.MinValue; // Initialize with a default value
@@ -326,6 +344,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult Supplier(int page = 1, int pageSize = 6)
         {
+            DeleteCanvasItem();
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -931,6 +950,7 @@ namespace InstrumentShop.Controllers
 
         public ActionResult Profile()
         {
+            DeleteCanvasItem();
             return View();
         }
     }
