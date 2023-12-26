@@ -271,77 +271,46 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        public ActionResult EditItem(int edit_ID)
+        public ActionResult EditItem(ViewRequisitionForm model, int edit_ID)
         {
+            var status = model.selectedStatus;
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using (var cmd1 = db.CreateCommand())
-                {
-                    cmd1.CommandType = CommandType.Text;
-                    cmd1.CommandText = "SELECT * FROM canvas c JOIN product p ON c.prod_id = p.prod_id " +
-                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
-                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
-                        "where c.canvas_id = @canId";
-                    cmd1.Parameters.AddWithValue("@canId", edit_ID);
 
-                    SqlDataReader reader = cmd1.ExecuteReader();
-
-                    if (reader.HasRows)
-                    {
-                        reader.Read();
-
-                        EditItemViewModel item = new EditItemViewModel
-                        {
-                            Canvas_FormID = Convert.ToInt32(reader["rf_id"]),
-                            CanvasID = Convert.ToInt32(reader["canvas_id"]),
-                            CanvasItem = reader["prod_name"].ToString(),
-                            CanvasDesc = reader["prod_desc"].ToString(),
-                            CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]),
-                            CanvasUnit = reader["canvas_unit"].ToString(),
-                            CanvasPrice = Convert.ToDecimal(reader["prod_price"]),
-                            CanvasTotal = Convert.ToDecimal(reader["canvas_total"]),
-                        };
-
-                        return View(item);
-                    }
-                    else
-                    {
-                        return View("Index");
-                    }
-                }
+                Approve(db, status, edit_ID);
             }
+
+            return RedirectToAction("Requisition");
         }
-        public ActionResult Edit(int ItemEdit_ID, int ItemEdit_Qty, string ItemEdit_Unit, decimal ItemEdit_Total, int edit_ID)
+        public void Edit(SqlConnection db, int id, int qty, string unit, decimal total)
         {
-
-            using (var db = new SqlConnection(mainconn))
+            using (var cmd = db.CreateCommand())
             {
-                db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE canvas SET canvas_quantity = @c_qty, canvas_unit = @c_unit, canvas_total = @c_total WHERE canvas_id = @id;";
-                    cmd.Parameters.AddWithValue("@c_qty", ItemEdit_Qty);
-                    cmd.Parameters.AddWithValue("@c_unit", ItemEdit_Unit);
-                    cmd.Parameters.AddWithValue("@c_total", ItemEdit_Total);
-                    cmd.Parameters.AddWithValue("@id", ItemEdit_ID);
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE canvas SET canvas_quantity = @c_qty, canvas_unit = @c_unit, canvas_total = @c_total WHERE canvas_id = @id;";
+                cmd.Parameters.AddWithValue("@c_qty", qty);
+                cmd.Parameters.AddWithValue("@c_unit", unit);
+                cmd.Parameters.AddWithValue("@c_total", total);
+                cmd.Parameters.AddWithValue("@id", id);
 
-                    // Execute the UPDATE statement.
-                    int rowsAffected = cmd.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        // Redirect to the "editRequisition" action with the original form's ID
-                        return RedirectToAction("editRequisition", new { edit_ID = edit_ID });
-                    }
-                    else
-                    {
-                        // Item not found or no changes were made
-                        return View("Error");
-                    }
-                }
+                cmd.ExecuteNonQuery();
             }
         }
+        public void Approve(SqlConnection db, string status, int id)
+        {
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE requisition SET rf_status = @stat WHERE rf_id = @id;";
+
+                // Add parameters using AddWithValue
+                cmd.Parameters.AddWithValue("@stat", status);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }

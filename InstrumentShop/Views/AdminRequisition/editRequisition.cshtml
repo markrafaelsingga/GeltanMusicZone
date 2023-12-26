@@ -39,7 +39,7 @@
             <div class="row requisition-block">
                 <div class="col-sm-6" style="margin-left: 20px; width:20%;">
                     <p style="font-size: 15px">Status:</p>
-                    <select name="status" id="status" class="requisition-input">
+                    <select name="selectedStatus" id="selectedStatus" class="requisition-select" required="">
                         <option value="Pending" @(Model.First().RF_Status == "Pending" ? "disabled selected" : "")>Pending</option>
                         <option value="Approved" @(Model.First().RF_Status == "Approved" ? "disabled selected" : "")>Approve</option>
                         <option value="Declined" @(Model.First().RF_Status == "Declined" ? "disabled selected" : "")>Decline</option>
@@ -73,7 +73,6 @@
                     <col width="8%">
                     <col width="8%">
                     <col width="5%">
-                    <col width="5%">
                 </colgroup>
                 <thead>
                     <tr style="background-color: #fbb034; color: #000000;">
@@ -85,39 +84,38 @@
                         <th class="px-1 py-1 text-center">Unit</th>
                         <th class="px-1 py-1 text-center">Price</th>
                         <th class="px-1 py-1 text-center">Total</th>
-                        <th class="px-1 py-1 text-center">Edit</th>
                         <th class="px-1 py-1 text-center" style="background-color: #e53f31">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var form in Model)
                     {
-                        <tr style="text-align: center">
-                            <td><p class="row-number"></p></td>
-                            <td>@form.RF_Item</td>
-                            <td>@form.RF_Suppliercompany</td>
-                            <td>@form.RF_Description</td>
-                            <td>@form.RF_Quantity</td>
-                            <td>@form.RF_Unit</td>
-                            <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                            <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                            <td>
-                                <form class="edit-form" method="post" action="@Url.Action("EditItem", "AdminRequisition")">
-                                    <input type="hidden" name="edit_ID" value="@form.RF_ItemID" />
-                                    <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
-                                        <i class='bx bxs-edit-alt'></i>
-                                    </button>
-                                </form>
-                            </td>
-                            <td>
-                                <form class="delete-form" method="post" action="@Url.Action("DeleteItem", "AdminRequisition")">
-                                    <input type="hidden" name="delete_ID" value="@form.RF_Itemcode" />
-                                    <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
-                                        <i class="bx bxs-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                    <tr style="text-align: center">
+                        <td>
+                            <p class="row-number"></p>
+                            <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
+                        </td>
+                        <td>@form.RF_Item</td>
+                        <td>@form.RF_Suppliercompany</td>
+                        <td>@form.RF_Description</td>
+                        <td><input type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
+                        <td><input type="text" name="ItemEdit_Unit" id="ItemEdit_Unit" placeholder="Unit" class="requisition-input" required="" value="@form.RF_Unit" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
+                        <td><input type="text" name="price" id="price_@form.RF_ItemID" placeholder="Price" class="requisition-input" disabled value="@form.RF_Price" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
+                        <td><input type="text" name="total" id="total_@form.RF_ItemID" placeholder="Total" class="requisition-input" disabled value="@form.RF_Total" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" /></td>
+                        <td>
+                            <form class="delete-form" method="post" action="@Url.Action("DeleteItem", "AdminRequisition")">
+                                <input type="hidden" name="delete_ID" value="@form.RF_ItemID" />
+                                <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
+                                    <i class="bx bxs-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <!-- Hidden input fields for each property -->
+                        @foreach (var property in typeof(ViewRequisitionForm).GetProperties())
+                        {
+                            <input type="hidden" name="ItemEdit_@property.Name" value="@property.GetValue(form)" />
+                        }
+                    </tr>
                     }
 
                     <tr style="text-align: center; font-weight:600">
@@ -135,8 +133,9 @@
             </table>
             <br />
             <div class="text-center" style="display: flex; justify-content: center;">
-                <form class="save-form" method="post" @*action="@Url.Action("ViewRequisition", "AdminRequisition")"*@>
-                    <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+                <form class="save-form" method="post" action="@Url.Action("EditItem", "AdminRequisition")">
+                    <input type="hidden" name="edit_ID" value="@Model.First().RF_ID" />
+                    <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
                     <button type="submit" class="btn btn-style btn-style-3" style="width: 200px">
                         <strong>SAVE</strong>
                     </button>
@@ -153,7 +152,18 @@
     </section>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <script>
+        // Submit form with selected status
+        $("form.save-form").submit(function () {
+            var selectedStatus = $("#selectedStatus").val();
+            $("<input>").attr("type", "hidden")
+                .attr("name", "selectedStatus")
+                .attr("value", selectedStatus)
+                .appendTo($(this));
+            return true;
+        });
+
         // ===Add row numbers to each row in the table
         document.addEventListener("DOMContentLoaded", function () {
             var rowNumbers = document.querySelectorAll('.row-number');
@@ -170,6 +180,71 @@
                 form.submit();
             }
         }
+
+        // Trigger input change event on page load
+        $("[id^=ItemEdit_Qty_], [id^=price]").on("input", function () {
+            // Get the itemID from the current input's ID
+            var itemID = $(this).attr("id").replace("ItemEdit_Qty_", "").replace("price_", "");
+
+            // Recalculate and update total for the specific item
+            calculateTotal(itemID);
+
+            // Calculate and update the total estimated cost
+            updateTotalEstimatedCost();
+        });
+
+        function updateTotalEstimatedCost() {
+            // Get all elements whose IDs start with "total"
+            var totalElements = $("[id^=total]");
+
+            // Initialize total cost
+            var totalCost = 0;
+
+            // Loop through all total elements and sum their values
+            totalElements.each(function () {
+                var totalValue = parseFloat($(this).val()) || 0;
+                totalCost += totalValue;
+            });
+
+            // Set the total value to the hidden input field
+            $("#EstimateTotal").val(totalCost.toFixed(2));
+
+            // Display total cost in the 'Total estimated cost' cell with commas for better readability
+            document.querySelector('.total-cost').textContent = "₱ " + totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calculateTotal(itemID) {
+            // Get quantity and price values for the specific item
+            var quantityInput = $("#ItemEdit_Qty_" + itemID);
+            var priceInput = $("#price_" + itemID);
+
+            var quantity = parseFloat(quantityInput.val()) || 0;
+            var price = parseFloat(priceInput.val()) || 0;
+
+            // Set a minimum quantity (change this value to your desired minimum)
+            var minimumQuantity = 1;
+
+            // Check if the quantity is below the minimum
+            if (quantity < minimumQuantity) {
+                // Display an alert or take appropriate action
+                alert("Quantity must be at least " + minimumQuantity);
+                // Reset the quantity to the minimum
+                quantityInput.val(minimumQuantity);
+                quantity = minimumQuantity; // Update the quantity variable
+            }
+
+            // Calculate total for the specific item
+            var total = quantity * price;
+
+            // Display total with label inside the input
+            $("#total_" + itemID).val(total.toFixed(2));
+        }
+
+
+        // Trigger input change event on page load
+        $("[id^=ItemEdit_Qty_]").change();
+        $("[id^=price]").change();
+
     </script>
 
 </body>

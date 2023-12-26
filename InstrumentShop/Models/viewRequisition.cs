@@ -16,7 +16,7 @@ namespace InstrumentShop.Models
         public decimal CanvasTotal { get; set; }
         public int ItemDelete { get; set; } //ID to delete
         public int ItemEdit_ID { get; set; } //ID to edit
-        public int EstimateTotal { get; set; } //Total estimate cost
+        public decimal EstimateTotal { get; set; } //Total estimate cost
         public int ItemEdit_Qty { get; set; } //Quantity to edit
         public string ItemEdit_Unit { get; set; } //Unit to edit
         public decimal ItemEdit_Total { get; set; } //Total cost to edit
@@ -54,7 +54,7 @@ namespace InstrumentShop.Models
         public decimal RF_Estimatecost { get; set; }
         public int Cancel { get; set; }
         public int Restore { get; set; }
-        public int Edit { get; set; }
+        public string selectedStatus { get; set; }
 
     }
 }
