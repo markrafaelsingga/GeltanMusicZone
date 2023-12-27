@@ -243,6 +243,122 @@ namespace InstrumentShop.Controllers
             }
             return View(details);
         }
+        public ActionResult addItem(int request_ID)
+        {
+            Session["request_ID"] = request_ID;
+            List<addItemLists> productList = new List<addItemLists>();
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+
+                // Fetch product data
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT p.prod_id FROM product p JOIN canvas c ON p.prod_id = c.prod_id " +
+                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                        "JOIN requisition rf ON rf.rf_id = ri.rf_id WHERE rf.rf_id = @id";
+                    cmd.Parameters.AddWithValue("@id", request_ID);
+                    List<int> canvasIds = new List<int>();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int id = Convert.ToInt32(reader["prod_id"]);
+                            canvasIds.Add(id);
+                        }
+                    }
+
+                    using (var cmd2 = db.CreateCommand())
+                    {
+                        cmd2.CommandType = CommandType.Text;
+                        cmd2.CommandText = "SELECT * FROM [dbo].[product]";
+
+                        using (SqlDataAdapter sda = new SqlDataAdapter(cmd2))
+                        {
+                            DataSet ds = new DataSet();
+                            sda.Fill(ds);
+
+                            foreach (DataRow dr in ds.Tables[0].Rows)
+                            {
+                                int productId = Convert.ToInt32(dr["prod_id"]);
+
+                                // Check if the product ID is not in canvasIds
+                                if (!canvasIds.Contains(productId))
+                                {
+                                    addItemLists product = new addItemLists
+                                    {
+                                        ReqItem_ID = productId,
+                                        ReqItem_Item = dr["prod_name"].ToString(),
+                                        ReqItem_Desc = dr["prod_desc"].ToString(),
+                                        ReqItem_Price = Convert.ToDecimal(dr["prod_price"]),
+                                    };
+                                    productList.Add(product);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return View(productList);
+        }
+        [HttpPost]
+        public ActionResult Add(addItemLists model)
+        {
+            int product = model.ReqItem_Prod;
+            int quantity = model.ReqItem_Qt;
+            var totalValue = model.ReqItem_Total;
+            string unit = model.ReqItem_Unit;
+
+            using (var connection = new SqlConnection(mainconn))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        InsertCanvasRecord(connection, transaction, quantity, totalValue, product, unit);
+                        transaction.Commit();
+
+                        // Retrieve the request_ID from the session
+                        int request_ID = (int)Session["request_ID"];
+                        return RedirectToAction("editRequisition", new { edit_ID = request_ID });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ViewBag.ErrorMessage = $"An error occurred: {ex.Message}";
+                        return View("Index");
+                    }
+                }
+            }
+        }
+
+        private void InsertCanvasRecord(SqlConnection connection, SqlTransaction transaction, int quantity, decimal total, int selectedProduct, string unit)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.Transaction = transaction;
+                command.CommandType = CommandType.Text;
+                command.CommandText = "INSERT INTO [dbo].[canvas] (canvas_quantity, canvas_status, canvas_total, prod_id, canvas_unit) VALUES (@quantity, @stat, @total, @product, @unit)";
+
+                command.Parameters.AddWithValue("@quantity", quantity);
+                command.Parameters.AddWithValue("@stat", 0);
+                command.Parameters.AddWithValue("@total", total);
+                command.Parameters.AddWithValue("@product", selectedProduct);
+                command.Parameters.AddWithValue("@unit", unit);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected < 1)
+                {
+                    throw new Exception("INSERT operation unsuccessful.");
+                }
+            }
+        }
+
         public ActionResult DeleteItem(int delete_ID, int request_ID)
         {
             Status(delete_ID, "Declined");

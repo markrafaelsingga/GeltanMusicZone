@@ -138,6 +138,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\addItemLists.cs" />
     <Compile Include="Models\AdminProfile.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Login.cs" />
@@ -260,6 +261,7 @@
     <Content Include="Views\Home\CancelledRequest.cshtml" />
     <Content Include="Views\AdminRequisition\editRequisition.cshtml" />
     <Content Include="Views\AdminRequisition\EditItem.cshtml" />
+    <Content Include="Views\AdminRequisition\addItem.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

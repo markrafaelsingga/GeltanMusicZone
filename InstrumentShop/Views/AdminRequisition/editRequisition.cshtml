@@ -40,10 +40,14 @@
                 <div class="col-sm-6" style="margin-left: 20px; width:20%;">
                     <p style="font-size: 15px">Status:</p>
                     <select name="selectedStatus" id="selectedStatus" class="requisition-select" required="">
-                        <option value="Pending" @(Model.First().RF_Status == "Pending" ? "selected" : "")>Pending</option>
-                        <option value="Approved" @(Model.First().RF_Status == "Approved" ? "selected" : "")>Approve</option>
-                        <option value="Declined" @(Model.First().RF_Status == "Declined" ? "selected" : "")>Decline</option>
+                        @foreach (var statusOption in new[] { "Pending", "Approved", "Declined" })
+                        {
+                            <option value="@statusOption" @(Model.First().RF_Status == statusOption ? "selected" : "")>
+                                @statusOption
+                            </option>
+                        }
                     </select>
+
                 </div>
 
                 <div class="col-sm-7 requisition-right">
@@ -141,9 +145,11 @@
 
                         <tr style="text-align: center; font-weight:600">
                             <td colspan="7" style="text-align: right; font-size: medium">
-                                <button class="btn btn-style-3 edit-btn" type="button" data-toggle="modal" data-target="#addItem" href="#">
+                                <a href="/AdminRequisition/addItem?request_ID=@Model.First().RF_ID" class="btn btn-style-3">
                                     <i class='bx bxs-plus-square'></i>&emsp;<strong>Add Item</strong>
-                                </button>&emsp;
+                                </a>
+
+                                &emsp;
                                 Total estimated cost:
                             </td>
                             <td>
