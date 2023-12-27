@@ -61,7 +61,7 @@ namespace InstrumentShop.Controllers
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
+                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
                         "FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
@@ -86,10 +86,10 @@ namespace InstrumentShop.Controllers
                                 RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
-                                RF_Unit = reader["canvas_unit"].ToString(),
+                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
+                                RF_Unit = reader["ri_unit"].ToString(),
                                 RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
+                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
                                 RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
                             };
 
@@ -271,36 +271,176 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        public ActionResult EditItem(ViewRequisitionForm model, int edit_ID)
+        public ActionResult EditItem(int edit_ID)
         {
-            var status = model.selectedStatus;
-
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
+                using (var cmd1 = db.CreateCommand())
+                {
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT * FROM canvas c JOIN product p ON c.prod_id = p.prod_id " +
+                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                        "where c.canvas_id = @canId";
+                    cmd1.Parameters.AddWithValue("@canId", edit_ID);
 
-                // Update the requisition table
-                Approve(db, status, edit_ID);
+                    SqlDataReader reader = cmd1.ExecuteReader();
 
-                // You can also update the canvas table if needed
-                Edit(db, edit_ID, model.RF_Quantity, model.RF_Unit, model.RF_Total);
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+
+                        EditItemViewModel item = new EditItemViewModel
+                        {
+                            Canvas_FormID = Convert.ToInt32(reader["rf_id"]),
+                            CanvasID = Convert.ToInt32(reader["canvas_id"]),
+                            CanvasItem = reader["prod_name"].ToString(),
+                            CanvasDesc = reader["prod_desc"].ToString(),
+                            CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]),
+                            CanvasUnit = reader["canvas_unit"].ToString(),
+                            CanvasPrice = Convert.ToDecimal(reader["prod_price"]),
+                            CanvasTotal = Convert.ToDecimal(reader["canvas_total"]),
+                        };
+
+                        return View(item);
+                    }
+                    else
+                    {
+                        return View("Index");
+                    }
+                }
             }
+        }
+        public ActionResult Edit(int ItemEdit_ID, int ItemEdit_Qty, string ItemEdit_Unit, decimal ItemEdit_Total, int edit_ID)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE canvas SET canvas_quantity = @qty, canvas_unit = @unit, canvas_total = @total WHERE canvas_id = @id;";
+                    cmd.Parameters.AddWithValue("@qty", ItemEdit_Qty);
+                    cmd.Parameters.AddWithValue("@unit", ItemEdit_Unit);
+                    cmd.Parameters.AddWithValue("@total", ItemEdit_Total);
+                    cmd.Parameters.AddWithValue("@id", ItemEdit_ID);
 
-            return RedirectToAction("Requisition");
+                    // Execute the UPDATE statement.
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        // Redirect to the "editRequisition" action with the original form's ID
+                        return RedirectToAction("editRequisition", new { edit_ID = edit_ID });
+                    }
+                    else
+                    {
+                        // Item not found or no changes were made
+                        return View("Error");
+                    }
+                }
+            }
         }
 
-        public void Edit(SqlConnection db, int id, int qty, string unit, decimal total)
+        public ActionResult SaveUpdate(int request_ID, decimal EstimateTotal, string selectedStatus)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * from canvas c JOIN requisition_item ri ON c.canvas_id = ri.canvas_id where rf_id = @id";
+                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                            int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                            string CanvasUnit = reader["canvas_unit"].ToString();
+                            decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
+
+                            Update(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                        }
+                    }
+                }
+
+                using (var cmd2 = db.CreateCommand())
+                {
+                    cmd2.CommandType = CommandType.Text;
+                    cmd2.CommandText = "UPDATE requisition SET rf_estimated_cost = @cost WHERE rf_id = @id";
+                    cmd2.Parameters.AddWithValue("@cost", EstimateTotal);
+                    cmd2.Parameters.AddWithValue("@id", request_ID);
+
+                    cmd2.ExecuteNonQuery();
+                }
+
+                Approve(db, selectedStatus, request_ID);
+
+                return RedirectToAction("ViewRequisition", new { request_ID = request_ID });
+            }
+        }
+
+        public ActionResult CancelAction(int request_ID)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * from canvas c JOIN requisition_item ri ON c.canvas_id = ri.canvas_id where rf_id = @id";
+                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                            int CanvasQuantity = Convert.ToInt32(reader["ri_quantity"]);
+                            string CanvasUnit = reader["ri_unit"].ToString();
+                            decimal CanvasTotal = Convert.ToDecimal(reader["ri_total"]);
+
+                            Reset(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                        }
+                    }
+                }
+                return RedirectToAction("Requisition");
+            }
+        }
+
+        public void Reset(SqlConnection db, int id, int qty, string unit, decimal total)
         {
             using (var cmd = db.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "UPDATE canvas SET canvas_quantity = @c_qty, canvas_unit = @c_unit, canvas_total = @c_total WHERE canvas_id = @id;";
-                cmd.Parameters.AddWithValue("@c_qty", qty);
-                cmd.Parameters.AddWithValue("@c_unit", unit);
-                cmd.Parameters.AddWithValue("@c_total", total);
+                cmd.CommandText = "UPDATE canvas SET canvas_quantity = @qty, canvas_unit = @unit, canvas_total = @total WHERE canvas_id = @id;";
+                cmd.Parameters.AddWithValue("@qty", qty);
+                cmd.Parameters.AddWithValue("@unit", unit);
+                cmd.Parameters.AddWithValue("@total", total);
                 cmd.Parameters.AddWithValue("@id", id);
 
                 cmd.ExecuteNonQuery();
+
+            }
+        }
+
+        public void Update(SqlConnection db, int id, int qty, string unit, decimal total)
+        {
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE requisition_item SET ri_quantity = @qty, ri_unit = @unit, ri_total = @total WHERE canvas_id = @id;";
+                cmd.Parameters.AddWithValue("@qty", qty);
+                cmd.Parameters.AddWithValue("@unit", unit);
+                cmd.Parameters.AddWithValue("@total", total);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                cmd.ExecuteNonQuery();
+
             }
         }
         public void Approve(SqlConnection db, string status, int id)

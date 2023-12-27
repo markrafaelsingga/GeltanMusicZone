@@ -600,7 +600,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        private void InsertRequisitionItem(SqlConnection db, int canvas)
+        private void InsertRequisitionItem(SqlConnection db, int canvas, int quantity, string unit, decimal total)
         {
             // Retrieve last inserted ID
             using (var cmd = db.CreateCommand())
@@ -622,8 +622,11 @@ namespace InstrumentShop.Controllers
                         using (var insertCmd = db.CreateCommand())
                         {
                             insertCmd.CommandType = CommandType.Text;
-                            insertCmd.CommandText = "INSERT INTO [dbo].[requisition_item] (ri_status, canvas_id, rf_id) " +
-                                                    "VALUES ('Pending', @id, @rf)";
+                            insertCmd.CommandText = "INSERT INTO [dbo].[requisition_item] (ri_status, ri_quantity, ri_unit, ri_total, canvas_id, rf_id) " +
+                                                        "VALUES ('Pending', @qty, @unit, @total, @id, @rf)";
+                            insertCmd.Parameters.AddWithValue("@qty", quantity);
+                            insertCmd.Parameters.AddWithValue("@unit", unit);
+                            insertCmd.Parameters.AddWithValue("@total", total);
                             insertCmd.Parameters.AddWithValue("@id", canvas);
                             insertCmd.Parameters.AddWithValue("@rf", rfForm);
 
@@ -668,23 +671,19 @@ namespace InstrumentShop.Controllers
                         {
                             // Retrieve canvas IDs
                             cmd.CommandType = CommandType.Text;
-                            cmd.CommandText = "SELECT canvas_id FROM canvas WHERE canvas_status = 0";
-
-                            List<int> canvasIds = new List<int>();
+                            cmd.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
 
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    int id = Convert.ToInt32(reader["canvas_id"]);
-                                    canvasIds.Add(id);
-                                }
-                            }
+                                    int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                                    int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                                    string CanvasUnit = reader["canvas_unit"].ToString();
+                                    decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
 
-                            // Iterate over canvasIds and call InsertRequisitionItem
-                            foreach (int id in canvasIds)
-                            {
-                                InsertRequisitionItem(db, id);
+                                    InsertRequisitionItem(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                                }
                             }
 
                             // Update canvas status
@@ -697,7 +696,7 @@ namespace InstrumentShop.Controllers
                         else
                         {
                             // No row were inserted
-                            return View("Error", "No row were inserted");
+                            return View("Index", "No row were inserted");
                         }
                     }
                 }
@@ -708,6 +707,7 @@ namespace InstrumentShop.Controllers
                 return View("Error", ex.Message);
             }
         }
+
 
         public ActionResult RequisitionForm()
         {
@@ -720,7 +720,7 @@ namespace InstrumentShop.Controllers
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
+                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
                         "FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
@@ -746,10 +746,10 @@ namespace InstrumentShop.Controllers
                                 RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
-                                RF_Unit = reader["canvas_unit"].ToString(),
+                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
+                                RF_Unit = reader["ri_unit"].ToString(),
                                 RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
+                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
                                 RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
                             };
 
@@ -771,7 +771,7 @@ namespace InstrumentShop.Controllers
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
+                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
                         "FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
@@ -796,10 +796,10 @@ namespace InstrumentShop.Controllers
                                 RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
-                                RF_Unit = reader["canvas_unit"].ToString(),
+                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
+                                RF_Unit = reader["ri_unit"].ToString(),
                                 RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
+                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
                                 RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
                             };
 
