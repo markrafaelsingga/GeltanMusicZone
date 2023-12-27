@@ -48,7 +48,7 @@
             {
                 <div style="margin-left: 91%">
                     <form class="edit-form" method="post" action="@Url.Action("editRequisition", "AdminRequisition")">
-                        <input type="hidden" name="edit_ID" id="edit_ID" value="@Model.First().RF_ID"/>
+                        <input type="hidden" name="edit_ID" id="edit_ID" value="@Model.First().RF_ID" />
                         <button class="btn btn-style-3 edit-btn" type="submit">
                             <strong>Edit</strong>&emsp;<i class='bx bxs-edit-alt'></i>
                         </button>
@@ -78,55 +78,117 @@
                 </div>
             </div>
 
-            <table class="fl-table mx-auto" id="item-list" style="width: 96%">
-                <colgroup>
-                    <col width="3%">
-                    <col width="12%">
-                    <col width="12%">
-                    <col width="10%">
-                    <col width="25%">
-                    <col width="6%">
-                    <col width="6%">
-                    <col width="8%">
-                    <col width="8%">
-                </colgroup>
-                <thead>
-                    <tr style="background-color: #fbb034; color: #000000;">
-                        <th class="px-1 py-1 text-center">#</th>
-                        <th class="px-1 py-1 text-center">Requisition code</th>
-                        <th class="px-1 py-1 text-center">Supplier</th>
-                        <th class="px-1 py-1 text-center">Item</th>
-                        <th class="px-1 py-1 text-center">Description</th>
-                        <th class="px-1 py-1 text-center">Quantity</th>
-                        <th class="px-1 py-1 text-center">Unit</th>
-                        <th class="px-1 py-1 text-center">Price</th>
-                        <th class="px-1 py-1 text-center">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var form in Model)
-                    {
-                        <tr style="text-align: center">
-                            <td><p class="row-number"></p></td>
-                            <td>@form.RF_Itemcode</td>
-                            <td>@form.RF_Suppliercompany</td>
-                            <td>@form.RF_Item</td>
-                            <td>@form.RF_Description</td>
-                            <td>@form.RF_Quantity</td>
-                            <td>@form.RF_Unit</td>
-                            <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                            <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                        </tr>
-                    }
+            @{
+                var isPending = Model.Any(form => form.RF_ItemStatus != "Declined");
+                var isDeclined = Model.Any(form => form.RF_ItemStatus == "Declined");
+            }
 
-                    <tr style="text-align: center; font-weight:600">
-                        <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
-                        <td>
-                            <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            @if (isPending)
+            {
+                <table class="fl-table mx-auto" id="item-list" style="width: 96%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus != "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td>@form.RF_Itemcode</td>
+                                <td>@form.RF_Suppliercompany</td>
+                                <td>@form.RF_Item</td>
+                                <td>@form.RF_Description</td>
+                                <td>@form.RF_Quantity</td>
+                                <td>@form.RF_Unit</td>
+                                <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            </tr>
+                        }
+
+                        <tr style="text-align: center; font-weight:600">
+                            <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td>
+                                <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+            <br />
+            @if (isDeclined)
+            {
+                <p style="margin-left: 25px;">Declined Items:</p>
+                <table class="fl-table mx-auto" id="item-list" style="width: 96%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus == "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td>@form.RF_Itemcode</td>
+                                <td>@form.RF_Suppliercompany</td>
+                                <td>@form.RF_Item</td>
+                                <td>@form.RF_Description</td>
+                                <td>@form.RF_Quantity</td>
+                                <td>@form.RF_Unit</td>
+                                <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            </tr>
+                        }
+
+                        <tr style="text-align: center; font-weight:600">
+                            <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td>
+                                <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
             <br />
         </div>
     </section>

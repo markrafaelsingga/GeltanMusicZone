@@ -60,9 +60,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
-                        "FROM supplier s " +
+                    cmd.CommandText = "SELECT * FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
                         "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
@@ -77,6 +75,7 @@ namespace InstrumentShop.Controllers
                         {
                             ViewRequisitionForm list = new ViewRequisitionForm
                             {
+                                RF_ItemStatus = reader["ri_status"].ToString(),
                                 RF_ID = Convert.ToInt32(reader["rf_id"]),
                                 RF_Status = reader["rf_status"].ToString(),
                                 RF_Code = reader["rf_code"].ToString(),
@@ -201,9 +200,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT ri.canvas_id,rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
-                        "FROM supplier s " +
+                    cmd.CommandText = "SELECT * FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
                         "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
@@ -218,6 +215,8 @@ namespace InstrumentShop.Controllers
                         {
                             ViewRequisitionForm list = new ViewRequisitionForm
                             {
+                                RF_ItemStatus = reader["ri_status"].ToString(),
+                                Request_Item = Convert.ToInt32(reader["ri_id"]),
                                 RF_ItemID = Convert.ToInt32(reader["canvas_id"]),
                                 RF_ID = Convert.ToInt32(reader["rf_id"]),
                                 RF_Status = reader["rf_status"].ToString(),
@@ -244,32 +243,16 @@ namespace InstrumentShop.Controllers
             }
             return View(details);
         }
-        public ActionResult DeleteItem(int delete_ID)
+        public ActionResult DeleteItem(int delete_ID, int request_ID)
         {
-            using (var db = new SqlConnection(mainconn))
-            {
-                db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE requisition set ri_status = 'Declined' where ri_id = @id";
-                    cmd.Parameters.AddWithValue("@id", delete_ID);
+            Status(delete_ID, "Declined");
+            return RedirectToAction("editRequisition", new { edit_ID = request_ID });
+        }
 
-                    // Execute the UPDATE statement.
-                    int rowsAffected = cmd.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        // Redirect to the "Requisition" action
-                        return RedirectToAction("editRequisition");
-                    }
-                    else
-                    {
-                        // Item not found or no changes were made
-                        return View("Error");
-                    }
-                }
-            }
+        public ActionResult RestoreItem(int delete_ID, int request_ID)
+        {
+            Status(delete_ID, "Pending");
+            return RedirectToAction("editRequisition", new { edit_ID = request_ID });
         }
         public ActionResult EditItem(int edit_ID)
         {
@@ -358,12 +341,26 @@ namespace InstrumentShop.Controllers
                     {
                         while (reader.Read())
                         {
+                            int riID = Convert.ToInt32(reader["ri_id"]);
                             int CanvasID = Convert.ToInt32(reader["canvas_id"]);
                             int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
                             string CanvasUnit = reader["canvas_unit"].ToString();
                             decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
+                            string status = reader["ri_status"].ToString();
 
                             Update(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                            if (selectedStatus == "Declined")
+                            {
+                                Status(riID, "Declined");
+                            }
+                            else if (selectedStatus == "Approved")
+                            {
+                                if(status == "Pending")
+                                {
+                                    Status(riID, "Approved");
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -399,16 +396,35 @@ namespace InstrumentShop.Controllers
                     {
                         while (reader.Read())
                         {
+                            int riID = Convert.ToInt32(reader["ri_id"]);
                             int CanvasID = Convert.ToInt32(reader["canvas_id"]);
                             int CanvasQuantity = Convert.ToInt32(reader["ri_quantity"]);
                             string CanvasUnit = reader["ri_unit"].ToString();
                             decimal CanvasTotal = Convert.ToDecimal(reader["ri_total"]);
 
                             Reset(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                            Status(riID, "Pending");
                         }
                     }
                 }
                 return RedirectToAction("Requisition");
+            }
+        }
+
+        public void Status(int delete_ID, string status)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE requisition_item set ri_status = @stat where ri_id = @id";
+                    cmd.Parameters.AddWithValue("@stat", status);
+                    cmd.Parameters.AddWithValue("@id", delete_ID);
+
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
