@@ -47,10 +47,14 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
+                    Session["RequisitionForm"] = lemp;
+
+                    DeleteCanvasItem();
                     return View(lemp);
                 }
             }
         }
+
         public ActionResult ViewRequisition(int request_ID)
         {
             List<ViewRequisitionForm> details = new List<ViewRequisitionForm>();
@@ -97,6 +101,8 @@ namespace InstrumentShop.Controllers
                     }
 
                 }
+                List<originalData> originalDataList = RetrieveOriginalViewRequisitionData(db, request_ID);
+                Session["Items"] = originalDataList;
             }
             return View(details);
         }
@@ -240,6 +246,32 @@ namespace InstrumentShop.Controllers
 
                 }
 
+                using (var cmd2 = db.CreateCommand())
+                {
+                    cmd2.CommandType = CommandType.Text;
+                    cmd2.CommandText = "SELECT * FROM canvas c JOIN product p ON c.prod_id = p.prod_id JOIN supplier s ON s.sup_id = p.sup_id where canvas_status = 0";
+                    using (SqlDataReader reader = cmd2.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ViewRequisitionForm list = new ViewRequisitionForm
+                            {
+                                RF_ItemStatus = "Canvas",
+                                RF_ItemID = Convert.ToInt32(reader["canvas_id"]),
+                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
+                                RF_Suppliercompany = reader["sup_company"].ToString(),
+                                RF_Item = reader["prod_name"].ToString(),
+                                RF_Description = reader["prod_desc"].ToString(),
+                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
+                                RF_Unit = reader["canvas_unit"].ToString(),
+                                RF_Price = Convert.ToDecimal(reader["prod_price"]),
+                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
+                            };
+
+                            details.Add(list);
+                        }
+                    }
+                }
             }
             return View(details);
         }
@@ -334,6 +366,12 @@ namespace InstrumentShop.Controllers
                     }
                 }
             }
+        }
+
+        public ActionResult CancelAdd ()
+        {
+            int request_ID = (int)Session["request_ID"];
+            return RedirectToAction("editRequisition", new { edit_ID = request_ID });
         }
 
         private void InsertCanvasRecord(SqlConnection connection, SqlTransaction transaction, int quantity, decimal total, int selectedProduct, string unit)
@@ -469,6 +507,10 @@ namespace InstrumentShop.Controllers
                             {
                                 Status(riID, "Declined");
                             }
+                            else if (selectedStatus == "Pending")
+                            {
+                                Status(riID, "Pending");
+                            }
                             else if (selectedStatus == "Approved")
                             {
                                 if(status == "Pending")
@@ -479,6 +521,36 @@ namespace InstrumentShop.Controllers
                             
                         }
                     }
+                }
+
+                using (var cmd1 = db.CreateCommand())
+                {
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
+
+                    using (SqlDataReader reader = cmd1.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                            int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                            string CanvasUnit = reader["canvas_unit"].ToString();
+                            decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
+
+                            if (selectedStatus == "Approved")
+                            {
+                                InsertRequisitionItem(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal, request_ID, "Approved");
+                            }
+                            else
+                            {
+                                DeleteCanvasItem();
+                            }
+                        }
+                    }
+                    // Update canvas status
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "UPDATE canvas SET canvas_status = 1 WHERE canvas_status = 0";
+                    cmd1.ExecuteNonQuery();
                 }
 
                 using (var cmd2 = db.CreateCommand())
@@ -493,11 +565,156 @@ namespace InstrumentShop.Controllers
 
                 Approve(db, selectedStatus, request_ID);
 
-                return RedirectToAction("ViewRequisition", new { request_ID = request_ID });
+                return RedirectToAction("Requisition");
             }
         }
 
-        public ActionResult CancelAction(int request_ID)
+        public ActionResult CancelAction()
+        {
+            // Retrieve the original requisition data from the session
+            var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
+            var originalDataList = Session["Items"] as List<originalData>;
+
+            if (originalRequisitionData == null || originalDataList == null)
+            {
+                // No changes, redirect to Requisition directly
+                return RedirectToAction("Requisition");
+            }
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+
+                // Use the original requisition data to reset changes
+                ResetRequisitionChanges(db, originalRequisitionData);
+
+                // Use the original view requisition data to reset changes
+                UpdateViewRequisitionData(db, originalDataList);
+
+                // Delete canvas items
+                DeleteCanvasItem();
+
+                return RedirectToAction("Requisition");
+            }
+        }
+
+
+        private List<originalData> RetrieveOriginalViewRequisitionData(SqlConnection db, int request_ID)
+        {
+            List<originalData> details = new List<originalData>();
+
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT * FROM supplier s " +
+                    "JOIN product p ON s.sup_id = p.sup_id " +
+                    "JOIN canvas c ON p.prod_id = c.prod_id " +
+                    "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                    "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                    "WHERE rf.rf_id = @id";
+
+                cmd.Parameters.AddWithValue("@id", request_ID);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        originalData list = new originalData
+                        {
+                            origDetail_Status = reader["ri_status"].ToString(),
+                            origDetail_FormID = Convert.ToInt32(reader["rf_id"]),
+                            origDetail_Quantity = Convert.ToInt32(reader["ri_quantity"]),
+                            origDetail_Unit = reader["ri_unit"].ToString(),
+                            origDetail_Total = Convert.ToDecimal(reader["ri_total"]),
+                            origDetail_CanvasID = Convert.ToInt32(reader["canvas_id"]),
+                            origDetail_ID = Convert.ToInt32(reader["ri_id"]),
+                        };
+
+                        details.Add(list);
+                    }
+                }
+            }
+
+            return details;
+        }
+
+        private void UpdateViewRequisitionData(SqlConnection db, List<originalData> originalDataList)
+        {
+            foreach (var originalData in originalDataList)
+            {
+                UpdateCanvas(db, originalData.origDetail_CanvasID, originalData.origDetail_Quantity, originalData.origDetail_Unit, originalData.origDetail_Total);
+
+                Status(originalData.origDetail_ID, originalData.origDetail_Status);
+            }
+        }
+
+        private void ResetRequisitionChanges(SqlConnection db, List<requisitionDetails> originalRequisitionData)
+        {
+            // Loop through the original requisition data and update the database
+            foreach (var originalData in originalRequisitionData)
+            {
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE [dbo].[requisition] " +
+                                      "SET rf_date_requested = @date_requested, " +
+                                      "    rf_code = @code, " +
+                                      "    rf_status = @status, " +
+                                      "    rf_estimated_cost = @estimated_cost " +
+                                      "WHERE rf_id = @id";
+
+                    // Add parameters using AddWithValue
+                    cmd.Parameters.AddWithValue("@id", originalData.rf_id);
+                    cmd.Parameters.AddWithValue("@date_requested", originalData.rf_date_requested);
+                    cmd.Parameters.AddWithValue("@code", originalData.rf_code);
+                    cmd.Parameters.AddWithValue("@status", originalData.rf_status);
+                    cmd.Parameters.AddWithValue("@estimated_cost", originalData.rf_estimated_cost);
+
+                    // Execute the UPDATE statement
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            // Clear the session after resetting
+            Session["RequisitionForm"] = null;
+        }
+
+        private void InsertRequisitionItem(SqlConnection db, int canvas, int quantity, string unit, decimal total, int rfForm, string status)
+        {
+            // Insert into [dbo].[requisition_item]
+            using (var insertCmd = db.CreateCommand())
+            {
+                insertCmd.CommandType = CommandType.Text;
+                insertCmd.CommandText = "INSERT INTO [dbo].[requisition_item] (ri_status, ri_quantity, ri_unit, ri_total, canvas_id, rf_id) " +
+                                            "VALUES (@stat, @qty, @unit, @total, @id, @rf)";
+                insertCmd.Parameters.AddWithValue("@stat", status);
+                insertCmd.Parameters.AddWithValue("@qty", quantity);
+                insertCmd.Parameters.AddWithValue("@unit", unit);
+                insertCmd.Parameters.AddWithValue("@total", total);
+                insertCmd.Parameters.AddWithValue("@id", canvas);
+                insertCmd.Parameters.AddWithValue("@rf", rfForm);
+
+                int rowsAffected = insertCmd.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Requisition item inserted successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("No rows affected. Requisition item not inserted.");
+                }
+            }
+        }
+
+        public ActionResult DeleteCanvas()
+        {
+            DeleteCanvasItem();
+            int request_ID = (int)Session["request_ID"];
+            return RedirectToAction("editRequisition", new { edit_ID = request_ID });
+        }
+
+        public void DeleteCanvasItem()
         {
             using (var db = new SqlConnection(mainconn))
             {
@@ -505,25 +722,11 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * from canvas c JOIN requisition_item ri ON c.canvas_id = ri.canvas_id where rf_id = @id";
-                    cmd.Parameters.AddWithValue("@id", request_ID);
+                    cmd.CommandText = "DELETE FROM [dbo].[canvas] WHERE canvas_status = 0";
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int riID = Convert.ToInt32(reader["ri_id"]);
-                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
-                            int CanvasQuantity = Convert.ToInt32(reader["ri_quantity"]);
-                            string CanvasUnit = reader["ri_unit"].ToString();
-                            decimal CanvasTotal = Convert.ToDecimal(reader["ri_total"]);
-
-                            Reset(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
-                            Status(riID, "Pending");
-                        }
-                    }
+                    cmd.ExecuteNonQuery();
                 }
-                return RedirectToAction("Requisition");
+                db.Close();
             }
         }
 
@@ -543,8 +746,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-
-        public void Reset(SqlConnection db, int id, int qty, string unit, decimal total)
+        public void UpdateCanvas(SqlConnection db, int id, int qty, string unit, decimal total)
         {
             using (var cmd = db.CreateCommand())
             {
