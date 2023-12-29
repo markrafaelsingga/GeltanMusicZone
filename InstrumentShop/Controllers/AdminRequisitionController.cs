@@ -55,8 +55,9 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult ViewRequisition(int request_ID)
+        public ActionResult ViewRequisition(int request_ID, string message)
         {
+            ViewBag.Message = message;
             List<ViewRequisitionForm> details = new List<ViewRequisitionForm>();
             using (var db = new SqlConnection(mainconn))
             {
@@ -199,6 +200,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult editRequisition(int edit_ID)
         {
+            Session["edit_ID"] = edit_ID;
             List<ViewRequisitionForm> details = new List<ViewRequisitionForm>();
             using (var db = new SqlConnection(mainconn))
             {
@@ -417,8 +419,6 @@ namespace InstrumentShop.Controllers
                 {
                     cmd1.CommandType = CommandType.Text;
                     cmd1.CommandText = "SELECT * FROM canvas c JOIN product p ON c.prod_id = p.prod_id " +
-                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
-                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
                         "where c.canvas_id = @canId";
                     cmd1.Parameters.AddWithValue("@canId", edit_ID);
 
@@ -430,7 +430,6 @@ namespace InstrumentShop.Controllers
 
                         EditItemViewModel item = new EditItemViewModel
                         {
-                            Canvas_FormID = Convert.ToInt32(reader["rf_id"]),
                             CanvasID = Convert.ToInt32(reader["canvas_id"]),
                             CanvasItem = reader["prod_name"].ToString(),
                             CanvasDesc = reader["prod_desc"].ToString(),
@@ -449,7 +448,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        public ActionResult Edit(int ItemEdit_ID, int ItemEdit_Qty, string ItemEdit_Unit, decimal ItemEdit_Total, int edit_ID)
+        public ActionResult Edit(int ItemEdit_ID, int ItemEdit_Qty, string ItemEdit_Unit, decimal ItemEdit_Total)
         {
             using (var db = new SqlConnection(mainconn))
             {
@@ -468,6 +467,7 @@ namespace InstrumentShop.Controllers
 
                     if (rowsAffected > 0)
                     {
+                        int edit_ID = (int)Session["edit_ID"];
                         // Redirect to the "editRequisition" action with the original form's ID
                         return RedirectToAction("editRequisition", new { edit_ID = edit_ID });
                     }
@@ -480,90 +480,57 @@ namespace InstrumentShop.Controllers
             }
         }
 
+        public ActionResult Approval()
+        {
+            return PartialView("_ApprovalPartialView");
+        }
+
+        public ActionResult Decline()
+        {
+            return PartialView("_DeclinePartialView");
+        }
+        public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus)
+        {
+            // Retrieve the original requisition data from the session
+            var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+
+                bool isAlreadyApproved = originalRequisitionData.Any(item => item.rf_id == request_ID && item.rf_status == "Approved");
+
+                if (isAlreadyApproved)
+                {
+                    ViewBag.Message = "This requisition form is already approved";
+                }
+                else
+                {
+                    // Update the status and the cost
+                    UpdateRF_Status(db, selectedStatus, request_ID);
+                    UpdateCost(db, EstimateTotal, request_ID);
+
+                    ViewBag.Message = "Requisition form approved successfully!";
+                }
+
+                // Redirect to the "ViewRequisition" action
+                return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
+            }
+        }
+
+
         public ActionResult SaveUpdate(int request_ID, decimal EstimateTotal, string selectedStatus)
         {
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * from canvas c JOIN requisition_item ri ON c.canvas_id = ri.canvas_id where rf_id = @id";
-                    cmd.Parameters.AddWithValue("@id", request_ID);
+                
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int riID = Convert.ToInt32(reader["ri_id"]);
-                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
-                            int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
-                            string CanvasUnit = reader["canvas_unit"].ToString();
-                            decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
-                            string status = reader["ri_status"].ToString();
+                
 
-                            Update(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
-                            if (selectedStatus == "Declined")
-                            {
-                                Status(riID, "Declined");
-                            }
-                            else if (selectedStatus == "Pending")
-                            {
-                                Status(riID, "Pending");
-                            }
-                            else if (selectedStatus == "Approved")
-                            {
-                                if(status == "Pending")
-                                {
-                                    Status(riID, "Approved");
-                                }
-                            }
-                            
-                        }
-                    }
-                }
+                
 
-                using (var cmd1 = db.CreateCommand())
-                {
-                    cmd1.CommandType = CommandType.Text;
-                    cmd1.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
-
-                    using (SqlDataReader reader = cmd1.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            int CanvasID = Convert.ToInt32(reader["canvas_id"]);
-                            int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
-                            string CanvasUnit = reader["canvas_unit"].ToString();
-                            decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
-
-                            if (selectedStatus == "Approved")
-                            {
-                                InsertRequisitionItem(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal, request_ID, "Approved");
-                            }
-                            else
-                            {
-                                DeleteCanvasItem();
-                            }
-                        }
-                    }
-                    // Update canvas status
-                    cmd1.CommandType = CommandType.Text;
-                    cmd1.CommandText = "UPDATE canvas SET canvas_status = 1 WHERE canvas_status = 0";
-                    cmd1.ExecuteNonQuery();
-                }
-
-                using (var cmd2 = db.CreateCommand())
-                {
-                    cmd2.CommandType = CommandType.Text;
-                    cmd2.CommandText = "UPDATE requisition SET rf_estimated_cost = @cost WHERE rf_id = @id";
-                    cmd2.Parameters.AddWithValue("@cost", EstimateTotal);
-                    cmd2.Parameters.AddWithValue("@id", request_ID);
-
-                    cmd2.ExecuteNonQuery();
-                }
-
-                Approve(db, selectedStatus, request_ID);
+                UpdateRF_Status(db, selectedStatus, request_ID);
 
                 return RedirectToAction("Requisition");
             }
@@ -713,6 +680,98 @@ namespace InstrumentShop.Controllers
             int request_ID = (int)Session["request_ID"];
             return RedirectToAction("editRequisition", new { edit_ID = request_ID });
         }
+        public void InsertApproval(SqlConnection db)
+        {
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "";
+            }
+        }
+        public void UpdateCost(SqlConnection db, decimal EstimateTotal, int request_ID)
+        {
+            using (var cmd2 = db.CreateCommand())
+            {
+                cmd2.CommandType = CommandType.Text;
+                cmd2.CommandText = "UPDATE requisition SET rf_estimated_cost = @cost WHERE rf_id = @id";
+                cmd2.Parameters.AddWithValue("@cost", EstimateTotal);
+                cmd2.Parameters.AddWithValue("@id", request_ID);
+
+                cmd2.ExecuteNonQuery();
+            }
+        }
+        public void InsertNewItem(SqlConnection db, int request_ID, string selectedStatus)
+        {
+            //New item iserted by the admin
+            using (var cmd1 = db.CreateCommand())
+            {
+                cmd1.CommandType = CommandType.Text;
+                cmd1.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
+
+                using (SqlDataReader reader = cmd1.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                        int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                        string CanvasUnit = reader["canvas_unit"].ToString();
+                        decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
+
+                        if (selectedStatus == "Approved")
+                        {
+                            InsertRequisitionItem(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal, request_ID, "Approved");
+                        }
+                        else
+                        {
+                            DeleteCanvasItem();
+                        }
+                    }
+                }
+                // Update canvas status
+                cmd1.CommandType = CommandType.Text;
+                cmd1.CommandText = "UPDATE canvas SET canvas_status = 1 WHERE canvas_status = 0";
+                cmd1.ExecuteNonQuery();
+            }
+        }
+        public void UpdateItems(SqlConnection db, int request_ID, string selectedStatus)
+        {
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT * from canvas c JOIN requisition_item ri ON c.canvas_id = ri.canvas_id where rf_id = @id";
+                cmd.Parameters.AddWithValue("@id", request_ID);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Updated the records of requisition items if ever there are changes made in canvas
+                        int riID = Convert.ToInt32(reader["ri_id"]);
+                        int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                        int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                        string CanvasUnit = reader["canvas_unit"].ToString();
+                        decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
+
+                        Update(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+
+                        //Update the status of requisition items based on the status of requisition form
+                        string status = reader["ri_status"].ToString();
+                        if (selectedStatus == "Declined")
+                        {
+                            Status(riID, "Declined");
+                        }
+                        else if (selectedStatus == "Approved")
+                        {
+                            if (status == "Pending")
+                            {
+                                Status(riID, "Approved");
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
 
         public void DeleteCanvasItem()
         {
@@ -777,7 +836,7 @@ namespace InstrumentShop.Controllers
 
             }
         }
-        public void Approve(SqlConnection db, string status, int id)
+        public void UpdateRF_Status(SqlConnection db, string status, int id)
         {
             using (var cmd = db.CreateCommand())
             {

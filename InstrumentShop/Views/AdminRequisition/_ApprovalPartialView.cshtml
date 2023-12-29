@@ -1,0 +1,144 @@
+﻿@using InstrumentShop.Models;
+
+@model List<ViewRequisitionForm>
+
+<style>
+    .approval-container {
+        margin-top: 250px;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f8f8;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .approval-header {
+        font-size: 24px;
+        color: #333;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .approval-details {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .detail-item {
+        margin-bottom: 10px;
+    }
+
+    .total-cost {
+        font-weight: bold;
+    }
+
+    .approval-actions {
+        margin-top: 20px;
+    }
+
+    .declined-items {
+        margin-top: 20px;
+        text-align: left;
+    }
+
+        .declined-items li {
+            margin-bottom: 5px;
+        }
+</style>
+
+<div class="approval-container">
+    <div class="approval-header">
+        <h2>You are about to approve a request!</h2>
+    </div>
+
+    <div class="approval-details">
+        <div class="detail-item">
+            Requisition form #: <strong>@Model.First().RF_Code</strong>
+        </div>
+
+        <div class="detail-item">
+            Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
+        </div>
+
+        <div class="detail-item">
+            Total cost: <strong class="total-cost"></strong>
+        </div>
+    </div>
+
+    @if (Model.Any(form => form.RF_ItemStatus == "Declined"))
+    {
+        <div class="detail-item">
+            Note: <br />
+            This request has item/s that were declined.
+        </div>
+    }
+
+    @if (Model.Any(form => form.RF_ItemStatus == "Canvas"))
+    {
+        <div class="detail-item">
+            This request has item/s that were added by the admin.
+        </div>
+    }
+
+
+    <div class="approval-actions">
+        <form class="save-form" method="post" action="@Url.Action("ApproveRequest", "AdminRequisition")">
+            <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+            <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
+            <p style="font-size: 12px; color: darkred; font-weight: 400">Once a request has been approved, no further changes are permitted.</p>
+            <button class="btn btn-style btn-style-3 approve-btn" onmouseover="this.style.backgroundColor='#4CAF50'" onmouseout="this.style.backgroundColor='#05a4f1'">
+                Approve Request
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    
+    // Event handler for dropdown change
+        $("#selectedStatus").change(function () {
+            updateTotalEstimatedCost();
+        });
+
+    function updateTotalEstimatedCost() {
+        // Get all elements whose IDs start with "total"
+        var totalElements = $("[id^=total]");
+
+        // Initialize total cost
+        var totalCost = 0;
+        var canvasTotal = 0; // Initialize total value for "Canvas" items
+
+        // Loop through all total elements and sum their values
+        totalElements.each(function () {
+            var totalValue = parseFloat($(this).val()) || 0;
+
+            // Check RF_ItemStatus and modify totalValue for items with RF_ItemStatus = "Canvas"
+            if (totalValue > 0) {
+                // Check if RF_ItemStatus is "Canvas"
+                var isCanvasItem = $(this).closest("tr").find("[name=RF_ItemStatus]").val() === "Canvas";
+
+                // Add totalValue to the corresponding total based on RF_ItemStatus
+                if (isCanvasItem) {
+                    canvasTotal += totalValue; // Add to the total value for "Canvas" items
+                } else {
+                    totalCost += totalValue; // Add to the total value for other items
+                }
+            }
+        });
+
+        // Check if RF_Status is "Approved" and subtract total value of "Canvas" items
+        if ($("#selectedStatus").val() === "Approved") {
+            totalCost += canvasTotal;
+        }
+
+        // Set the total value to the hidden input field (assuming it has the ID "EstimateTotal")
+        $("#EstimateTotal").val(totalCost.toFixed(2));
+
+        // Display total cost in the 'Total estimated cost' cell with commas for better readability
+        $(".total-cost").text("₱ " + totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    }
+</script>

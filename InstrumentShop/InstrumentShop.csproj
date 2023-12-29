@@ -263,6 +263,8 @@
     <Content Include="Views\AdminRequisition\editRequisition.cshtml" />
     <Content Include="Views\AdminRequisition\EditItem.cshtml" />
     <Content Include="Views\AdminRequisition\addItem.cshtml" />
+    <Content Include="Views\AdminRequisition\_ApprovalPartialView.cshtml" />
+    <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

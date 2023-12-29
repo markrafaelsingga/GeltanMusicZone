@@ -56,7 +56,12 @@
             <!-- Search for requisition -->
             <div class="row justify-content-center">
                 <div class="row">
-                    @foreach (var details in Model)
+                    @{
+                        // Sort the requisitions based on approval status (assuming rf_status is a string)
+                        var sortedRequisitions = Model.OrderByDescending(r => r.rf_status == "Approved").ThenBy(r => r.rf_date_requested).ToList();
+                    }
+
+                    @foreach (var details in sortedRequisitions)
                     {
                         <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
                             <div class="supplier-card-single">
@@ -80,6 +85,7 @@
                         </div>
                     }
                 </div>
+
             </div>
             <!-- pagination -->
             <div class="pagination-style text-center mt-5">

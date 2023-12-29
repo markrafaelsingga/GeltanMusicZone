@@ -44,7 +44,7 @@
 
         <div class="table-wrapper">
             <br />
-            @if (Model.First().RF_Status != "Cancelled" && Model.First().RF_Status != "Deleted")
+            @if (Model.First().RF_Status != "Cancelled" && Model.First().RF_Status != "Deleted" && Model.First().RF_Status != "Approved")
             {
                 <div style="margin-left: 91%">
                     <form class="edit-form" method="post" action="@Url.Action("editRequisition", "AdminRequisition")">
@@ -59,7 +59,7 @@
             <div class="row requisition-block">
                 <div class="col-sm-6" style="margin-left: 20px; width:20%;">
                     <p style="font-size: 15px">Status:</p>
-                    <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" style="background-color: @(Model.First().RF_Status == "Cancelled" || Model.First().RF_Status == "Deleted" ? "#e53f31" : "#f4f4f4")" />
+                    <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" style="background-color: @(Model.First().RF_Status == "Cancelled" || Model.First().RF_Status == "Deleted" ? "#e53f31" : (Model.First().RF_Status == "Approved" ? "#28a745" : "#f4f4f4"))" />
                 </div>
 
                 <div class="col-sm-7">
@@ -194,6 +194,17 @@
             rowNumbers.forEach(function (element, index) {
                 element.textContent = index + 1;
             });
+        });
+
+        $(document).ready(function () {
+            var alertMessage = "@ViewBag.Message";
+
+            if (alertMessage && alertMessage.trim() !== "") {
+                alert(alertMessage);
+
+                // Redirect to the Requisition action
+                window.location.href = "/AdminRequisition/Requisition";
+            }
         });
     </script>
 

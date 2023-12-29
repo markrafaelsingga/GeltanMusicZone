@@ -24,6 +24,8 @@
         .total-cost {
             font-weight: 600;
         }
+
+        
     </style>
 </head>
 <body>
@@ -179,6 +181,7 @@
                                     <td>
                                         <form class="edit-form" method="post" action="@Url.Action("EditItem", "AdminRequisition")">
                                             <input type="hidden" name="edit_ID" value="@form.RF_ItemID" />
+                                            <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
                                             <button class="btn btn-style-3 edit-btn" type="submit" style="color: white">
                                                 <i class='bx bxs-edit-alt'></i>
                                             </button>
@@ -188,7 +191,7 @@
                                         <input type="hidden" name="RF_ItemStatus" value="@form.RF_ItemStatus" />
                                         <form class="delete-form" method="post" action="@hrefValue">
                                             <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
-                                            <input type="hidden" name="delete_ID" value="@form.Request_Item" />
+                                            <input type="hidden" name="delete_ID" value="@form.RF_ItemID" />
                                             <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this, '@confirmationMessage', '@hrefValue')" style="color: white">
                                                 <i class="bx bxs-trash"></i>
                                             </button>
@@ -217,10 +220,9 @@
                 </table>
                 <br />
                 <div class="text-center" style="display: flex; justify-content: center;">
-                    <form class="save-form" method="post" action="@Url.Action("SaveUpdate", "AdminRequisition")">
+                    <form class="save-form" method="post">
                         <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
-                        <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
-                        <button type="submit" class="btn btn-style btn-style-3" style="width: 200px">
+                        <button type="button" class="btn btn-style btn-style-3" style="width: 200px" data-toggle="modal" data-target="#myModal" onclick="setModalTarget()">
                             <strong>SAVE</strong>
                         </button>
                     </form>
@@ -282,7 +284,7 @@
                                     <form class="delete-form" method="post" action="@Url.Action("RestoreItem", "AdminRequisition")">
                                         <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
                                         <input type="hidden" name="delete_ID" value="@form.Request_Item" />
-                                        <button class="btn btn-style-3 delete-btn" type="submit"style="color: white">
+                                        <button class="btn btn-style-3 delete-btn" type="submit" style="color: white">
                                             <i class='bx bxs-file-plus'></i>
                                         </button>
                                     </form>
@@ -296,8 +298,59 @@
         </div>
     </section>
 
+    <div class="modal" id="approveRequest" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Approval Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_ApprovalPartialView")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="declineRequest" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Approval Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_DeclinePartialView")
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
+        //Modal popup based on selectedStatus
+        function setModalTarget() {
+            // Get the selectedStatus value
+            var selectedStatus = $("#selectedStatus").val();
+
+            // Set the data-target attribute based on the selectedStatus
+            if (selectedStatus === "Approved") {
+                $("#myModal").modal("hide"); // Close the default modal
+                $("#approveRequest").modal("show"); // Show the 'approveRequest' modal
+            } else if (selectedStatus === "Declined") {
+                $("#myModal").modal("hide"); // Close the default modal
+                $("#declineRequest").modal("show"); // Show the 'declineRequest' modal
+            } else {
+                alert("This requisition form is still pending"); // Display an alert if it is pending
+            }
+        }
+
+
         // Submit form with selected status
         $("form.save-form").submit(function () {
             var selectedStatus = $("#selectedStatus").val();

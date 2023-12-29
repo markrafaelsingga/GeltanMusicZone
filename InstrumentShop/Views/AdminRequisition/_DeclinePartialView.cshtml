@@ -1,0 +1,67 @@
+﻿@using InstrumentShop.Models;
+
+@model List<ViewRequisitionForm>
+
+<style>
+    .approval-container {
+        margin-top: 250px;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f8f8;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .approval-header {
+        font-size: 24px;
+        color: #333;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .approval-details {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .detail-item {
+        margin-bottom: 10px;
+    }
+
+    .total-cost {
+        font-weight: bold;
+    }
+
+    .approval-actions {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="approval-container">
+    <div class="approval-header">
+        <h2>You are about to decline a request!</h2>
+    </div>
+
+    <div class="approval-details">
+        <div class="detail-item">
+            Requisition form #: <strong>@Model.First().RF_Code</strong>
+        </div>
+
+        <div class="detail-item">
+            Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
+        </div>
+
+        <div class="detail-item">
+            Total cost: <strong class="total-cost"></strong>
+        </div>
+    </div>
+
+    <div class="approval-actions">
+        <button class="btn btn-style btn-style-3 approve-btn" onmouseover="this.style.backgroundColor='#e53f31'" onmouseout="this.style.backgroundColor='#05a4f1'">
+            Decline Request
+        </button>
+    </div>
+</div>
