@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "Profile";
+   // ViewBag.Title = "Profile";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
 }
 
@@ -35,23 +35,25 @@
                 <ul class="mt-4 list-style-lis pt-lg-1" style="font-size: large">
                     <li>
                         <i class="fas fa-address-card"></i>
-                        <strong>Name: </strong> Crizel H. Estorba
+                        <strong>Name: </strong>@ViewBag.fullname
                     </li>
                     <li>
                         <i class="fas fa-calendar-day"></i>
-                        <strong>Birthdate: </strong> January 25, 2003
+                        <strong>Birthdate: </strong> @ViewBag.dob
                     </li>
                     <li>
                         <i class="fas fa-phone"></i>
-                        <strong>Contact number: </strong> 09754851258
+                        <strong>Contact number: </strong> @ViewBag.contact
                     </li>
                     <li>
                         <i class="fas fa-map-marked"></i>
-                        <strong>Address: </strong> California, 10001, 5th Avenue, #06 lane street, NY - 62617.
+                        <strong>Address: </strong> @ViewBag.address
+                        @*California, 10001, 5th Avenue, #06 lane street, NY - 62617.*@
                     </li>
                     <li>
                         <i class="fas fa-envelope"></i>
-                        <strong>Email address: </strong> crizel.estorba@gmail.com
+                        <strong>Email address: </strong> @ViewBag.email
+                        @*crizel.estorba@gmail.com*@
                     </li>
                     <li>
                         <i class="fas fa-user"></i>

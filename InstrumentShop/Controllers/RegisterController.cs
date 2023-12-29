@@ -69,7 +69,7 @@ namespace InstrumentShop.Controllers
                 ModelState.AddModelError("", e.Message);
                 return View(model);
             }
-
+            
 
             try
             {
@@ -81,7 +81,7 @@ namespace InstrumentShop.Controllers
                     {
                         cmd1.CommandType = CommandType.Text;
                         cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id)" +
-                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId)";
+                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId";
                         cmd1.Parameters.AddWithValue("@fname", fname);
                         cmd1.Parameters.AddWithValue("@mi", mi);
                         cmd1.Parameters.AddWithValue("@lname", lname);
@@ -123,6 +123,7 @@ namespace InstrumentShop.Controllers
 
 
         }
+       
     }
 }
 

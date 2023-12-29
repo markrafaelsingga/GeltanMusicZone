@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿
+
+
+<!DOCTYPE html>
 <!-- Created by CodingLab |www.youtube.com/CodingLabYT-->
 <html lang="en" dir="ltr">
 <head>
@@ -14,10 +17,20 @@
 <body>
     <div class="sidebar close">
         <div class="logo-details">
-            <i class='bx bxl-c-plus-plus'></i>
+            <i class='bx bxs-music'></i>
             <span class="logo_name">Geltan Music Zone</span>
+
         </div>
         <ul class="nav-links">
+            <li>
+                <a href="@Url.Action("AdminPage","Home")">
+                    <i class='bx bxs-home'></i>
+                    <span class="link_name">Home</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="#">Home</a></li>
+                </ul>
+            </li>
             <li>
                 <a href="#">
                     <i class='bx bx-file'></i>
@@ -79,18 +92,19 @@
             <li>
                 <div class="profile-details">
                     <div class="profile-content">
-                        <!--<img src="image/profile.jpg" alt="profileImg">-->
+                        <img src="~/images/mark.jpg" />
                     </div>
                     <div class="name-job">
-                        <div class="profile_name">Mark Rafael Singga</div>
-                        <div class="job">Admin</div>
-                    </div>
+                        <div class="profile_name"><div style="font-size:12px;">@ViewBag.uname</div></div>
+                        <div class="job" style="text-align: center;">Admin</div>
 
+                    </div>
+                    
                     <a href="@Url.Action("Login", "Login")">
                         <i class='bx bx-log-out'>
                         </i>
                     </a>
-
+                   
                 </div>
             </li>
         </ul>

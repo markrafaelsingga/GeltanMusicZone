@@ -15,6 +15,8 @@ namespace InstrumentShop.Controllers
 
         public ActionResult Staff(Staff model)
         {
+            string name = Session["uname"].ToString();
+            ViewBag.uname = name;
             List<Staff> staffList = new List<Staff>();
             List<Department> departments = new List<Department>();
   
@@ -116,11 +118,36 @@ namespace InstrumentShop.Controllers
                     var ctr = cmd.ExecuteNonQuery();
                     if (ctr >= 1)
                     {
-                        return Json(new { success = true, message = "Deleted Successfully!" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = true, message = "Deactivated!" }, JsonRequestBehavior.AllowGet);
+                        
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Unsuccessful" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, message = "Error!" }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+        }
+
+        public ActionResult ReactivateStaff(int userId)
+        {
+            using(var db = new SqlConnection(connString))
+            {
+                db.Open();
+                using(var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE USERS SET USER_ISACTIVE = @status WHERE USER_ID = @id";
+                    cmd.Parameters.AddWithValue("@status","ACTIVE");
+                    cmd.Parameters.AddWithValue("@id",userId);
+                    var ctr = cmd.ExecuteNonQuery();
+                    if (ctr>=1)
+                    {
+                        return Json(new { success = true, message = "Activated!" }, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Error!" }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
