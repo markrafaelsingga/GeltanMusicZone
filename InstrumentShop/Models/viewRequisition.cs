@@ -44,6 +44,11 @@ namespace InstrumentShop.Models
         public string ItemEdit_Unit { get; set; } //Unit to edit
         public decimal ItemEdit_Total { get; set; } //Total cost to edit
 
+        //If approve/decline
+        public string approvalName { get; set; }
+        public string approvalNote { get; set; }
+        public string approvalDate { get; set; }
+
         public string RF_ItemStatus { get; set; }
         public int Request_Item { get; set; }
         public int RF_ItemID { get; set; }

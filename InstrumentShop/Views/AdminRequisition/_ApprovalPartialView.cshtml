@@ -14,16 +14,16 @@
     }
 
     .approval-header {
-        font-size: 24px;
+        font-size: 20px;
         color: #333;
-        font-weight: 800;
+        font-weight: 600;
         margin-bottom: 20px;
     }
 
     .approval-details {
         font-size: 18px;
         color: #555;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         text-align: left;
     }
 
@@ -36,64 +36,98 @@
     }
 
     .approval-actions {
-        margin-top: 20px;
+        margin-top: 15px;
     }
 
-    .declined-items {
-        margin-top: 20px;
+    .note textarea {
+        width: 100%;
+        font-size: 12px;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        height: auto;
+    }
+
+    .left-aligned {
         text-align: left;
     }
 
-        .declined-items li {
-            margin-bottom: 5px;
-        }
 </style>
 
 <div class="approval-container">
-    <div class="approval-header">
-        <h2>You are about to approve a request!</h2>
-    </div>
-
-    <div class="approval-details">
-        <div class="detail-item">
-            Requisition form #: <strong>@Model.First().RF_Code</strong>
+    <form class="save-form" method="post" action="@Url.Action("ApproveRequest", "AdminRequisition")">
+        <div class="approval-header">
+            You are about to approve a request!
         </div>
 
-        <div class="detail-item">
-            Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
+        <div class="approval-details">
+            <div class="detail-item">
+                Requisition form #: <strong>@Model.First().RF_Code</strong>
+            </div>
+
+            <div class="detail-item">
+                Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
+            </div>
+
+            <div class="detail-item">
+                Total cost: <strong class="total-cost"></strong>
+            </div>
+
+            @{
+                string both = "This request contains item(s) that were added by the admin and were declined.";
+                string decline = "This request contains item(s) that were declined.";
+                string canvas = "This request contains the item(s) that the admin added.";
+            }
+
+        <div class="detail-item note" style="font-size: 15px">
+            Note: (Optional)
+            <textarea name="ApprovalNote" id="ApprovalNote">
+        @if (Model.Any(form => form.RF_ItemStatus == "Canvas") && Model.Any(form => form.RF_ItemStatus == "Declined"))
+        {
+            @both
+        }
+        else
+        {
+            if (Model.Any(form => form.RF_ItemStatus == "Declined"))
+            {
+                @decline
+            }
+            if (Model.Any(form => form.RF_ItemStatus == "Canvas"))
+            {
+                var canvasForms = Model.Where(form => form.RF_ItemStatus == "Canvas").ToList();
+                @canvas
+                @*if (canvasForms.Any())
+                {
+                    <text>(</text>
+                    foreach (var form in canvasForms)
+                    {
+                        <text>@form.RF_Item</text>
+                        if (canvasForms.Count > 1 && form != canvasForms.Last())
+                        {
+                            <text>,</text>
+                        }
+                    }
+                    <text>)</text>
+                }*@
+            }
+        }
+
+    </textarea>
         </div>
-
-        <div class="detail-item">
-            Total cost: <strong class="total-cost"></strong>
-        </div>
-    </div>
-
-    @if (Model.Any(form => form.RF_ItemStatus == "Declined"))
-    {
-        <div class="detail-item">
-            Note: <br />
-            This request has item/s that were declined.
-        </div>
-    }
-
-    @if (Model.Any(form => form.RF_ItemStatus == "Canvas"))
-    {
-        <div class="detail-item">
-            This request has item/s that were added by the admin.
-        </div>
-    }
-
-
-    <div class="approval-actions">
-        <form class="save-form" method="post" action="@Url.Action("ApproveRequest", "AdminRequisition")">
-            <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
-            <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
             <p style="font-size: 12px; color: darkred; font-weight: 400">Once a request has been approved, no further changes are permitted.</p>
+        </div>
+            <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+
+            <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
+
+        <div class="approval-actions">
             <button class="btn btn-style btn-style-3 approve-btn" onmouseover="this.style.backgroundColor='#4CAF50'" onmouseout="this.style.backgroundColor='#05a4f1'">
                 Approve Request
             </button>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

@@ -39,23 +39,10 @@
         <div class="table-wrapper">
             <br />
             <div class="row requisition-block">
-                <div class="col-sm-6" style="margin-left: 20px; width:20%;">
-                    <p style="font-size: 15px">Status:</p>
-                    <select name="selectedStatus" id="selectedStatus" class="requisition-select" required="">
-                        @foreach (var statusOption in new[] { "Pending", "Approved", "Declined" })
-                        {
-                            <option value="@statusOption" @(Model.First().RF_Status == statusOption ? "selected" : "")>
-                                @statusOption
-                            </option>
-                        }
-                    </select>
-
-                </div>
-
                 <div class="col-sm-7 requisition-right">
                     <div class="input-grids">
                         <div class="row">
-                            <div class="col-sm-6">
+                            <div class="col-sm-6" style="margin-left: 20px;">
                                 <p style="font-size: 15px"> Requisition Form #:</p>
                                 <input type="text" name="price" id="price" placeholder="Requisition code #" class="requisition-input" disabled value="@Model.First().RF_Code" />
                             </div>
@@ -66,6 +53,20 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-6" style="margin-left: 280px; width: 250px">
+                    <p style="font-size: 15px">Update Status: (Required)</p>
+                    <div class="requisition-select">
+                        <select name="selectedStatus" id="selectedStatus" required="">
+                            @foreach (var statusOption in new[] { "Pending", "Approved", "Declined" })
+                            {
+                                <option value="@statusOption" @(Model.First().RF_Status == statusOption ? "selected" : "")>
+                                    @statusOption
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
             </div>
 
             @{

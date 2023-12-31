@@ -62,51 +62,123 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using (var cmd = db.CreateCommand())
+                using (var cmd1 = db.CreateCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM supplier s " +
-                        "JOIN product p ON s.sup_id = p.sup_id " +
-                        "JOIN canvas c ON p.prod_id = c.prod_id " +
-                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
-                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
-                        "WHERE rf.rf_id = @id";
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT rf_status from requisition where rf_id = @rf";
+                    cmd1.Parameters.AddWithValue("@rf", request_ID);
 
-                    cmd.Parameters.AddWithValue("@id", request_ID);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd1.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            ViewRequisitionForm list = new ViewRequisitionForm
-                            {
-                                RF_ItemStatus = reader["ri_status"].ToString(),
-                                RF_ID = Convert.ToInt32(reader["rf_id"]),
-                                RF_Status = reader["rf_status"].ToString(),
-                                RF_Code = reader["rf_code"].ToString(),
-                                RF_Daterequested = reader["rf_date_requested"].ToString(),
-                                RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
-                                RF_Item = reader["prod_name"].ToString(),
-                                RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
-                                RF_Unit = reader["ri_unit"].ToString(),
-                                RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
-                                RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
-                            };
+                            string status = reader["rf_status"].ToString();
 
-                            details.Add(list);
+                            if (status == "Approved" || status == "Declined")
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                          "JOIN product p ON s.sup_id = p.sup_id " +
+                                          "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                          "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                          "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                          "JOIN ApprovalStatus a ON rf.rf_id = a.rf_id " +
+                                          "JOIN users u ON a.user_id = u.user_id " +
+                                          "WHERE rf.rf_id = @id ORDER BY a.approval_date DESC";
+
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader1 = cmd.ExecuteReader())
+                                    {
+                                        while (reader1.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                approvalName = reader1["user_fname"].ToString() + " " +
+                                                           reader1["user_mi"].ToString() + ". " +
+                                                           reader1["user_lname"].ToString(),
+                                                approvalNote = reader1["approval_note"].ToString(),
+                                                approvalDate = reader1["approval_date"].ToString(),
+
+
+                                                RF_ItemStatus = reader1["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader1["rf_id"]),
+                                                RF_Status = reader1["rf_status"].ToString(),
+                                                RF_Code = reader1["rf_code"].ToString(),
+                                                RF_Daterequested = reader1["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader1["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
+                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
+                                                RF_Item = reader1["prod_name"].ToString(),
+                                                RF_Description = reader1["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
+                                                RF_Unit = reader1["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader1["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader1["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader1["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                        "JOIN product p ON s.sup_id = p.sup_id " +
+                                        "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                        "WHERE rf.rf_id = @id";
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader2 = cmd.ExecuteReader())
+                                    {
+                                        while (reader2.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                RF_ItemStatus = reader2["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader2["rf_id"]),
+                                                RF_Status = reader2["rf_status"].ToString(),
+                                                RF_Code = reader2["rf_code"].ToString(),
+                                                RF_Daterequested = reader2["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader2["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
+                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
+                                                RF_Item = reader2["prod_name"].ToString(),
+                                                RF_Description = reader2["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
+                                                RF_Unit = reader2["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader2["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader2["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader2["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
                         }
                     }
-
                 }
                 List<originalData> originalDataList = RetrieveOriginalViewRequisitionData(db, request_ID);
                 Session["Items"] = originalDataList;
             }
             return View(details);
         }
+
         public ActionResult DeleteRequisition(int delete_ID)
         {
             using (var db = new SqlConnection(mainconn))
@@ -279,7 +351,6 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult addItem(int request_ID)
         {
-            Session["request_ID"] = request_ID;
             List<addItemLists> productList = new List<addItemLists>();
 
             using (var db = new SqlConnection(mainconn))
@@ -357,7 +428,7 @@ namespace InstrumentShop.Controllers
                         transaction.Commit();
 
                         // Retrieve the request_ID from the session
-                        int request_ID = (int)Session["request_ID"];
+                        int request_ID = (int)Session["edit_ID"];
                         return RedirectToAction("editRequisition", new { edit_ID = request_ID });
                     }
                     catch (Exception ex)
@@ -370,9 +441,9 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult CancelAdd ()
+        public ActionResult Cancel ()
         {
-            int request_ID = (int)Session["request_ID"];
+            int request_ID = (int)Session["edit_ID"];
             return RedirectToAction("editRequisition", new { edit_ID = request_ID });
         }
 
@@ -489,29 +560,20 @@ namespace InstrumentShop.Controllers
         {
             return PartialView("_DeclinePartialView");
         }
-        public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus)
+        public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
         {
-            // Retrieve the original requisition data from the session
-            var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
-
+            int user = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
 
-                bool isAlreadyApproved = originalRequisitionData.Any(item => item.rf_id == request_ID && item.rf_status == "Approved");
+                // Update the status and the cost
+                UpdateRF_Status(db, selectedStatus, request_ID);
+                UpdateCost(db, EstimateTotal, request_ID);
 
-                if (isAlreadyApproved)
-                {
-                    ViewBag.Message = "This requisition form is already approved";
-                }
-                else
-                {
-                    // Update the status and the cost
-                    UpdateRF_Status(db, selectedStatus, request_ID);
-                    UpdateCost(db, EstimateTotal, request_ID);
+                InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
 
-                    ViewBag.Message = "Requisition form approved successfully!";
-                }
+                ViewBag.Message = "Requisition form approved successfully!";
 
                 // Redirect to the "ViewRequisition" action
                 return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
@@ -519,20 +581,52 @@ namespace InstrumentShop.Controllers
         }
 
 
-        public ActionResult SaveUpdate(int request_ID, decimal EstimateTotal, string selectedStatus)
+        public ActionResult DeclineRequest(int request_ID, string selectedStatus, string ApprovalNote)
         {
+            int user = (int)Session["user_id"];
+            // Retrieve the original requisition data from the session
+            var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
+            var originalDataList = Session["Items"] as List<originalData>;
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                
+                bool isAlreadyDeclined = originalRequisitionData.Any(item => item.rf_id == request_ID && item.rf_status == "Declined");
 
-                
+                if (isAlreadyDeclined)
+                {
+                    ViewBag.Message = "This requisition form is already declined";
 
-                
+                    // Use the original requisition data to reset changes
+                    ResetRequisitionChanges(db, originalRequisitionData);
 
-                UpdateRF_Status(db, selectedStatus, request_ID);
+                    // Use the original view requisition data to reset changes
+                    UpdateViewRequisitionData(db, originalDataList);
 
-                return RedirectToAction("Requisition");
+                    // Delete canvas items
+                    DeleteCanvasItem();
+                }
+                else
+                {
+                    foreach (var originalData in originalDataList)
+                    {
+                        UpdateCanvas(db, originalData.origDetail_CanvasID, originalData.origDetail_Quantity, originalData.origDetail_Unit, originalData.origDetail_Total);
+
+                        Status(originalData.origDetail_ID, selectedStatus);
+                    }
+
+                    // Delete canvas items
+                    DeleteCanvasItem();
+
+                    // Update the status
+                    UpdateRF_Status(db, selectedStatus, request_ID);
+                    InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
+
+
+                    ViewBag.Message = "Requisition form declined successfully!";
+                }
+
+                // Redirect to the "ViewRequisition" action
+                return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
             }
         }
 
@@ -674,20 +768,52 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult DeleteCanvas()
+        public ActionResult DeleteCanvas(int delete_ID)
         {
-            DeleteCanvasItem();
-            int request_ID = (int)Session["request_ID"];
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "DELETE FROM [dbo].[canvas] WHERE canvas_status = 0 and canvas_id = @id";
+                    cmd.Parameters.AddWithValue("@id", delete_ID);
+
+                    cmd.ExecuteNonQuery();
+                }
+                db.Close();
+            }
+            int request_ID = (int)Session["edit_ID"];
             return RedirectToAction("editRequisition", new { edit_ID = request_ID });
         }
-        public void InsertApproval(SqlConnection db)
+        public void InsertApproval(SqlConnection db, string status, string note, int userID, int formID)
         {
             using (var cmd = db.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "";
+
+                // Use a single INSERT statement with conditional parameter inclusion
+                cmd.CommandText = "INSERT INTO ApprovalStatus (approval_status, approval_note, user_id, rf_id) VALUES (@status, @note, @user, @form)";
+
+                cmd.Parameters.AddWithValue("@status", status);
+                cmd.Parameters.AddWithValue("@user", userID);
+                cmd.Parameters.AddWithValue("@form", formID);
+
+                // Add the note parameter only if it is not null
+                if (note != null)
+                {
+                    cmd.Parameters.AddWithValue("@note", note);
+                }
+                else
+                {
+                    // If note is null, set it to DBNull.Value
+                    cmd.Parameters.AddWithValue("@note", DBNull.Value);
+                }
+
+                cmd.ExecuteNonQuery();
             }
         }
+
         public void UpdateCost(SqlConnection db, decimal EstimateTotal, int request_ID)
         {
             using (var cmd2 = db.CreateCommand())

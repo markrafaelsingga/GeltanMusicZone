@@ -67,11 +67,10 @@
                             </div>
                             <input type="hidden" value="@Model.CanvasID" name="ItemEdit_ID" />
                             <input type="hidden" name="ItemEdit_Total" id="ItemEdit_Total" value="@Model.CanvasTotal" />
-                            <input type="hidden" name="edit_ID" id="edit_ID" value="@Model.Canvas_FormID"/>
                         </div>
                         <div class="text-start">
                             <button type="submit" class="btn btn-style btn-style-3">SAVE</button>
-                            <a href="/AdminRequisition/editRequisition?edit_ID=@Model.Canvas_FormID" class="btn btn-style btn-style-3">CANCEL</a>
+                            <button type="button" onclick="window.location.href='/AdminRequisition/Cancel'" class="btn btn-style btn-style-3">CANCEL</button>
                         </div>
                     </form>
                 </div>

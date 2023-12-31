@@ -767,46 +767,116 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using (var cmd = db.CreateCommand())
+                using (var cmd1 = db.CreateCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
-                        "FROM supplier s " +
-                        "JOIN product p ON s.sup_id = p.sup_id " +
-                        "JOIN canvas c ON p.prod_id = c.prod_id " +
-                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
-                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
-                        "WHERE rf.rf_id = @id";
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT rf_status from requisition where rf_id = @rf";
+                    cmd1.Parameters.AddWithValue("@rf", request_ID);
 
-                    cmd.Parameters.AddWithValue("@id", request_ID);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd1.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            ViewRequisitionForm list = new ViewRequisitionForm
-                            {
-                                RF_ID = Convert.ToInt32(reader["rf_id"]),
-                                RF_Status = reader["rf_status"].ToString(),
-                                RF_Code = reader["rf_code"].ToString(),
-                                RF_Daterequested = reader["rf_date_requested"].ToString(),
-                                RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
-                                RF_Item = reader["prod_name"].ToString(),
-                                RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
-                                RF_Unit = reader["ri_unit"].ToString(),
-                                RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
-                                RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
-                            };
+                            string status = reader["rf_status"].ToString();
 
-                            details.Add(list);
+                            if (status == "Approved" || status == "Declined")
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                          "JOIN product p ON s.sup_id = p.sup_id " +
+                                          "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                          "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                          "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                          "JOIN ApprovalStatus a ON rf.rf_id = a.rf_id " +
+                                          "JOIN users u ON a.user_id = u.user_id " +
+                                          "WHERE rf.rf_id = @id ORDER BY a.approval_date DESC";
+
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader1 = cmd.ExecuteReader())
+                                    {
+                                        while (reader1.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                approvalName = reader1["user_fname"].ToString() + " " +
+                                                           reader1["user_mi"].ToString() + ". " +
+                                                           reader1["user_lname"].ToString(),
+                                                approvalNote = reader1["approval_note"].ToString(),
+                                                approvalDate = reader1["approval_date"].ToString(),
+
+
+                                                RF_ItemStatus = reader1["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader1["rf_id"]),
+                                                RF_Status = reader1["rf_status"].ToString(),
+                                                RF_Code = reader1["rf_code"].ToString(),
+                                                RF_Daterequested = reader1["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader1["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
+                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
+                                                RF_Item = reader1["prod_name"].ToString(),
+                                                RF_Description = reader1["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
+                                                RF_Unit = reader1["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader1["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader1["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader1["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                        "JOIN product p ON s.sup_id = p.sup_id " +
+                                        "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                        "WHERE rf.rf_id = @id";
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader2 = cmd.ExecuteReader())
+                                    {
+                                        while (reader2.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                RF_ItemStatus = reader2["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader2["rf_id"]),
+                                                RF_Status = reader2["rf_status"].ToString(),
+                                                RF_Code = reader2["rf_code"].ToString(),
+                                                RF_Daterequested = reader2["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader2["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
+                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
+                                                RF_Item = reader2["prod_name"].ToString(),
+                                                RF_Description = reader2["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
+                                                RF_Unit = reader2["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader2["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader2["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader2["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
                         }
                     }
-
                 }
             }
             return View(details);

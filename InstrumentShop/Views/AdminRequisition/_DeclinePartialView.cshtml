@@ -14,9 +14,9 @@
     }
 
     .approval-header {
-        font-size: 24px;
+        font-size: 23px;
         color: #333;
-        font-weight: 800;
+        font-weight: 700;
         margin-bottom: 20px;
     }
 
@@ -36,32 +36,51 @@
     }
 
     .approval-actions {
-        margin-top: 20px;
+        margin-top: 15px;
+    }
+
+    .note textarea {
+        width: 100%;
+        font-size: 12px;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        height: auto;
     }
 </style>
 
 <div class="approval-container">
-    <div class="approval-header">
-        <h2>You are about to decline a request!</h2>
-    </div>
-
-    <div class="approval-details">
-        <div class="detail-item">
-            Requisition form #: <strong>@Model.First().RF_Code</strong>
+    <form class="save-form" method="post" action="@Url.Action("DeclineRequest", "AdminRequisition")">
+        <div class="approval-header">
+            You are about to decline a request!
         </div>
 
-        <div class="detail-item">
-            Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
-        </div>
+        <div class="approval-details">
+            <div class="detail-item">
+                Requisition form #: <strong>@Model.First().RF_Code</strong>
+            </div>
 
-        <div class="detail-item">
-            Total cost: <strong class="total-cost"></strong>
-        </div>
-    </div>
+            <div class="detail-item">
+                Date requested: <strong>@DateTime.Parse(Model.First().RF_Daterequested).ToString("MMMM dd, yyyy")</strong>
+            </div>
 
-    <div class="approval-actions">
-        <button class="btn btn-style btn-style-3 approve-btn" onmouseover="this.style.backgroundColor='#e53f31'" onmouseout="this.style.backgroundColor='#05a4f1'">
-            Decline Request
-        </button>
-    </div>
+            <div class="detail-item">
+                Total cost: <strong class="total-cost"></strong>
+            </div>
+
+            <div class="detail-item note">
+                Note: (Optional)
+                <textarea name="ApprovalNote" id="ApprovalNote" placeholder="Why you decline this request?"></textarea>
+            </div>
+        </div>
+        <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+
+        <div class="approval-actions">
+            <button type="submit" class="btn btn-style btn-style-3 approve-btn" onmouseover="this.style.backgroundColor='#e53f31'" onmouseout="this.style.backgroundColor='#05a4f1'">
+                Decline Request
+            </button>
+        </div>
+    </form>
 </div>

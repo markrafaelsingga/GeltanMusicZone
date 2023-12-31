@@ -19,9 +19,4 @@ namespace InstrumentShop.Models
         public int ReqItem_ID { get; set; } // Dropdown list ID
 
     }
-
-    public class canvasIDLists
-    {
-        public int id_canvas { get; set; }
-    }
 }
