@@ -2,6 +2,7 @@
     Layout = null;
 
 }
+@model InstrumentShop.Models.Register
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,8 +14,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-
 </head>
 <body>
     <div id="register-panel">
@@ -57,16 +56,13 @@
 
                 </div>
             }
-            <div class="form-group">
-                @model InstrumentShop.Models.Register
-
+            <div class="form-group" style="margin-left: 10px;">
                 @Html.DropDownListFor(model => model.Department, (SelectList)ViewBag.DepList, "Select Department", new { @class = "form-control" })
             </div>
 
             <div class="form-group">
-                <label for="ProfileImage">Profile Image:</label>
-                <input type="file" name="ProfileImage" />
-
+                <label for="imageFile">Profile Image:</label>
+                <input type="file" name="imageFile" />
             </div>
 
             <div class="register-actions">

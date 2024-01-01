@@ -12,9 +12,42 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+
         public ActionResult AdminPage()
         {
+            int id = (int)Session["user_id"];
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using(var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "select users.user_phone,users.user_email,users.user_address,users.user_fname,users.user_mi,users.user_lname,user_role.role_desc from users join user_role on user_role.role_id = users.role_id where user_id = @id ";
+                    cmd.Parameters.AddWithValue("@id",id);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+
+                        if (reader.Read())
+                        {
+                            var model = new Home
+                            {
+                                fname = reader["user_fname"].ToString(),
+                                mi = reader["user_mi"].ToString(),
+                                lname = reader["user_lname"].ToString(),
+                                role = reader["role_desc"].ToString(),
+                                Phone = reader["user_phone"].ToString(),
+                                Email = reader["user_email"].ToString(),
+                                Address = reader["user_address"].ToString(),
+                            };
+                            ViewBag.uname = $"{model.fname} {model.mi} {model.lname}";
+                            Session["uname"] = $"{model.fname} {model.mi} {model.lname}";
+                            return View(model);
+                        }
+
+                    }
+                }
+            }
             
             return View();
         }
@@ -651,7 +684,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult SubmitDataRF(decimal EstimateTotal)
         {
-            int user = (int)Session["user_id"];
+
             try
             {
                 using (var db = new SqlConnection(mainconn))
@@ -663,7 +696,7 @@ namespace InstrumentShop.Controllers
                         cmd.CommandText = "INSERT INTO [dbo].[requisition] (rf_date_requested, rf_status, rf_estimated_cost, user_id, dep_id) " +
                             "VALUES (GETDATE(), 'Pending', @estimate, @user, 1)";
                         cmd.Parameters.AddWithValue("@estimate", EstimateTotal);
-                        cmd.Parameters.AddWithValue("@user", user);
+
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -1020,7 +1053,7 @@ namespace InstrumentShop.Controllers
 
         public ActionResult Profile()
         {
-            DeleteCanvasItem();
+
             return View();
         }
     }

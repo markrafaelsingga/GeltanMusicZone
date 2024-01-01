@@ -11,6 +11,8 @@ namespace InstrumentShop.Controllers
         // GET: AdminDepartment
         public ActionResult AdminDepartment()
         {
+            string name = Session["uname"].ToString();
+            ViewBag.uname = name;
             return View();
         }
     }

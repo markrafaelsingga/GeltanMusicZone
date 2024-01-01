@@ -141,6 +141,7 @@
     <Compile Include="Models\addItemLists.cs" />
     <Compile Include="Models\AdminProfile.cs" />
     <Compile Include="Models\Department.cs" />
+    <Compile Include="Models\Home.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\originalData.cs" />
     <Compile Include="Models\productLists.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Models\requisitionItemLists.cs" />
     <Compile Include="Models\requisitionModel.cs" />
     <Compile Include="Models\Staff.cs" />
+    <Compile Include="Models\StaffProfile.cs" />
     <Compile Include="Models\supplierDetails.cs" />
     <Compile Include="Models\viewRequisition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -249,7 +251,9 @@
     <Content Include="Views\Home\CreateNewRequisition.cshtml" />
     <Content Include="Views\Home\EditItemView.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\Profile.cshtml" />
+    <Content Include="Views\Home\StaffProfile.cshtml">
+      <BrowseToURL>~/Home/Profile</BrowseToURL>
+    </Content>
     <Content Include="Views\Home\Requisition.cshtml" />
     <Content Include="Views\Home\RequisitionDetails.cshtml" />
     <Content Include="Views\Home\RequisitionForm.cshtml" />

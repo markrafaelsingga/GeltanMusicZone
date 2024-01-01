@@ -43,42 +43,39 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
                 <h1>Edit Staff</h1>
             </div>
             <div class="form-container">
-                <div class="form-group">
-                    <label for="userId">ID:</label>
-                    <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus />
-                </div>
-                <div class="form-group">
-                    <label for="fname">Firstname:</label>
-                    <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus />
-                </div>
-                <div class="form-group">
-                    <label for="mi">M.I:</label>
-                    <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required />
-                </div>
-                <div class="form-group">
-                    <label for="lname">Lastname:</label>
-                    <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required />
-                </div>
-                <div class="form-group">
-                    <label for="DepartmentLabel">Department:</label>
-                    <input type="text" id="Department" name="Department" class="textbox-style" style="width: 300px !important;" value="${department}" required autofocus />
-                </div>
-
-                <div class="form-group">
-                    <label for="phone">Phone:</label>
-                    <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="address">Address:</label>
-                    <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required />
-                </div>
-                
+           
+               <div class="form-group">
+                <label for="userId">ID:</label>
+                <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus oninput="updateModalContent()" />
+               </div>
+            <div class="form-group">
+                <label for="fname">Firstname:</label>
+                <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="mi">M.I:</label>
+                <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="lname">Lastname:</label>
+                <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="DepartmentLabel">Department:</label>
+                <input type="text" id="Department" name="Department" class="textbox-style" style="width: 300px !important;" value="${department}" required autofocus oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required oninput="updateModalContent()" />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required oninput="updateModalContent()" />
+            </div>    
                 <div class="form-group">
                     <label for="DepartmentSelect">Department:</label>
                     <select id="DepartmentSelect" name="DepartmentSelect" class="form-control">
@@ -92,21 +89,26 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
                 </div>
             </div>
 
-           <i class='bx bxs-edit-alt' onclick="editStaff(${userId}, '${fname}', '${mi}', '${lname}', '${phone}', '${address}', '${email}')" style="margin-left: 1000px; font-size: 30px !important;"></i>
+
 
             </br></br>
         </div>
     `;
 
-    // Show the modal
+    
     document.getElementById('editModal').style.display = 'block';
 }
 
-function editStaff(userId, fname, mi, lname, phone, address, email) {
+function editStaff(userId) {
+    /*<i class='bx bxs-edit-alt' onclick="editStaff(${userId})" style="margin-left: 1000px; font-size: 30px !important;"></i>*/
+    // Get the form element
+    /*var formData = new FormData(document.getElementById('editStaffForm'));*/
+
     var form = document.createElement("form");
     form.setAttribute("method", "post");
     form.setAttribute("action", '/Staff/EditStaff');
 
+    // Create hidden inputs for each field
     function createHiddenInput(name, value) {
         var input = document.createElement("input");
         input.setAttribute("type", "hidden");
@@ -115,19 +117,47 @@ function editStaff(userId, fname, mi, lname, phone, address, email) {
         form.appendChild(input);
     }
 
-    createHiddenInput("userId", userId);
-    createHiddenInput("fname", fname);
-    createHiddenInput("mi", mi);
-    createHiddenInput("lname", lname);
-    createHiddenInput("phone", phone);
-    createHiddenInput("address", address);
-    createHiddenInput("email", email);
+    // Retrieve values from the modal inputs
+    var updatedUserId = document.getElementById('userId').value;
+    var updatedFname = document.getElementById('fname').value;
+    var updatedMi = document.getElementById('mi').value;
+    var updatedLname = document.getElementById('lname').value;
+    var updatedDepartment = document.getElementById('DepartmentSelect').value;
+    var updatedPhone = document.getElementById('phone').value;
+    var updatedAddress = document.getElementById('address').value;
+    var updatedEmail = document.getElementById('email').value;
 
+    // Create hidden inputs for each field
+    createHiddenInput("userId", updatedUserId);
+    createHiddenInput("fname", updatedFname);
+    createHiddenInput("mi", updatedMi);
+    createHiddenInput("lname", updatedLname);
+    createHiddenInput("department", updatedDepartment);
+    createHiddenInput("phone", updatedPhone);
+    createHiddenInput("address", updatedAddress);
+    createHiddenInput("email", updatedEmail);
+
+    // Append the form to the body and submit it
     document.body.appendChild(form);
     form.submit();
 }
 
 
+
+function updateModalContent() {
+    // Retrieve the values directly from the input fields
+    var updatedUserId = document.getElementById('userId').value;
+    var updatedFname = document.getElementById('fname').value;
+    var updatedMi = document.getElementById('mi').value;
+    var updatedLname = document.getElementById('lname').value;
+    var updatedDepartment = document.getElementById('DepartmentSelect').value;
+    var updatedPhone = document.getElementById('phone').value;
+    var updatedAddress = document.getElementById('address').value;
+    var updatedEmail = document.getElementById('email').value;
+
+    // Call the openEditModal function with updated values
+    openEditModal(updatedUserId, updatedFname, updatedMi, updatedLname, updatedDepartment, updatedPhone, updatedAddress, updatedEmail);
+}
 
 
 

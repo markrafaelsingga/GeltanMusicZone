@@ -13,7 +13,7 @@
         <span class="text">STAFF</span>
     </div>
     <br /><br /><br /><br />
-
+    <form class="register-form">
     <div class="table-wrapper">
         <table class="fl-table">
             <thead>
@@ -55,6 +55,9 @@
                             <a href="@Url.Action("DeleteStaff", new { userId = staff.userId })">
                                 <i class='bx bxs-trash' style="color: red"></i>
                             </a>
+                            <a href="@Url.Action("ReactivateStaff", new { userId = staff.userId })">
+                                <i class='bx bxs-circle' style="color: green;"></i>
+                            </a>
                         </td>
                     </tr>
                 }
@@ -69,6 +72,7 @@
     <div id="editModal">
 
     </div>
+        </form>
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>
