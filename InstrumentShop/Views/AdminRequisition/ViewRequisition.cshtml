@@ -1,0 +1,237 @@
+﻿@using InstrumentShop.Models
+@model List<ViewRequisitionForm>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Requisition Details</title>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+    <link href="~/Content/staff.css" rel="stylesheet" />
+    <style>
+        .home-section {
+            font-family: Helvetica;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .requisition-input {
+            font-size: 15px;
+        }
+
+        .total-cost {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">View requisition details</span>
+        </div>
+
+        <div style="margin-left: 50px">
+            <form class="edit-form" method="post" action="@Url.Action("Requisition", "AdminRequisition")">
+                <button class="btn btn-style-3" type="submit">
+                    <i class='bx bx-left-arrow-alt'></i>&emsp;<strong>Back</strong>
+                </button>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <br />
+            @if (Model.First().RF_Status != "Cancelled" && Model.First().RF_Status != "Deleted" && Model.First().RF_Status != "Approved")
+            {
+                <div style="margin-left: 91%">
+                    <form class="edit-form" method="post" action="@Url.Action("editRequisition", "AdminRequisition")">
+                        <input type="hidden" name="edit_ID" id="edit_ID" value="@Model.First().RF_ID" />
+                        <button class="btn btn-style-3 edit-btn" type="submit">
+                            <strong>Edit</strong>&emsp;<i class='bx bxs-edit-alt'></i>
+                        </button>
+                    </form>
+                </div>
+            }
+
+            <div class="row requisition-block">
+                <div class="col-sm-6" style="margin-left: 20px; width:20%;">
+                    <p style="font-size: 15px">Status:</p>
+                    <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" style="background-color: @(Model.First().RF_Status == "Cancelled" || Model.First().RF_Status == "Deleted" || Model.First().RF_Status == "Declined" ? "#e53f31" : (Model.First().RF_Status == "Approved" ? "#28a745" : "#f4f4f4"))" />
+                </div>
+
+                <div class="col-sm-7">
+                    <div class="input-grids">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p style="font-size: 15px"> Requisition Form #:</p>
+                                <input type="text" name="price" id="price" placeholder="Requisition code #" class="requisition-input" disabled value="@Model.First().RF_Code" />
+                            </div>
+                            <div class="col-sm-6">
+                                <p style="font-size: 15px"> Date requested:</p>
+                                <input type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().RF_Daterequested" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var isPending = Model.Any(form => form.RF_ItemStatus != "Declined");
+                var isDeclined = Model.Any(form => form.RF_ItemStatus == "Declined");
+            }
+
+            @if (isPending)
+            {
+                <table class="fl-table mx-auto" id="item-list" style="width: 96%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus != "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td>@form.RF_Itemcode</td>
+                                <td>@form.RF_Suppliercompany</td>
+                                <td>@form.RF_Item</td>
+                                <td>@form.RF_Description</td>
+                                <td>@form.RF_Quantity</td>
+                                <td>@form.RF_Unit</td>
+                                <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            </tr>
+                        }
+
+                        <tr style="text-align: center; font-weight:600">
+                            <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td>
+                                <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+            <br />
+            @if (isDeclined)
+            {
+                <p style="margin-left: 25px;">Declined Item/s:</p>
+                <table class="fl-table mx-auto" id="item-list" style="width: 96%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus == "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td>@form.RF_Itemcode</td>
+                                <td>@form.RF_Suppliercompany</td>
+                                <td>@form.RF_Item</td>
+                                <td>@form.RF_Description</td>
+                                <td>@form.RF_Quantity</td>
+                                <td>@form.RF_Unit</td>
+                                <td style="text-align: center">@form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value">@form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            <br />
+
+            @if (Model.First().RF_Status == "Approved" || Model.First().RF_Status == "Declined")
+            {
+                <div class="row requisition-block">
+                    <div class="col-sm-6" style="margin-left: 20px; width:20%;">
+                        <p>Note:</p>
+                        <textarea style="height: 100px; width: 400px" disabled>@Model.First().approvalNote</textarea>
+                    </div>
+
+                    <div class="col-sm-7">
+                        <div class="input-grids">
+                            <div class="row">
+                                <div class="col-sm-6" style="margin-left: 200px; margin-top: 45px">
+                                    <p>Date approved:</p>
+                                    <input style="font-weight: 600; text-align: center" type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().approvalDate" />
+                                </div>
+                                <div class="col-sm-6" style="margin-top: 45px">
+                                    <p>Approved by:</p>
+                                    <input style="font-weight: 600; text-align: center" type="text" name="price" id="price" class="requisition-input" disabled value="@Model.First().approvalName" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // ===Add row numbers to each row in the table
+        document.addEventListener("DOMContentLoaded", function () {
+            var rowNumbers = document.querySelectorAll('.row-number');
+            rowNumbers.forEach(function (element, index) {
+                element.textContent = index + 1;
+            });
+        });
+
+        $(document).ready(function () {
+            var alertMessage = "@ViewBag.Message";
+
+            if (alertMessage && alertMessage.trim() !== "") {
+                alert(alertMessage);
+
+                // Redirect to the Requisition action
+                window.location.href = "/AdminRequisition/Requisition";
+            }
+        });
+    </script>
+
+</body>
+</html>

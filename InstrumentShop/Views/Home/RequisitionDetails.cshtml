@@ -29,9 +29,9 @@
     <div class="row requisition-block">
         <div class="col-sm-6" style="margin-left: 90px; width:20% ">
             <p>Status:</p>
-            <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" />
+            <input type="text" name="status" id="status" placeholder="Status" class="requisition-input" disabled value="@Model.First().RF_Status" style="background-color: @(Model.First().RF_Status == "Cancelled" || Model.First().RF_Status == "Deleted" || Model.First().RF_Status == "Declined" ? "#e53f31" : (Model.First().RF_Status == "Approved" ? "#28a745" : "#f4f4f4"))" />
         </div>
-        <div class="col-md-7 requisition-right" style="margin-left: 870px">
+        <div class="col-md-7 requisition-right" style="margin-left: 850px">
             <div class="input-grids">
                 <div class="row">
                     <div class="col-sm-6">
@@ -50,67 +50,163 @@
     <!--Data table-->
     <div class="row requisition-block">
         <div class="col-md-7 mx-auto requisition-right" style="width: 90%">
-            <table class="table-striped table-bordered" id="item-list" style="width: 100%">
-                <colgroup>
-                    <col width="3%">
-                    <col width="12%">
-                    <col width="12%">
-                    <col width="10%">
-                    <col width="25%">
-                    <col width="6%">
-                    <col width="6%">
-                    <col width="8%">
-                    <col width="8%">
-                </colgroup>
-                <thead>
-                    <tr style="background-color: #fbb034; color: #000000;">
-                        <th class="px-1 py-1 text-center">#</th>
-                        <th class="px-1 py-1 text-center">Requisition code</th>
-                        <th class="px-1 py-1 text-center">Supplier</th>
-                        <th class="px-1 py-1 text-center">Item</th>
-                        <th class="px-1 py-1 text-center">Description</th>
-                        <th class="px-1 py-1 text-center">Quantity</th>
-                        <th class="px-1 py-1 text-center">Unit</th>
-                        <th class="px-1 py-1 text-center">Price</th>
-                        <th class="px-1 py-1 text-center">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var form in Model)
-                    {
-                        <tr style="text-align: center">
-                            <td><p class="row-number"></p></td>
-                            <td> @form.RF_Itemcode</td>
-                            <td> @form.RF_Suppliercompany</td>
-                            <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
-                            <td> @form.RF_Item</td>
-                            <td> @form.RF_Description</td>
-                            <td> @form.RF_Quantity</td>
-                            <td> @form.RF_Unit</td>
-                            <td style="text-align: center">  @form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                            <td class="canvas-total-value"> @form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                        </tr>
-                    }
+            @{
+                var isPending = Model.Any(form => form.RF_ItemStatus != "Declined");
+                var isDeclined = Model.Any(form => form.RF_ItemStatus == "Declined");
+            }
 
-                    <tr style="text-align: center; font-weight:600">
-                        <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
-                        <td>
-                            <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
-                            <!-- "C2" format specifier represents currency with two decimal places -->
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            @if (isPending)
+            {
+                <table class="table-striped table-bordered" id="item-list" style="width: 100%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus != "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td> @form.RF_Itemcode</td>
+                                <td> @form.RF_Suppliercompany</td>
+                                <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
+                                <td> @form.RF_Item</td>
+                                <td> @form.RF_Description</td>
+                                <td> @form.RF_Quantity</td>
+                                <td> @form.RF_Unit</td>
+                                <td style="text-align: center">  @form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value"> @form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+
+                                <input type="hidden" value="@form.RF_ItemStatus" />
+                            </tr>
+                        }
+
+                        <tr style="text-align: center; font-weight:600">
+                            <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td>
+                                <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                                <!-- "C2" format specifier represents currency with two decimal places -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+            @if (isDeclined)
+            {
+                <p style="margin-left: 25px;">Declined Item/s:</p>
+                <table class="table-striped table-bordered" id="item-list" style="width: 100%">
+                    <colgroup>
+                        <col width="3%">
+                        <col width="12%">
+                        <col width="12%">
+                        <col width="10%">
+                        <col width="25%">
+                        <col width="6%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="8%">
+                    </colgroup>
+                    <thead>
+                        <tr style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">#</th>
+                            <th class="px-1 py-1 text-center">Requisition code</th>
+                            <th class="px-1 py-1 text-center">Supplier</th>
+                            <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Quantity</th>
+                            <th class="px-1 py-1 text-center">Unit</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                            <th class="px-1 py-1 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var form in Model.Where(form => form.RF_ItemStatus == "Declined"))
+                        {
+                            <tr style="text-align: center">
+                                <td><p class="row-number"></p></td>
+                                <td> @form.RF_Itemcode</td>
+                                <td> @form.RF_Suppliercompany</td>
+                                <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
+                                <td> @form.RF_Item</td>
+                                <td> @form.RF_Description</td>
+                                <td> @form.RF_Quantity</td>
+                                <td> @form.RF_Unit</td>
+                                <td style="text-align: center">  @form.RF_Price.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td class="canvas-total-value"> @form.RF_Total.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+
+                                <input type="hidden" value="@form.RF_ItemStatus" />
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
             <div class="text-start">
                 <br />
-                <form class="cancel-form" method="post" action="@Url.Action("CancelRequisition", "Home")">
-                    <input type="hidden" name="Cancel" id="Cancel" value="@Model.First().RF_ID" />
-                    <button type="button" class="btn btn-style btn-style-3" onclick="cancelRequest(this)" style="margin-left: 82%">Cancel requisition ?</button>
-                </form>
+                @if (Model.First().RF_Status == "Pending")
+                {
+                    <form class="cancel-form" method="post" action="@Url.Action("CancelRequisition", "Home")">
+                        <input type="hidden" name="Cancel" id="Cancel" value="@Model.First().RF_ID" />
+                        <button type="button" class="btn btn-style btn-style-3" onclick="cancelRequest(this)" style="margin-left: 82%">Cancel requisition?</button>
+                    </form>
+                }
+                else if (Model.First().RF_Status == "Cancelled")
+                {
+                    <form class="restore-form" method="post" action="@Url.Action("restoreRequisition", "Home")">
+                        <input type="hidden" name="Restore" id="Restore" value="@Model.First().RF_ID" />
+                        <button type="button" class="btn btn-style btn-style-3" onclick="restoreRequest(this)" style="margin-left: 82%">Restore requisition?</button>
+                    </form>
+                }
+
             </div>
         </div>
     </div>
     <!--Data table-->
+
+    @if (Model.First().RF_Status == "Approved" || Model.First().RF_Status == "Declined")
+    {
+        <div class="row requisition-block">
+            <div class="col-sm-6" style="margin-left: 90px; width:20% ">
+                <p>Note:</p>
+                <textarea style="height: 100px; width: 400px" disabled>@Model.First().approvalNote</textarea>
+            </div>
+            <div class="col-md-7 requisition-right" style="margin-left: 850px">
+                <div class="input-grids">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>Date approved:</p>
+                            <input style="font-weight: 600; text-align: center" type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().approvalDate" />
+                        </div>
+                        <div class="col-sm-6">
+                            <p>Approved by:</p>
+                            <input style="font-weight: 600; text-align: center" type="text" name="price" id="price" class="requisition-input" disabled value="@Model.First().approvalName" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
 </section>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -131,6 +227,15 @@
         var confirmation = confirm("Are you sure you want to cancel this requisition?");
         if (confirmation) {
             var form = button.closest('.cancel-form');
+            form.submit();
+        }
+    }
+
+    // ===To restore a cancelled requisition form
+    function restoreRequest(button) {
+        var confirmation = confirm("Are you sure you want to restore this requisition?");
+        if (confirmation) {
+            var form = button.closest('.restore-form');
             form.submit();
         }
     }

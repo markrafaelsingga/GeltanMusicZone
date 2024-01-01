@@ -89,9 +89,7 @@ function openEditModal(userId, fname, mi, lname, department, dob, phone, address
                 </div>
             </div>
 
-          
-             <button type="button" style="margin-left: 1000px;" !important; onclick="editStaff(${userId})">Save Changes</button>
-            
+
 
             </br></br>
         </div>

@@ -1,0 +1,184 @@
+﻿@using InstrumentShop.Models
+
+@model List<addItemLists>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Requisition Details</title>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+    <link href="~/Content/staff.css" rel="stylesheet" />
+    <style>
+        .home-section {
+            font-family: Helvetica;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .requisition-input {
+            font-size: 15px;
+        }
+
+        .total-cost {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Add item</span>
+        </div>
+
+        <div class="table-wrapper">
+            <br /><br /><br />
+            <!--Add Requisition Items-->
+            <div class="row requisition-block">
+                <div class="col-md-7 mx-auto requisition-right">
+                    <form id="requisitionForm" method="post" action="@Url.Action("Add", "AdminRequisition")">  
+                        <div class="input-grids">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <select name="ReqItem_Prod" id="ReqItem_Prod" class="requisition-select" required="">
+                                        <option value="" disabled selected>--- Select Product ---</option>
+
+                                        @foreach (var product in Model)
+                                        {
+                                            <option value="@product.ReqItem_ID" data-desc="@product.ReqItem_Desc" data-price="@product.ReqItem_Price">@product.ReqItem_Item</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="number" min="1" name="ReqItem_Qt" id="ReqItem_Qt" placeholder="Quantity" class="requisition-input" required="" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" name="ReqItem_Unit" id="ReqItem_Unit" placeholder="Unit" class="requisition-input" required="" />
+                                </div>
+                            </div>
+                            <input type="text" name="desc" id="desc" placeholder="Description" class="requisition-input" disabled />
+                            <div class="row">
+                                <div class="col-sm-6" style="width: 50%">
+                                    <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled />
+                                </div>
+                                <div class="col-sm-6" style="width: 50%">
+                                    <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required/>
+                                    <input type="hidden" name="ReqItem_Total" id="ReqItem_Total" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-start">
+                            <button type="submit" class="btn btn-style btn-style-3">Add Item</button>
+                            <a href="/AdminRequisition/Cancel" class="btn btn-style btn-style-3">CANCEL</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--Add Requisition Items-->
+            <br /><br /><br />
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+
+        // ===Add row numbers to each row in the table
+        document.addEventListener('DOMContentLoaded', function () {
+            var table = document.getElementById('item-list');
+            var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (var i = 0; i < rows.length - 1; i++) {
+                var cell = rows[i].getElementsByTagName('td')[0];
+                cell.innerHTML = i + 1;
+            }
+        });
+
+        // ===When a quantity is added total will automatically computed multiplied by its original price
+        $(document).ready(function () {
+            // Handle change event of the dropdown
+            $("#ReqItem_Prod").change(function () {
+                // Get the selected option
+                var selectedOption = $(this).find(":selected");
+
+                // Update description and price fields
+                $("#desc").val(selectedOption.data("desc"));
+                $("#price").val(selectedOption.data("price"));
+
+                // Recalculate and update total
+                calculateTotal();
+            });
+
+            // Handle input changes for quantity and price
+            $("#ReqItem_Qt, #price").on("input", function () {
+                // Recalculate and update total
+                calculateTotal();
+            });
+
+            function calculateTotal() {
+                // Get quantity and price values
+                var quantity = parseFloat($("#ReqItem_Qt").val()) || 0;
+                var price = parseFloat($("#price").val()) || 0;
+
+                // Calculate total
+                var total = quantity * price;
+
+                // Display total with label inside the input
+                $("#total").val(total.toFixed(2));
+
+                // Set the total value to the hidden input field
+                $("#ReqItem_Total").val(total.toFixed(2));
+            }
+
+
+            // Trigger change event on page load (if pre-selected option exists)
+            $("#ReqItem_Prod").change();
+        });
+
+        // Function to update the total cost based on canvas-total-value elements
+        function updateTotalCost() {
+            // Get all elements with class 'canvas-total-value'
+            var canvasTotalElements = document.getElementsByClassName('canvas-total-value');
+
+            // Initialize total cost
+            var totalCost = 0;
+
+            // Iterate through each canvas total and update total cost
+            for (var i = 0; i < canvasTotalElements.length; i++) {
+                totalCost += parseFloat(canvasTotalElements[i].textContent);
+            }
+
+            // Set the total value to the hidden input field
+            $("#EstimateTotal").val(totalCost.toFixed(2));
+
+            // Display total cost in the 'Total estimated cost' cell with commas for better readability
+            document.querySelector('.total-cost').textContent = "₱ " + totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+
+        // Call the function on page load
+        document.addEventListener('DOMContentLoaded', updateTotalCost);
+
+        // ===To delete an item
+        function confirmDelete(button) {
+            var confirmation = confirm("Are you sure you want to delete this item?");
+            if (confirmation) {
+                var form = button.closest('.delete-form');
+                form.submit();
+            }
+        }
+
+        // ===To submit a requisition form
+        function confirmSubmit(button) {
+            var confirmation = confirm("Are you sure you want to submit this requisition?");
+            if (confirmation) {
+                var form = button.closest('.submit-form');
+                form.submit();
+            }
+        }
+
+    </script>
+</body>
+</html>
+
