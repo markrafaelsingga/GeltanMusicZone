@@ -24,18 +24,13 @@
             </form>
         </div>
 
+        @{
+            // Sort the requisitions based on the latest date
+            var sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+        }
+
         @if (Model != null && Model.Any())
         {
-            <div class="text-start" style="margin-left: 55%">
-                <p>
-                    <strong>
-                        Note:
-                    </strong>
-                    <i>
-                        After restoring the requisition form, its status will be changed to 'pending'.
-                    </i>
-                </p>
-            </div>
             <div class="table-wrapper" style="width: 90%; margin-top: 40px;">
                 <table class="fl-table" id="item-list" style="width: 100%; font-size: 14px">
                     <colgroup>
@@ -59,7 +54,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var details in Model)
+                        @foreach (var details in sortedRequisitions)
                         {
                             <tr style="text-align: center;">
                                 <td><p class="row-number"></p></td>
@@ -78,7 +73,7 @@
                                 <td>
                                     <form class="restore-form" method="post" action="@Url.Action("restoreRequisition", "AdminRequisition")">
                                         <input type="hidden" name="restore_ID" value="@details.rf_id" />
-                                        <button class="btn btn-style-3 restore-btn" type="button" onclick="confirmRestore(this)" style="color: white">
+                                        <button class="btn btn-style-3 restore-btn" type="button" onclick="confirmRestore(this, '@details.rf_status')" style="color: white">
                                             <strong>Restore</strong>
                                         </button>
                                     </form>
@@ -107,19 +102,20 @@
             });
         });
 
-        // ===To restore a requisition
-        function confirmRestore(button) {
-            var confirmation = confirm("Are you sure you want to restore this requisition?");
-            if (confirmation) {
-                var form = button.closest('.restore-form');
-                if (form) {
-                    // Perform additional actions or show a message
-                    alert("Requisition restored successfully!");
-                    form.submit();
+        function confirmRestore(button, status) {
+            if (status === 'Cancelled') {
+                alert('It is not possible to restore a requisition that has been marked as Cancelled. This action can only be performed by an authorized staff member.');
+            } else {
+                // Ask for confirmation before proceeding with the restoration
+                var confirmation = window.confirm('Are you sure you want to restore this requisition?');
+
+                if (confirmation) {
+                    // If the user confirms, proceed with the restoration
+                    button.closest('form').submit();
+                } else {
+                    // If the user cancels, do nothing
                 }
             }
-            // Prevent the default confirm box from showing
-            return false;
         }
 
     </script>

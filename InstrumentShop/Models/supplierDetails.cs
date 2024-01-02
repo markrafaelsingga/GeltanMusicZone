@@ -29,8 +29,19 @@ namespace InstrumentShop.Models
         public string rf_date_requested { get; set; }
         public string rf_status { get; set; }
         public decimal rf_estimated_cost { get; set; }
+        public string rf_requestor { get; set; }
         public DateTime fromRequestdate { get; set; }
         public DateTime toRequestdate { get; set; }
 
+    }
+
+    public class DeletedRequisitionInfo
+    {
+        public int rf_id { get; set; }
+        public string rf_date_requested { get; set; }
+        public string rf_code { get; set; }
+        public string rf_status { get; set; }
+        public string rf_recentStatus { get; set; }
+        public decimal rf_estimated_cost { get; set; }
     }
 }

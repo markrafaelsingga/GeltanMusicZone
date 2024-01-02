@@ -12,9 +12,10 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
-        public ActionResult AdminPage()
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        public ActionResult AdminPage(int page = 1, int pageSize = 3)
         {
+            Home model = null;
             int id = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
             {
@@ -30,7 +31,7 @@ namespace InstrumentShop.Controllers
 
                         if (reader.Read())
                         {
-                            var model = new Home
+                            model = new Home
                             {
                                 fname = reader["user_fname"].ToString(),
                                 mi = reader["user_mi"].ToString(),
@@ -42,14 +43,67 @@ namespace InstrumentShop.Controllers
                             };
                             ViewBag.uname = $"{model.fname} {model.mi} {model.lname}";
                             Session["uname"] = $"{model.fname} {model.mi} {model.lname}";
-                            return View(model);
                         }
 
                     }
                 }
-            }
 
-            return View();
+                using (var cmd1 = db.CreateCommand())
+                {
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT * FROM requisition r JOIN users s ON r.user_id = s.user_id WHERE rf_status = @status ORDER BY rf_date_requested DESC";
+                    cmd1.Parameters.AddWithValue("@status", "Pending");
+
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd1);
+                    DataSet ds = new DataSet();
+                    sda.Fill(ds);
+
+                    List<requisitionDetails> lemp = new List<requisitionDetails>();
+
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        requisitionDetails request = new requisitionDetails
+                        {
+                            // Populate properties based on your database columns
+                            rf_id = Convert.ToInt32(dr["rf_id"]),
+                            rf_date_requested = dr["rf_date_requested"].ToString(),
+                            rf_code = dr["rf_code"].ToString(),
+                            rf_status = dr["rf_status"].ToString(),
+                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
+                            rf_requestor = dr["user_fname"].ToString() + " " +
+                                            dr["user_mi"].ToString() + ". " +
+                                                dr["user_lname"].ToString(),
+                        };
+
+                        lemp.Add(request);
+                    }
+
+                    db.Close();
+
+                    // Call GetMinDate with a requisitionDetails instance
+                    requisitionDetails minDateModel = new requisitionDetails();
+                    GetMinDate(minDateModel);
+
+                    // Call GetMaxDate with a requisitionDetails instance
+                    requisitionDetails maxDateModel = new requisitionDetails();
+                    GetMaxDate(maxDateModel);
+
+                    adminPageModel combine = new adminPageModel
+                    {
+                        pendingDetails = lemp,
+                        homeInfo = model
+                    };
+
+                    // Perform pagination logic
+                    var paginatedRequest = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                    ViewBag.PageNumber = page;
+                    ViewBag.PageSize = pageSize;
+                    ViewBag.TotalItems = lemp.Count;
+
+                    return View(combine);
+                }
+            }
         }
         public ActionResult Index()
         {
@@ -93,7 +147,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-
+                    // Fetch canvas data
                     using (var cmd = db.CreateCommand())
                     {
                         cmd.CommandType = CommandType.Text;
@@ -136,14 +190,16 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult CancelledRequest(int page = 1, int pageSize = 6)
         {
+            int user = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status like @Cancelled";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status like @Cancelled AND user_id = @user";
                     cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+                    cmd.Parameters.AddWithValue("@user", user);
 
 
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -194,8 +250,9 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult Requisition(int page = 1, int pageSize = 6)
+        public ActionResult Requisition()
         {
+            int user = (int)Session["user_id"];
             DeleteCanvasItem();
             using (var db = new SqlConnection(mainconn))
             {
@@ -203,9 +260,10 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status not like @Cancelled AND rf_status not like @Deleted";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status not like @Cancelled AND rf_status not like @Deleted AND user_id = @user";
                     cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
                     cmd.Parameters.AddWithValue("@Deleted", "Deleted");
+                    cmd.Parameters.AddWithValue("@user", user);
 
 
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -239,19 +297,13 @@ namespace InstrumentShop.Controllers
                     requisitionDetails maxDateModel = new requisitionDetails();
                     GetMaxDate(maxDateModel);
 
-                    // Perform pagination logic
-                    var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-                    ViewBag.PageNumber = page;
-                    ViewBag.PageSize = pageSize;
-                    ViewBag.TotalItems = lemp.Count;
 
                     // Pass the paginated list and minimum date model to the view
                     ViewBag.MinDate = minDateModel.fromRequestdate;
                     ViewBag.MaxDate = maxDateModel.toRequestdate;
 
                     // Pass the paginated list to the view
-                    return View(paginatedModel);
+                    return View(lemp);
                 }
             }
         }
@@ -702,7 +754,7 @@ namespace InstrumentShop.Controllers
 
                         if (rowsAffected > 0)
                         {
-
+                            // Retrieve canvas IDs
                             cmd.CommandType = CommandType.Text;
                             cmd.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
 
@@ -740,8 +792,6 @@ namespace InstrumentShop.Controllers
                 return View("Error", ex.Message);
             }
         }
-
-
         public ActionResult RequisitionForm()
         {
             int rfId = Convert.ToInt32(TempData["LatestInsert"]);

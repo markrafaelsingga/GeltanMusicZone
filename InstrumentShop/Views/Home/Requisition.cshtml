@@ -41,77 +41,101 @@
             <br />
             <!-- Search for requisition -->
             <div class="search-container">
-                <form @*action="@Url.Action("SearchRequisition", "Home")"*@ method="post">
+                <form method="post">
                     <div class="search-wrapper">
                         <label>
                             From: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;To:
                         </label><br />
-                        <input type="date" name="Fromsearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
+                        <input type="date" name="Fromsearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")" onchange="updateToDateMin()">
                         <i class="fa fa-arrow-right"></i>
                         <input type="date" name="Tosearch" class="search-box" id="searchBox2" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
                         <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
+
                     </div>
+
                 </form>
             </div>
             <!-- Search for requisition -->
 
+            <!-- Dropdown for requisition -->
+            <div class="row requisition-block" style="margin-left: 5px;">
+                <div class="col-sm-6" style=" width: 250px;">
+                    <select name="selectedStatus" id="selectedStatus" required="" class="requisition-select">
+                        <option value="All" @(Request.QueryString["selectedStatus"] == "All" ? "selected disabled" : "")>All</option>
+                        <option value="Pending" @(Request.QueryString["selectedStatus"] == "Pending" ? "selected disabled" : "")>Pending</option>
+                        <option value="Approved" @(Request.QueryString["selectedStatus"] == "Approved" ? "selected disabled" : "")>Approved</option>
+                        <option value="Declined" @(Request.QueryString["selectedStatus"] == "Declined" ? "selected disabled" : "")>Declined</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Dropdown for requisition -->
+
             <div class="row justify-content-center">
                 <div class="row">
+
                     @{
-                        // Sort the requisitions based on approval status (assuming rf_status is a string)
-                        var sortedRequisitions = Model.OrderByDescending(r => r.rf_status == "Approved").ThenBy(r => r.rf_date_requested).ToList();
+                        // Get the selected status from the updated query string
+                        var selectedStatus = Request.QueryString["selectedStatus"];
+
+                        // Define a variable to hold the requisitions
+                        List<requisitionDetails> sortedRequisitions;
+
+                        // Check if a status is selected
+                        if (selectedStatus == null || selectedStatus == "All")
+                        {
+                            // No specific status selected, show all requisitions
+                            sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+                        }
+                        else
+                        {
+                            // Show requisitions only when the status matches the selected status
+                            sortedRequisitions = Model
+                                .Where(r => r.rf_status == selectedStatus)
+                                .OrderByDescending(r => r.rf_date_requested)
+                                .ToList();
+                        }
+
                     }
 
-                    @foreach (var details in sortedRequisitions)
+
+                    @if (sortedRequisitions.Any())
                     {
-                        <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
-                            <div class="supplier-card-single">
-                                <div class="content-main-top">
-                                    <ul class="list-unstyled d-flex align-items-center justify-content-between">
-                                        <li>
-                                            <i class="fas fa-id-card"></i>&nbsp; Requisition code:
-                                        </li>
-                                    </ul>
-                                    <h4><a>@details.rf_code</a></h4>
-                                    <p><strong>Date requested:</strong>&emsp; @details.rf_date_requested</p>
-                                    <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
-                                    <p><strong>Status:</strong>&emsp; @details.rf_status</p>
-                                    <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
-                                        <a class="btn btn-style-primary" style="margin-left: 200px" href="/Home/RequisitionDetails?request_ID=@details.rf_id">
-                                            Know Details <i class="fas fa-arrow-right"></i>
-                                        </a>
+                        // Display requisitions
+                        foreach (var details in sortedRequisitions)
+                        {
+                            <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
+                                <div class="supplier-card-single" data-status="@details.rf_status">
+                                    <div class="content-main-top">
+                                        <ul class="list-unstyled d-flex align-items-center justify-content-between">
+                                            <li>
+                                                <i class="fas fa-id-card"></i>&nbsp; Requisition code:
+                                            </li>
+                                        </ul>
+                                        <h4><a>@details.rf_code</a></h4>
+                                        <p><strong>Date requested:</strong>&emsp; @details.rf_date_requested</p>
+                                        <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                                        <p><strong>Status:</strong>&emsp; @details.rf_status</p>
+                                        <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
+                                            <a class="btn btn-style-primary" style="margin-left: 200px" href="/Home/RequisitionDetails?request_ID=@details.rf_id">
+                                                Know Details <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center">
+                            @{
+                                var statusMessage = "--- NO " + (selectedStatus == null || selectedStatus == "All" ? "ALL" : selectedStatus.ToUpper()) + " REQUISITIONS ---";
+                            }
+                            <h3 class="text-uppercase" style="font-size: 25px; font-style: italic">@statusMessage</h3>
                         </div>
                     }
                 </div>
-
             </div>
-            <!-- pagination -->
-            <div class="pagination-style text-center mt-5">
-                <ul>
-                    <li>
-                        <a href="@Url.Action("Requisition", new { page = 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber == 1 ? "not-allowed disabled" : "")">
-                            <span class="fa fa-angle-double-left" aria-hidden="true"></span>
-                        </a>
-                    </li>
-
-                    @for (int i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
-                    {
-                        <li class="@(i == ViewBag.PageNumber ? "active" : "")">
-                            <a href="@Url.Action("Requisition", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
-                        </li>
-                    }
-
-                    <li>
-                        <a href="@Url.Action("Requisition", new { page = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber >= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "not-allowed disabled" : "")">
-                            <span class="fa fa-angle-double-right" aria-hidden="true"></span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Pagination -->
         }
         else
         {
@@ -142,4 +166,36 @@
     //        $('form').submit();
     //    });
     //});
+
+    // Function to update the query string and trigger the form submission
+    function updateQueryString() {
+        var selectedStatus = $("#selectedStatus").val();
+
+        // Update the URL with the new query string
+        var url = new URL(window.location.href);
+        url.searchParams.set("selectedStatus", selectedStatus);
+
+        // Redirect to the updated URL
+        window.location.href = url.toString();
+    }
+
+    // Attach the updateQueryString function to the onchange event of the dropdown
+    $("#selectedStatus").on("change", function () {
+        updateQueryString();
+    });
+
+    function updateToDateMin() {
+        // Get the selected value from the "From" date input
+        var fromDateValue = document.getElementById("searchBox1").value;
+
+        // Get the "To" date input element
+        var toDateElement = document.getElementById("searchBox2");
+
+        // Set the minimum date for the "To" date input
+        toDateElement.min = fromDateValue;
+
+        // Update the "min" attribute of the "To" date input with the current date
+        toDateElement.min = new Date().toISOString().split('T')[0];
+    }
+
 </script>

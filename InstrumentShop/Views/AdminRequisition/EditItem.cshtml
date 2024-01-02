@@ -81,32 +81,32 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-    // ===When a quantity is added total will automatically computed multiplied by its original price
-    $(document).ready(function () {
-        // Handle input changes for quantity and price
-        $("#ItemEdit_Qty, #price").on("input", function () {
-            // Recalculate and update total
-            calculateTotal();
+        // ===When a quantity is added total will automatically computed multiplied by its original price
+        $(document).ready(function () {
+            // Handle input changes for quantity and price
+            $("#ItemEdit_Qty, #price").on("input", function () {
+                // Recalculate and update total
+                calculateTotal();
+            });
+
+            function calculateTotal() {
+                // Get quantity and price values
+                var quantity = parseFloat($("#ItemEdit_Qty").val()) || 0;
+                var price = parseFloat($("#price").val()) || 0;
+
+                // Calculate total
+                var total = quantity * price;
+
+                // Display total with label inside the input
+                $("#total").val(total.toFixed(2));
+
+                // Set the total value to the hidden input field
+                $("#ItemEdit_Total").val(total.toFixed(2));
+            }
+
+            // Trigger input change event on page load
+            $("#ItemEdit_Qty, #price").trigger("input");
         });
-
-        function calculateTotal() {
-            // Get quantity and price values
-            var quantity = parseFloat($("#ItemEdit_Qty").val()) || 0;
-            var price = parseFloat($("#price").val()) || 0;
-
-            // Calculate total
-            var total = quantity * price;
-
-            // Display total with label inside the input
-            $("#total").val(total.toFixed(2));
-
-            // Set the total value to the hidden input field
-            $("#ItemEdit_Total").val(total.toFixed(2));
-        }
-
-        // Trigger input change event on page load
-        $("#ItemEdit_Qty, #price").trigger("input");
-    });
     </script>
 </body>
 </html>

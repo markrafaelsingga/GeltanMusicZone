@@ -49,6 +49,7 @@ namespace InstrumentShop.Models
         public string approvalNote { get; set; }
         public string approvalDate { get; set; }
 
+        public string RF_Requestor { get; set; }
         public string RF_ItemStatus { get; set; }
         public int Request_Item { get; set; }
         public int RF_ItemID { get; set; }
