@@ -24,7 +24,16 @@
         <ul class="nav-links">
             <li>
                 <a href="@Url.Action("AdminPage","Home")">
-
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Dashboard</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="#">Dashboard</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="@Url.Action("Requisition","AdminRequisition")">
+                    <i class='bx bxs-file'></i>
                     <span class="link_name">Requisition</span>
                 </a>
                 <ul class="sub-menu blank">
@@ -83,19 +92,18 @@
             <li>
                 <div class="profile-details">
                     <div class="profile-content">
-                        <img src="~/images/mark.jpg" />
+                        <!--<img src="image/profile.jpg" alt="profileImg">-->
                     </div>
                     <div class="name-job">
-                        <div class="profile_name"><div style="font-size:12px;">@ViewBag.uname</div></div>
-                        <div class="job" style="text-align: center;">Admin</div>
-
+                        <div class="profile_name">Mark Rafael Singga</div>
+                        <div class="job">Admin</div>
                     </div>
-                    
+
                     <a href="@Url.Action("Login", "Login")">
                         <i class='bx bx-log-out'>
                         </i>
                     </a>
-                   
+
                 </div>
             </li>
         </ul>

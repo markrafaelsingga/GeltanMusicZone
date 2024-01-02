@@ -12,18 +12,18 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         public ActionResult AdminPage()
         {
             int id = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using(var cmd = db.CreateCommand())
+                using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "select users.user_phone,users.user_email,users.user_address,users.user_fname,users.user_mi,users.user_lname,user_role.role_desc from users join user_role on user_role.role_id = users.role_id where user_id = @id ";
-                    cmd.Parameters.AddWithValue("@id",id);
+                    cmd.Parameters.AddWithValue("@id", id);
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -48,7 +48,7 @@ namespace InstrumentShop.Controllers
                     }
                 }
             }
-            
+
             return View();
         }
         public ActionResult Index()
@@ -93,7 +93,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-             
+
                     using (var cmd = db.CreateCommand())
                     {
                         cmd.CommandType = CommandType.Text;
@@ -684,7 +684,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult SubmitDataRF(decimal EstimateTotal)
         {
-
+            int user = (int)Session["user_id"];
             try
             {
                 using (var db = new SqlConnection(mainconn))
@@ -696,13 +696,13 @@ namespace InstrumentShop.Controllers
                         cmd.CommandText = "INSERT INTO [dbo].[requisition] (rf_date_requested, rf_status, rf_estimated_cost, user_id, dep_id) " +
                             "VALUES (GETDATE(), 'Pending', @estimate, @user, 1)";
                         cmd.Parameters.AddWithValue("@estimate", EstimateTotal);
-
+                        cmd.Parameters.AddWithValue("@user", user);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 
                         if (rowsAffected > 0)
                         {
-                            
+
                             cmd.CommandType = CommandType.Text;
                             cmd.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
 
@@ -1050,10 +1050,47 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-
-      
+        public ActionResult StaffProfile()
+        {
+            
+            int id = (int)Session["user_id"];
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            var model = new StaffProfile
+                            {
+                                fname = reader["USER_FNAME"].ToString(),
+                                mi = reader["USER_MI"].ToString(),
+                                lname = reader["USER_LNAME"].ToString(),
+                                address = reader["USER_ADDRESS"].ToString(),
+                                email = reader["USER_EMAIL"].ToString(),
+                                phone = reader["USER_PHONE"].ToString(),
+                                dob = (DateTime)reader["USER_DOB"],
+                                department = reader["DEP_NAME"].ToString(),
+                                role = reader["ROLE_DESC"].ToString(),
+                            };
+                            ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
+                            ViewBag.address = model.address;
+                            ViewBag.email = model.email;
+                            ViewBag.dob = model.dob;
+                            ViewBag.contact = model.phone;
+                            return View(model);
+                        }
+                    }
+                }
+            }
 
             return View();
         }
+
     }
 }
