@@ -16,7 +16,7 @@ namespace InstrumentShop.Models
         public decimal CanvasTotal { get; set; }
         public int ItemDelete { get; set; } //ID to delete
         public int ItemEdit_ID { get; set; } //ID to edit
-        public int EstimateTotal { get; set; } //Total estimate cost
+        public decimal EstimateTotal { get; set; } //Total estimate cost
         public int ItemEdit_Qty { get; set; } //Quantity to edit
         public string ItemEdit_Unit { get; set; } //Unit to edit
         public decimal ItemEdit_Total { get; set; } //Total cost to edit
@@ -25,6 +25,7 @@ namespace InstrumentShop.Models
 
     public class EditItemViewModel
     {
+        public int Canvas_FormID { get; set; }
         public int CanvasID { get; set; }
         public string CanvasItem { get; set; }
         public string CanvasDesc { get; set; }
@@ -36,6 +37,21 @@ namespace InstrumentShop.Models
 
     public class ViewRequisitionForm
     {
+        //Update edit
+        public int ItemEdit_ID { get; set; } //ID to edit
+        public decimal EstimateTotal { get; set; } //Total estimate cost
+        public int ItemEdit_Qty { get; set; } //Quantity to edit
+        public string ItemEdit_Unit { get; set; } //Unit to edit
+        public decimal ItemEdit_Total { get; set; } //Total cost to edit
+
+        //If approve/decline
+        public string approvalName { get; set; }
+        public string approvalNote { get; set; }
+        public string approvalDate { get; set; }
+
+        public string RF_ItemStatus { get; set; }
+        public int Request_Item { get; set; }
+        public int RF_ItemID { get; set; }
         public int RF_ID { get; set; }
         public string RF_Status { get; set; }
         public string RF_Code { get; set; }
@@ -51,6 +67,8 @@ namespace InstrumentShop.Models
         public decimal RF_Total { get; set; }
         public decimal RF_Estimatecost { get; set; }
         public int Cancel { get; set; }
+        public int Restore { get; set; }
+        public string selectedStatus { get; set; }
 
     }
 }

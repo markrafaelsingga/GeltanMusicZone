@@ -15,9 +15,11 @@ namespace InstrumentShop.Controllers
     public class RegisterController : Controller
     {
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True";
-     
-       
-        public ActionResult Register(Register model,Register image)
+
+
+
+
+        public ActionResult Register(Register model)
         {
             List<Department> departments = new List<Department>();
             string user = model.Username;

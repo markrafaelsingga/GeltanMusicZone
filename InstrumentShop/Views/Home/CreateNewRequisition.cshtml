@@ -72,7 +72,7 @@
                             <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled />
                         </div>
                         <div class="col-sm-6" style="width: 50%">
-                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled />
+                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required/>
                             <input type="hidden" name="ReqItem_Total" id="ReqItem_Total" />
                         </div>
                     </div>
@@ -161,8 +161,8 @@
                     <br />
                     <form class="submit-form" method="post" action="@Url.Action("SubmitDataRF", "Home")">
                         <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
-                        <button type="button" class="btn btn-style btn-style-3" onclick="confirmSubmit(this)" style="margin-left: 82%">Submit requisition</button> <br />
-                        <p style="font-size:12px; text-align: right"><strong>Note: </strong><i>Review thoroughly the items you intend to request.</i></p>
+                        <button type="button" class="btn btn-style btn-style-3" onclick="confirmSubmit(this)" style="margin-left: 80%">Submit requisition</button> <br />
+                        <p style="font-size:12px; text-align: right"><strong>Note: </strong><i>Review thoroughly the items you intend to request.<br />Once a requisition form is submitted, it will be locked<br /> for editing to prevent any modifications.</i></p>
                     </form>
                 </div>
             </div>

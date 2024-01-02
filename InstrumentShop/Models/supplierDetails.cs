@@ -20,12 +20,17 @@ namespace InstrumentShop.Models
 
     public class requisitionDetails
     {
+        public int edit_ID { get; set; }
+        public int restore_ID { get; set; }
+        public int delete_ID { get; set; }
         public int request_ID { get; set; }
         public int rf_id { get; set; }
         public string rf_code { get; set; }
         public string rf_date_requested { get; set; }
         public string rf_status { get; set; }
         public decimal rf_estimated_cost { get; set; }
+        public DateTime fromRequestdate { get; set; }
+        public DateTime toRequestdate { get; set; }
 
     }
 }

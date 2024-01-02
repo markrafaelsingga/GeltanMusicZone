@@ -12,8 +12,7 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
-        
+
         public ActionResult AdminPage()
         {
             int id = (int)Session["user_id"];
@@ -54,6 +53,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult Index()
         {
+            DeleteCanvasItem();
             return View();
         }
 
@@ -134,8 +134,7 @@ namespace InstrumentShop.Controllers
                 return View("Error");
             }
         }
-
-        public ActionResult Requisition(int page = 1, int pageSize = 6)
+        public ActionResult CancelledRequest(int page = 1, int pageSize = 6)
         {
             using (var db = new SqlConnection(mainconn))
             {
@@ -143,7 +142,10 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM requisition where rf_status not like 'Cancelled'";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status like @Cancelled";
+                    cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+
+
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -152,7 +154,7 @@ namespace InstrumentShop.Controllers
 
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        requisitionDetails supplier = new requisitionDetails
+                        requisitionDetails request = new requisitionDetails
                         {
                             // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
@@ -162,10 +164,18 @@ namespace InstrumentShop.Controllers
                             rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
                         };
 
-                        lemp.Add(supplier);
+                        lemp.Add(request);
                     }
 
                     db.Close();
+
+                    // Call GetMinDate with a requisitionDetails instance
+                    requisitionDetails minDateModel = new requisitionDetails();
+                    GetMinDate(minDateModel);
+
+                    // Call GetMaxDate with a requisitionDetails instance
+                    requisitionDetails maxDateModel = new requisitionDetails();
+                    GetMaxDate(maxDateModel);
 
                     // Perform pagination logic
                     var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -174,9 +184,144 @@ namespace InstrumentShop.Controllers
                     ViewBag.PageSize = pageSize;
                     ViewBag.TotalItems = lemp.Count;
 
+                    // Pass the paginated list and minimum date model to the view
+                    ViewBag.MinDate = minDateModel.fromRequestdate;
+                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+
                     // Pass the paginated list to the view
                     return View(paginatedModel);
                 }
+            }
+        }
+
+        public ActionResult Requisition(int page = 1, int pageSize = 6)
+        {
+            DeleteCanvasItem();
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status not like @Cancelled AND rf_status not like @Deleted";
+                    cmd.Parameters.AddWithValue("@Cancelled", "Cancelled");
+                    cmd.Parameters.AddWithValue("@Deleted", "Deleted");
+
+
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    DataSet ds = new DataSet();
+                    sda.Fill(ds);
+
+                    List<requisitionDetails> lemp = new List<requisitionDetails>();
+
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        requisitionDetails request = new requisitionDetails
+                        {
+                            // Populate properties based on your database columns
+                            rf_id = Convert.ToInt32(dr["rf_id"]),
+                            rf_date_requested = dr["rf_date_requested"].ToString(),
+                            rf_code = dr["rf_code"].ToString(),
+                            rf_status = dr["rf_status"].ToString(),
+                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
+                        };
+
+                        lemp.Add(request);
+                    }
+
+                    db.Close();
+
+                    // Call GetMinDate with a requisitionDetails instance
+                    requisitionDetails minDateModel = new requisitionDetails();
+                    GetMinDate(minDateModel);
+
+                    // Call GetMaxDate with a requisitionDetails instance
+                    requisitionDetails maxDateModel = new requisitionDetails();
+                    GetMaxDate(maxDateModel);
+
+                    // Perform pagination logic
+                    var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                    ViewBag.PageNumber = page;
+                    ViewBag.PageSize = pageSize;
+                    ViewBag.TotalItems = lemp.Count;
+
+                    // Pass the paginated list and minimum date model to the view
+                    ViewBag.MinDate = minDateModel.fromRequestdate;
+                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+
+                    // Pass the paginated list to the view
+                    return View(paginatedModel);
+                }
+            }
+        }
+        public void DeleteCanvasItem()
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "DELETE FROM [dbo].[canvas] WHERE canvas_status = 0";
+
+                    cmd.ExecuteNonQuery();
+                }
+                db.Close();
+            }
+        }
+
+        private void GetMinDate(requisitionDetails model)
+        {
+            model.fromRequestdate = DateTime.MinValue; // Initialize with a default value
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition";
+
+
+                    // Execute the command and retrieve the result
+                    object result = cmd.ExecuteScalar();
+
+                    // Check if the result is not DBNull and update fromRequestdate
+                    if (result != DBNull.Value)
+                    {
+                        model.fromRequestdate = (DateTime)result;
+                    }
+
+                }
+                db.Close();
+            }
+        }
+
+        private void GetMaxDate(requisitionDetails model)
+        {
+            model.toRequestdate = DateTime.MaxValue; // Initialize with a default value
+
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition";
+
+
+                    // Execute the command and retrieve the result
+                    object result = cmd.ExecuteScalar();
+
+                    // Check if the result is not DBNull and update minDate
+                    if (result != DBNull.Value)
+                    {
+                        model.toRequestdate = (DateTime)result;
+                    }
+
+                }
+                db.Close();
             }
         }
 
@@ -232,6 +377,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult Supplier(int page = 1, int pageSize = 6)
         {
+            DeleteCanvasItem();
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -487,7 +633,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        private void InsertRequisitionItem(SqlConnection db, int canvas)
+        private void InsertRequisitionItem(SqlConnection db, int canvas, int quantity, string unit, decimal total)
         {
             // Retrieve last inserted ID
             using (var cmd = db.CreateCommand())
@@ -509,8 +655,11 @@ namespace InstrumentShop.Controllers
                         using (var insertCmd = db.CreateCommand())
                         {
                             insertCmd.CommandType = CommandType.Text;
-                            insertCmd.CommandText = "INSERT INTO [dbo].[requisition_item] (ri_status, canvas_id, rf_id) " +
-                                                    "VALUES ('Pending', @id, @rf)";
+                            insertCmd.CommandText = "INSERT INTO [dbo].[requisition_item] (ri_status, ri_quantity, ri_unit, ri_total, canvas_id, rf_id) " +
+                                                        "VALUES ('Pending', @qty, @unit, @total, @id, @rf)";
+                            insertCmd.Parameters.AddWithValue("@qty", quantity);
+                            insertCmd.Parameters.AddWithValue("@unit", unit);
+                            insertCmd.Parameters.AddWithValue("@total", total);
                             insertCmd.Parameters.AddWithValue("@id", canvas);
                             insertCmd.Parameters.AddWithValue("@rf", rfForm);
 
@@ -535,7 +684,7 @@ namespace InstrumentShop.Controllers
         }
         public ActionResult SubmitDataRF(decimal EstimateTotal)
         {
-            int ids = (int)Session["user_id"];
+
             try
             {
                 using (var db = new SqlConnection(mainconn))
@@ -547,7 +696,7 @@ namespace InstrumentShop.Controllers
                         cmd.CommandText = "INSERT INTO [dbo].[requisition] (rf_date_requested, rf_status, rf_estimated_cost, user_id, dep_id) " +
                             "VALUES (GETDATE(), 'Pending', @estimate, @user, 1)";
                         cmd.Parameters.AddWithValue("@estimate", EstimateTotal);
-                        cmd.Parameters.AddWithValue("@user", ids);
+
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -555,23 +704,19 @@ namespace InstrumentShop.Controllers
                         {
                             
                             cmd.CommandType = CommandType.Text;
-                            cmd.CommandText = "SELECT canvas_id FROM canvas WHERE canvas_status = 0";
-
-                            List<int> canvasIds = new List<int>();
+                            cmd.CommandText = "SELECT * FROM canvas WHERE canvas_status = 0";
 
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    int id = Convert.ToInt32(reader["canvas_id"]);
-                                    canvasIds.Add(id);
-                                }
-                            }
+                                    int CanvasID = Convert.ToInt32(reader["canvas_id"]);
+                                    int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
+                                    string CanvasUnit = reader["canvas_unit"].ToString();
+                                    decimal CanvasTotal = Convert.ToDecimal(reader["canvas_total"]);
 
-                            // Iterate over canvasIds and call InsertRequisitionItem
-                            foreach (int id in canvasIds)
-                            {
-                                InsertRequisitionItem(db, id);
+                                    InsertRequisitionItem(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
+                                }
                             }
 
                             // Update canvas status
@@ -584,7 +729,7 @@ namespace InstrumentShop.Controllers
                         else
                         {
                             // No row were inserted
-                            return View("Error", "No row were inserted");
+                            return View("Index", "No row were inserted");
                         }
                     }
                 }
@@ -595,6 +740,7 @@ namespace InstrumentShop.Controllers
                 return View("Error", ex.Message);
             }
         }
+
 
         public ActionResult RequisitionForm()
         {
@@ -607,7 +753,7 @@ namespace InstrumentShop.Controllers
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
+                        "p.prod_desc, ri.ri_quantity, ri.ri_unit, p.prod_price, ri.ri_total, rf.rf_estimated_cost " +
                         "FROM supplier s " +
                         "JOIN product p ON s.sup_id = p.sup_id " +
                         "JOIN canvas c ON p.prod_id = c.prod_id " +
@@ -633,10 +779,10 @@ namespace InstrumentShop.Controllers
                                 RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
-                                RF_Unit = reader["canvas_unit"].ToString(),
+                                RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
+                                RF_Unit = reader["ri_unit"].ToString(),
                                 RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
+                                RF_Total = Convert.ToDecimal(reader["ri_total"]),
                                 RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
                             };
 
@@ -654,46 +800,116 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using (var cmd = db.CreateCommand())
+                using (var cmd1 = db.CreateCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT rf.rf_id, rf.rf_status, rf.rf_code, rf.rf_date_requested, ri.ri_code, s.sup_id, s.sup_company, p.prod_name, " +
-                        "p.prod_desc, c.canvas_quantity, c.canvas_unit, p.prod_price, c.canvas_total, rf.rf_estimated_cost " +
-                        "FROM supplier s " +
-                        "JOIN product p ON s.sup_id = p.sup_id " +
-                        "JOIN canvas c ON p.prod_id = c.prod_id " +
-                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
-                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
-                        "WHERE rf.rf_id = @id and rf_status != 'Cancelled'";
+                    cmd1.CommandType = CommandType.Text;
+                    cmd1.CommandText = "SELECT rf_status from requisition where rf_id = @rf";
+                    cmd1.Parameters.AddWithValue("@rf", request_ID);
 
-                    cmd.Parameters.AddWithValue("@id", request_ID);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd1.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            ViewRequisitionForm list = new ViewRequisitionForm
-                            {
-                                RF_ID = Convert.ToInt32(reader["rf_id"]),
-                                RF_Status = reader["rf_status"].ToString(),
-                                RF_Code = reader["rf_code"].ToString(),
-                                RF_Daterequested = reader["rf_date_requested"].ToString(),
-                                RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
-                                RF_Item = reader["prod_name"].ToString(),
-                                RF_Description = reader["prod_desc"].ToString(),
-                                RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
-                                RF_Unit = reader["canvas_unit"].ToString(),
-                                RF_Price = Convert.ToDecimal(reader["prod_price"]),
-                                RF_Total = Convert.ToDecimal(reader["canvas_total"]),
-                                RF_Estimatecost = Convert.ToDecimal(reader["rf_estimated_cost"]),
-                            };
+                            string status = reader["rf_status"].ToString();
 
-                            details.Add(list);
+                            if (status == "Approved" || status == "Declined")
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                          "JOIN product p ON s.sup_id = p.sup_id " +
+                                          "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                          "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                          "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                          "JOIN ApprovalStatus a ON rf.rf_id = a.rf_id " +
+                                          "JOIN users u ON a.user_id = u.user_id " +
+                                          "WHERE rf.rf_id = @id ORDER BY a.approval_date DESC";
+
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader1 = cmd.ExecuteReader())
+                                    {
+                                        while (reader1.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                approvalName = reader1["user_fname"].ToString() + " " +
+                                                           reader1["user_mi"].ToString() + ". " +
+                                                           reader1["user_lname"].ToString(),
+                                                approvalNote = reader1["approval_note"].ToString(),
+                                                approvalDate = reader1["approval_date"].ToString(),
+
+
+                                                RF_ItemStatus = reader1["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader1["rf_id"]),
+                                                RF_Status = reader1["rf_status"].ToString(),
+                                                RF_Code = reader1["rf_code"].ToString(),
+                                                RF_Daterequested = reader1["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader1["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
+                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
+                                                RF_Item = reader1["prod_name"].ToString(),
+                                                RF_Description = reader1["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
+                                                RF_Unit = reader1["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader1["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader1["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader1["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                using (var cmd = db.CreateCommand())
+                                {
+                                    cmd.CommandType = CommandType.Text;
+                                    cmd.CommandText = "SELECT * FROM supplier s " +
+                                        "JOIN product p ON s.sup_id = p.sup_id " +
+                                        "JOIN canvas c ON p.prod_id = c.prod_id " +
+                                        "JOIN requisition_item ri ON ri.canvas_id = c.canvas_id " +
+                                        "JOIN requisition rf ON rf.rf_id = ri.rf_id " +
+                                        "WHERE rf.rf_id = @id";
+
+                                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                                    using (SqlDataReader reader2 = cmd.ExecuteReader())
+                                    {
+                                        while (reader2.Read())
+                                        {
+                                            ViewRequisitionForm list = new ViewRequisitionForm
+                                            {
+                                                RF_ItemStatus = reader2["ri_status"].ToString(),
+                                                RF_ID = Convert.ToInt32(reader2["rf_id"]),
+                                                RF_Status = reader2["rf_status"].ToString(),
+                                                RF_Code = reader2["rf_code"].ToString(),
+                                                RF_Daterequested = reader2["rf_date_requested"].ToString(),
+                                                RF_Itemcode = reader2["ri_code"].ToString(),
+                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
+                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
+                                                RF_Item = reader2["prod_name"].ToString(),
+                                                RF_Description = reader2["prod_desc"].ToString(),
+                                                RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
+                                                RF_Unit = reader2["ri_unit"].ToString(),
+                                                RF_Price = Convert.ToDecimal(reader2["prod_price"]),
+                                                RF_Total = Convert.ToDecimal(reader2["ri_total"]),
+                                                RF_Estimatecost = Convert.ToDecimal(reader2["rf_estimated_cost"]),
+                                            };
+
+                                            details.Add(list);
+                                        }
+                                    }
+
+                                }
+                            }
                         }
                     }
-
                 }
             }
             return View(details);
@@ -709,6 +925,33 @@ namespace InstrumentShop.Controllers
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "UPDATE requisition set rf_status = 'Cancelled' where rf_id = @id";
                     cmd.Parameters.AddWithValue("@id", Cancel);
+
+                    // Execute the UPDATE statement.
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        // Redirect to the "Requisition" action
+                        return RedirectToAction("Requisition");
+                    }
+                    else
+                    {
+                        // Item not found or no changes were made
+                        return View("Error");
+                    }
+                }
+            }
+        }
+        public ActionResult restoreRequisition(int Restore)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE requisition set rf_status = 'Pending' where rf_id = @id";
+                    cmd.Parameters.AddWithValue("@id", Restore);
 
                     // Execute the UPDATE statement.
                     int rowsAffected = cmd.ExecuteNonQuery();
@@ -808,77 +1051,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        /*public ActionResult Profile()
-        {
-            *//*int id = (int)Session["user_id"];
-            using (var db = new SqlConnection(mainconn))
-            {
-                db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
-                    cmd.Parameters.AddWithValue("@id", id);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            var model = new StaffProfile
-                            {
-                                fname = reader["USER_FNAME"].ToString(),
-                                mi = reader["USER_MI"].ToString(),
-                                lname = reader["USER_LNAME"].ToString(),
-                                address = reader["USER_ADDRESS"].ToString(),
-                                email = reader["USER_EMAIL"].ToString(),
-                                department = reader["DEP_NAME"].ToString(),
-                                role = reader["ROLE_DESC"].ToString(),
-                            };
-                            ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
-                            return View(model);
-                        }
-                    }
-                }
-            }*//*
-            return View();
-        }*/
-
-        public ActionResult StaffProfile()
-        {
-            int id = (int)Session["user_id"];
-            using (var db = new SqlConnection(mainconn))
-            {
-                db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
-                    cmd.Parameters.AddWithValue("@id", id);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            var model = new StaffProfile
-                            {
-                                fname = reader["USER_FNAME"].ToString(),
-                                mi = reader["USER_MI"].ToString(),
-                                lname = reader["USER_LNAME"].ToString(),
-                                address = reader["USER_ADDRESS"].ToString(),
-                                email = reader["USER_EMAIL"].ToString(),
-                                phone = reader["USER_PHONE"].ToString(),
-                                dob = (DateTime)reader["USER_DOB"],
-                                department = reader["DEP_NAME"].ToString(),
-                                role = reader["ROLE_DESC"].ToString(),
-                            };
-                            ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
-                            ViewBag.address = model.address;
-                            ViewBag.email = model.email;
-                            ViewBag.dob = model.dob;
-                            ViewBag.contact = model.phone;
-                            return View(model);
-                        }
-                    }
-                }
-            }
+      
 
             return View();
         }
