@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.ComponentModel;
 
 namespace InstrumentShop.Models
 {
@@ -17,8 +18,9 @@ namespace InstrumentShop.Models
         public string Phone { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
-
        
+        public string imagePath { get; set; }
+        public HttpPostedFileBase ImageFile { get; set; }
 
 
     }

@@ -93,7 +93,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // Fetch canvas data
+             
                     using (var cmd = db.CreateCommand())
                     {
                         cmd.CommandType = CommandType.Text;
@@ -553,7 +553,7 @@ namespace InstrumentShop.Controllers
 
                         if (rowsAffected > 0)
                         {
-                            // Retrieve canvas IDs
+                            
                             cmd.CommandType = CommandType.Text;
                             cmd.CommandText = "SELECT canvas_id FROM canvas WHERE canvas_status = 0";
 
@@ -808,9 +808,9 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult Profile()
+        /*public ActionResult Profile()
         {
-            /*int id = (int)Session["user_id"];
+            *//*int id = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -838,9 +838,9 @@ namespace InstrumentShop.Controllers
                         }
                     }
                 }
-            }*/
+            }*//*
             return View();
-        }
+        }*/
 
         public ActionResult StaffProfile()
         {

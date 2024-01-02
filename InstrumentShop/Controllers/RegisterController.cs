@@ -15,11 +15,9 @@ namespace InstrumentShop.Controllers
     public class RegisterController : Controller
     {
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True";
-
-
-
-
-        public ActionResult Register(Register model)
+     
+       
+        public ActionResult Register(Register model,Register image)
         {
             List<Department> departments = new List<Department>();
             string user = model.Username;
@@ -32,13 +30,20 @@ namespace InstrumentShop.Controllers
             string address = model.Address;
             string email = model.Email;
             int dep_id = model.Department;
+           /* string fileName = Path.GetFileNameWithoutExtension(image.ImageFile.FileName);
+            string extenstion = Path.GetExtension(image.ImageFile.FileName);
+            fileName = fileName + DateTime.Now.ToString("yymmssfff") + extenstion;
+            image.imagePath = "~/images/" + fileName;
+            fileName = Path.Combine(Server.MapPath("~/images/"), fileName);
+            image.ImageFile.SaveAs(fileName);
+            */
            
             try
             {
                 using (var db = new SqlConnection(connString))
                 {
                     db.Open();
-
+                    
                     // Fetch departments
                     using (var cmd = db.CreateCommand())
                     {
@@ -93,6 +98,7 @@ namespace InstrumentShop.Controllers
                         cmd1.Parameters.AddWithValue("@pass", pass);
                         cmd1.Parameters.AddWithValue("@role_id", 2);
                         cmd1.Parameters.AddWithValue("@DepartmentId", dep_id);
+                       // cmd1.Parameters.AddWithValue("@pic", image);
                         var ctr = cmd1.ExecuteNonQuery();
                         try
                         {

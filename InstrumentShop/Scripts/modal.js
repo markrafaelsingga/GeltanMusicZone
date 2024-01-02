@@ -35,7 +35,7 @@
 });
 
 
-function openEditModal(userId, fname, mi, lname, department, dob, phone, address, email, depList) {
+function openEditModal(userId, fname, mi, lname, department, phone, address, email) {
     document.getElementById('editModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editModal')" style="font-size: 35px !important;"></i>
