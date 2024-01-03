@@ -51,7 +51,6 @@ namespace InstrumentShop.Controllers
                     }
                 }
             }
-
             return View();
         }
         public ActionResult Index()

@@ -53,12 +53,11 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2;";
+                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_username,users.user_password,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2;";
                     cmd.Parameters.AddWithValue("@role_id", 2);
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     sda.Fill(dt);
-
                     foreach (DataRow row in dt.Rows)
                     {
                         Staff staff = new Staff
@@ -71,7 +70,9 @@ namespace InstrumentShop.Controllers
                             status = row.Field<string>("user_isActive"),
                             phone = row.Field<string>("user_phone"),
                             address = row.Field<string>("user_address"),
-                            email = row.Field<string>("user_email")
+                            email = row.Field<string>("user_email"),
+                            uname = row.Field<string>("user_username"),
+                            pword = row.Field<string>("user_password")
                         };
                         staffList.Add(staff);
                     }
@@ -154,7 +155,7 @@ namespace InstrumentShop.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EditStaff(int userId,string fname,string mi,string lname, string phone,string address, string email, Staff model)
+        public ActionResult EditStaff(int userId,string fname,string mi,string lname, string phone,string address, string email, string uname,string pword,Staff model)
         {
             
             using (var db = new SqlConnection(connString))
@@ -163,13 +164,15 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_PHONE = @phone, USER_ADDRESS = @address, USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
+                    cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_PHONE = @phone, USER_ADDRESS = @address, USER_USERNAME = @uname,USER_PASSWORD = @pword,USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
                     cmd.Parameters.AddWithValue("@id", userId);
                     cmd.Parameters.AddWithValue("@fname", fname);
                     cmd.Parameters.AddWithValue("@mi", mi);
                     cmd.Parameters.AddWithValue("@lname", lname);
                     cmd.Parameters.AddWithValue("@phone", phone);
                     cmd.Parameters.AddWithValue("@address", address);
+                    cmd.Parameters.AddWithValue("@uname", uname);
+                    cmd.Parameters.AddWithValue("@pword", pword);
                     cmd.Parameters.AddWithValue("@email", email);
                     cmd.Parameters.AddWithValue("@dep", 1);
 

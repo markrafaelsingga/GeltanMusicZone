@@ -55,12 +55,12 @@ namespace InstrumentShop.Controllers
                                 if (dep_id == 1)
                                 {
                                     return RedirectToAction("Index", "Home");
-                                }
-                               
-                                else
+                                }                              
+                                else 
                                 {
                                     return RedirectToAction("AdminPage", "Home");
                                 }
+                               
                             }
                             else
                             {
