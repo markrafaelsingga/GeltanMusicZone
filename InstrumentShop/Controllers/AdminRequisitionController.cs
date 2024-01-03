@@ -618,8 +618,17 @@ namespace InstrumentShop.Controllers
                 // Update the status and the cost
                 UpdateRF_Status(db, selectedStatus, request_ID);
                 UpdateCost(db, EstimateTotal, request_ID);
-
                 InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
+
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE requisition_item SET ri_status = @stat WHERE rf_id = @id AND ri_status <> 'Declined'";
+                    cmd.Parameters.AddWithValue("@stat", "Approved");
+                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                    cmd.ExecuteNonQuery();
+                }
 
                 ViewBag.Message = "Requisition form approved successfully!";
 
