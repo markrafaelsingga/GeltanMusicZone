@@ -1,10 +1,8 @@
-﻿
+﻿﻿@model InstrumentShop.Models.requisitionModel
 @{
     ViewBag.Title = "CreateNewRequisition";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
-
 }
-@model InstrumentShop.Models.requisitionModel
 <!-- inner banner -->
 <section class="inner-banner py-5">
     <div class="w3l-breadcrumb py-lg-5">
@@ -72,7 +70,7 @@
                             <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled />
                         </div>
                         <div class="col-sm-6" style="width: 50%">
-                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required/>
+                            <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required />
                             <input type="hidden" name="ReqItem_Total" id="ReqItem_Total" />
                         </div>
                     </div>

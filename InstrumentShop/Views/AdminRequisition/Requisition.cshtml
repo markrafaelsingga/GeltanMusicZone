@@ -1,4 +1,4 @@
-﻿@using InstrumentShop.Models
+﻿﻿@using InstrumentShop.Models
 @model List<requisitionDetails>
 
 <!DOCTYPE html>
@@ -20,7 +20,44 @@
                 <button type="submit" class="btn btn-style btn-style-3">Recycle bin&emsp;<i class="bx bxs-trash"></i></button>
             </form>
         </div>
-        @if (Model != null && Model.Any())
+
+        <!-- Dropdown for requisition -->
+        <div class="row requisition-block" style="margin-left: 50px;">
+            <div class="col-sm-6" style=" width: 250px;">
+                <select name="selectedStatus" id="selectedStatus" required="" class="requisition-select">
+                    <option value="All" @(Request.QueryString["selectedStatus"] == "All" ? "selected disabled" : "")>All</option>
+                    <option value="Pending" @(Request.QueryString["selectedStatus"] == "Pending" ? "selected disabled" : "")>Pending</option>
+                    <option value="Approved" @(Request.QueryString["selectedStatus"] == "Approved" ? "selected disabled" : "")>Approved</option>
+                    <option value="Declined" @(Request.QueryString["selectedStatus"] == "Declined" ? "selected disabled" : "")>Declined</option>
+                </select>
+            </div>
+        </div>
+        <!-- Dropdown for requisition -->
+
+        @{
+            // Get the selected status from the updated query string
+            var selectedStatus = Request.QueryString["selectedStatus"];
+
+            // Define a variable to hold the requisitions
+            List<requisitionDetails> sortedRequisitions;
+
+            // Check if a status is selected
+            if (selectedStatus == null || selectedStatus == "All")
+            {
+                // No specific status selected, show all requisitions
+                sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+            }
+            else
+            {
+                // Show requisitions only when the status matches the selected status
+                sortedRequisitions = Model
+                    .Where(r => r.rf_status == selectedStatus)
+                    .OrderByDescending(r => r.rf_date_requested)
+                    .ToList();
+            }
+        }
+
+        @if (sortedRequisitions != null && sortedRequisitions.Any())
         {
             <div class="table-wrapper" style="width: 90%; margin-top: 40px;">
                 <table class="fl-table" id="item-list" style="width: 100%; font-size: 14px">
@@ -45,31 +82,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var details in Model)
+                        @foreach (var details in sortedRequisitions)
                         {
-                        <tr style="text-align: center;">
-                            <td><p class="row-number"></p></td>
-                            <td>@details.rf_code</td>
-                            <td>@DateTime.Parse(details.rf_date_requested).ToString("MMMM dd, yyyy")</td>
-                            <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
-                            <td>@details.rf_status</td>
-                            <td>
-                                <form class="view-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
-                                    <input type="hidden" name="request_ID" value="@details.rf_id" />
-                                    <button class="btn btn-style-3 view-btn" type="submit" style="color: white">
-                                        <i class='bx bx-detail'></i>
-                                    </button>
-                                </form>
-                            </td>
-                            <td>
-                                <form class="delete-form" method="post" action="@Url.Action("DeleteRequisition", "AdminRequisition")">
-                                    <input type="hidden" name="delete_ID" value="@details.rf_id" />
-                                    <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
-                                        <i class="bx bxs-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                            <tr style="text-align: center;">
+                                <td><p class="row-number"></p></td>
+                                <td>@details.rf_code</td>
+                                <td>@DateTime.Parse(details.rf_date_requested).ToString("MMMM dd, yyyy")</td>
+                                <td>@details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</td>
+                                <td>@details.rf_status</td>
+                                <td>
+                                    <form class="view-form" method="post" action="@Url.Action("ViewRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="request_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 view-btn" type="submit" style="color: white">
+                                            <i class='bx bx-detail'></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form class="delete-form" method="post" action="@Url.Action("DeleteRequisition", "AdminRequisition")">
+                                        <input type="hidden" name="delete_ID" value="@details.rf_id" />
+                                        <button class="btn btn-style-3 delete-btn" type="button" onclick="confirmDelete(this)" style="color: white">
+                                            <i class="bx bxs-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -85,9 +122,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        function showAlert() {
-            alert("Editing is disabled for approved requisitions.");
-        }
 
         // ===Add row numbers to each row in the table
         document.addEventListener("DOMContentLoaded", function () {
@@ -106,6 +140,22 @@
             }
         }
 
+        // Function to update the query string and trigger the form submission
+        function updateQueryString() {
+            var selectedStatus = $("#selectedStatus").val();
+
+            // Update the URL with the new query string
+            var url = new URL(window.location.href);
+            url.searchParams.set("selectedStatus", selectedStatus);
+
+            // Redirect to the updated URL
+            window.location.href = url.toString();
+        }
+
+        // Attach the updateQueryString function to the onchange event of the dropdown
+        $("#selectedStatus").on("change", function () {
+            updateQueryString();
+        });
     </script>
 
 </body>
