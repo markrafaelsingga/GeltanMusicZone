@@ -15,6 +15,8 @@ namespace InstrumentShop.Controllers
         // GET: AdminRequisition
         public ActionResult Requisition()
         {
+            string name = Session["uname"].ToString();
+            ViewBag.uname = name;
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();

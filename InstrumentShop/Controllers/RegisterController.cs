@@ -17,11 +17,55 @@ namespace InstrumentShop.Controllers
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True";
 
 
-
-
-        public ActionResult Register(Register model)
+        private List<Department> GetDepartments()
         {
             List<Department> departments = new List<Department>();
+            using (var db = new SqlConnection(connString))
+            {
+                db.Open();
+
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT dep_id, dep_name FROM DEPARTMENT";
+                    DataTable dt = new DataTable();
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    sda.Fill(dt);
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        Department department = new Department
+                        {
+                            DepartmentId = Convert.ToInt32(row["dep_id"]),
+                            DepartmentName = row["dep_name"].ToString()
+                        };
+                        departments.Add(department);
+                    }
+                }
+            }
+            return departments;
+        }
+
+
+        [HttpGet]
+        public ActionResult Register()
+        {
+            try
+            {
+                List<Department> departments = GetDepartments();
+                ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", e.Message);
+            }
+
+            return View(new Register());
+
+        }
+        [HttpPost]
+        public ActionResult Register(Register model, HttpPostedFileBase file)
+        {
             string user = model.Username;
             string pass = model.Password;
             string fname = model.fname;
@@ -32,63 +76,20 @@ namespace InstrumentShop.Controllers
             string address = model.Address;
             string email = model.Email;
             int dep_id = model.Department;
-           /* string fileName = Path.GetFileNameWithoutExtension(image.ImageFile.FileName);
-            string extenstion = Path.GetExtension(image.ImageFile.FileName);
-            fileName = fileName + DateTime.Now.ToString("yymmssfff") + extenstion;
-            image.imagePath = "~/images/" + fileName;
-            fileName = Path.Combine(Server.MapPath("~/images/"), fileName);
-            image.ImageFile.SaveAs(fileName);
-            */
-           
-            try
-            {
-                using (var db = new SqlConnection(connString))
-                {
-                    db.Open();
-                    
-                    // Fetch departments
-                    using (var cmd = db.CreateCommand())
-                    {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = "SELECT dep_id, dep_name FROM DEPARTMENT";
-                        DataTable dt = new DataTable();
-                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                        sda.Fill(dt);
-
-                        // Convert the DataTable to a list of Department objects
-                        foreach (DataRow row in dt.Rows)
-                        {
-                            Department department = new Department
-                            {
-                                DepartmentId = Convert.ToInt32(row["dep_id"]),
-                                DepartmentName = row["dep_name"].ToString()
-                            };
-                            departments.Add(department);
-                        }
-
-                        // Pass the list of departments to the view
-                        ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ModelState.AddModelError("", e.Message);
-                return View(model);
-            }
-            
 
             try
             {
-               
+                List<Department> departments = GetDepartments();
+                ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
+
                 using (var db1 = new SqlConnection(connString))
                 {
                     db1.Open();
                     using (var cmd1 = db1.CreateCommand())
                     {
                         cmd1.CommandType = CommandType.Text;
-                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id)" +
-                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId";
+                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id,user_pic)" +
+                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId,@pic)";
                         cmd1.Parameters.AddWithValue("@fname", fname);
                         cmd1.Parameters.AddWithValue("@mi", mi);
                         cmd1.Parameters.AddWithValue("@lname", lname);
@@ -100,28 +101,27 @@ namespace InstrumentShop.Controllers
                         cmd1.Parameters.AddWithValue("@pass", pass);
                         cmd1.Parameters.AddWithValue("@role_id", 2);
                         cmd1.Parameters.AddWithValue("@DepartmentId", dep_id);
-                       // cmd1.Parameters.AddWithValue("@pic", image);
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            string filename = Path.GetFileName(file.FileName);
+                            string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
+                            file.SaveAs(imgpath);
+                        }
+                        cmd1.Parameters.AddWithValue("@pic", "~/images/" + file.FileName);
+
                         var ctr = cmd1.ExecuteNonQuery();
-                        try
-                        {
+                        ViewData["Message"] = "User recorded" + fname + " is saved successfully";
 
-                            if (ctr >= 1)
-                            {
-                                return Json(new { success = true, message = "Data is saved" });
-                            }
-                            else
-                            {
-                                return Json(new { success = false, message = "Failed to save data" });
-                            }
-                        }
-                        catch (Exception e)
+                        if (ctr >= 1)
                         {
-                            ModelState.AddModelError("", e.Message);
-                            return View(model);
+                            return Json(new { success = true, message = "Data is saved" });
                         }
-
+                        else
+                        {
+                            return Json(new { success = false, message = "Failed to save data" });
+                        }
                     }
-                }            
+                }
             }
             catch (Exception e)
             {
@@ -129,9 +129,8 @@ namespace InstrumentShop.Controllers
                 return View(model);
             }
 
-
         }
-       
+
     }
 }
 

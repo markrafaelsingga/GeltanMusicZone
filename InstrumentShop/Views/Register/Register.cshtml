@@ -1,13 +1,14 @@
-﻿@{
-    Layout = null;
+﻿@model InstrumentShop.Models.Register
 
+@{
+    Layout = null;
 }
-@model InstrumentShop.Models.Register
 
 <!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
-    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
     <title>Register</title>
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
     <link href="~/Register.css" rel="stylesheet" />
@@ -17,64 +18,128 @@
 </head>
 <body>
     <div id="register-panel">
-        <h1>Create an Account</h1>
-        <form method="post" asp-action="Register" class="register-form" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="Username">Username:</label>
-                <input type="text" id="Username" name="Username" class="form-control" required autofocus />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <label for="Password">Password:</label>
-                <input type="password" id="Password" name="Password" class="form-control" required />
-            </div>
-            <br />
-            <br />
-            <br />
-            <div class="form-group">
-                <label for="Firstname">Firstname: </label>
-                <input type="text" id="fname" name="fname" class="form-control" required autofocus />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <label for="M.I">M.I: </label>
-                <input type="text" id="mi" name="mi" class="form-control" />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <label for="Lastname">Lastname: </label>
-                <input type="text" id="lname" name="lname" class="form-control" required autofocus />
-            </div>
+        @using (Html.BeginForm("Register", "Register", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
 
-
-            @foreach (var field in new[] { "DateofBirth", "Phone", "Address", "Email" })
-            {
+            <div class="form-horizontal">
+                <h4>Register</h4>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
-                    <label for="@field">@field:</label>
-                    @if (field == "DateofBirth")
-                    {
-                        <input type="text" id="@field" name="@field" class="form-control datepicker" required autofocus />
-                    }
-                    else
-                    {
-                        <input type="text" id="@field" name="@field" class="form-control" required autofocus />
-                    }
-
+                    @Html.LabelFor(model => model.Username, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Username, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
+                    </div>
                 </div>
-            }
-            <div class="form-group" style="margin-left: 10px;">
-                @Html.DropDownListFor(model => model.Department, (SelectList)ViewBag.DepList, "Select Department", new { @class = "form-control" })
-            </div>
 
-            <div class="form-group">
-                <label for="ImageFile">Upload File: </label>
-                <input type="file" name="ImageFile" />  
-            </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                    </div>
+                </div>
 
-            <div class="register-actions">
-                <button type="submit" class="register-button">Register</button>
-            </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.fname, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.fname, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.fname, "", new { @class = "text-danger" })
+                    </div>
+                </div>
 
-            <div class="register-info">
-                Already have an account?
-                <a href="@Url.Action("Login", "Login")">Login</a>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.mi, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.mi, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.mi, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.lname, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.lname, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.lname, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                @*<div class="form-group">
+                        Html.LabelFor(model => model.Department, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            Html.EditorFor(model => model.Department, new { htmlAttributes = new { @class = "form-control" } })
+                            Html.ValidationMessageFor(model => model.Department, "", new { @class = "text-danger" })
+                        </div>
+                    </div>*@
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Department, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.Department, (IEnumerable<SelectListItem>)ViewBag.DepList, "Select Department", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Department, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DateofBirth, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.DateofBirth, new { htmlAttributes = new { @class = "form-control datepicker" } })
+                        @Html.ValidationMessageFor(model => model.DateofBirth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Uimg, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <input type="file" name="file" />
+                        @Html.EditorFor(model => model.Uimg, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Uimg, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Registration" class="btn btn-default" />
+                    </div>
+                </div>
+                @Html.ViewData["Message"]
+                <div class="register-info">
+                    Already have an account?
+                    <a href="@Url.Action("Login", "Login")">Login</a>
+                </div>
             </div>
-        </form>
+        }
     </div>
+
+    @* <div>
+            @Html.ActionLink("Back to List", "Index")
+        </div>*@
     <script src="~/error.js"></script>
     <script src="~/Register.js"></script>
 </body>

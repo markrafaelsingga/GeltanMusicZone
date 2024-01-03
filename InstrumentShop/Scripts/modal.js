@@ -144,7 +144,7 @@ function editStaff(userId) {
 
 
 
-function updateModalContent() {
+/*function updateModalContent() {
     // Retrieve the values directly from the input fields
     var updatedUserId = document.getElementById('userId').value;
     var updatedFname = document.getElementById('fname').value;
@@ -157,7 +157,29 @@ function updateModalContent() {
 
     // Call the openEditModal function with updated values
     openEditModal(updatedUserId, updatedFname, updatedMi, updatedLname, updatedDepartment, updatedPhone, updatedAddress, updatedEmail);
+}*/
+function updateModalContent() {
+    // Retrieve the values directly from the input fields
+    var updatedUserId = document.getElementById('userId').value;
+    var updatedFname = document.getElementById('fname').value;
+    var updatedMi = document.getElementById('mi').value;
+    var updatedLname = document.getElementById('lname').value;
+    var updatedDepartment = document.getElementById('DepartmentSelect').value;
+    var updatedPhone = document.getElementById('phone').value;
+    var updatedAddress = document.getElementById('address').value;
+    var updatedEmail = document.getElementById('email').value;
+
+    // Update the values in the existing modal
+    document.getElementById('userId').value = updatedUserId;
+    document.getElementById('fname').value = updatedFname;
+    document.getElementById('mi').value = updatedMi;
+    document.getElementById('lname').value = updatedLname;
+    document.getElementById('Department').value = updatedDepartment;
+    document.getElementById('phone').value = updatedPhone;
+    document.getElementById('address').value = updatedAddress;
+    document.getElementById('email').value = updatedEmail;
 }
+
 
 
 

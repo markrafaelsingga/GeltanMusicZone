@@ -16,5 +16,6 @@ namespace InstrumentShop.Models
         public DateTime dob { get; set; }
         public string department { get; set; }
         public string role { get; set; }
+        public string uimg { get; set; }
     }
 }

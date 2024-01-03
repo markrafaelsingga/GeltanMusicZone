@@ -22,7 +22,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select users.user_phone,users.user_email,users.user_address,users.user_fname,users.user_mi,users.user_lname,user_role.role_desc from users join user_role on user_role.role_id = users.role_id where user_id = @id ";
+                    cmd.CommandText = "select users.user_phone,users.user_email,users.user_address,users.user_fname,users.user_mi,users.user_lname,user_pic,user_role.role_desc from users join user_role on user_role.role_id = users.role_id where user_id = @id ";
                     cmd.Parameters.AddWithValue("@id", id);
 
                     using (var reader = cmd.ExecuteReader())
@@ -39,9 +39,12 @@ namespace InstrumentShop.Controllers
                                 Phone = reader["user_phone"].ToString(),
                                 Email = reader["user_email"].ToString(),
                                 Address = reader["user_address"].ToString(),
+                                uimg = reader["user_pic"].ToString()
                             };
                             ViewBag.uname = $"{model.fname} {model.mi} {model.lname}";
                             Session["uname"] = $"{model.fname} {model.mi} {model.lname}";
+                            ViewBag.picture = $"{model.uimg}";
+                            Session["images"] = $"{model.uimg}";
                             return View(model);
                         }
 
@@ -1060,7 +1063,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
+                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PIC,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
                     cmd.Parameters.AddWithValue("@id", id);
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -1077,12 +1080,14 @@ namespace InstrumentShop.Controllers
                                 dob = (DateTime)reader["USER_DOB"],
                                 department = reader["DEP_NAME"].ToString(),
                                 role = reader["ROLE_DESC"].ToString(),
+                                uimg = reader["USER_PIC"].ToString()
                             };
                             ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
                             ViewBag.address = model.address;
                             ViewBag.email = model.email;
                             ViewBag.dob = model.dob;
                             ViewBag.contact = model.phone;
+                            ViewBag.picture = model.uimg;
                             return View(model);
                         }
                     }

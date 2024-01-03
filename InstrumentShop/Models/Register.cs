@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InstrumentShop.Models
 {
@@ -20,7 +21,9 @@ namespace InstrumentShop.Models
         public string Email { get; set; }
        
         public string imagePath { get; set; }
-        public HttpPostedFileBase ImageFile { get; set; }
+        //public HttpPostedFileBase ImageFile { get; set; }
+        [Required(ErrorMessage = "Image Required")]
+        public string Uimg { get; set; }
 
 
     }

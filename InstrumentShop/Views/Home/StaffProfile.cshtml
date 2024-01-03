@@ -1,4 +1,4 @@
-﻿
+﻿@model InstrumentShop.Models.StaffProfile
 @{
    // ViewBag.Title = "Profile";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
@@ -27,7 +27,8 @@
         <div class="row pb-xl-5 align-items-center">
             <div class="col-lg-3 col-6 text-center">
                 <a>
-                    <img src="~/images/profile.jpg" class="arrow-png img-responsive" />
+                    <img src="@Url.Content(Model.uimg)" class="arrow-png img-responsive" />
+
                     <h4>Staff</h4>
                 </a>
             </div>
