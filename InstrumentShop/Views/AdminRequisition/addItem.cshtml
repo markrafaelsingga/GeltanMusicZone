@@ -1,4 +1,4 @@
-﻿@using InstrumentShop.Models
+﻿﻿@using InstrumentShop.Models
 
 @model List<addItemLists>
 <!DOCTYPE html>
@@ -38,7 +38,7 @@
             <!--Add Requisition Items-->
             <div class="row requisition-block">
                 <div class="col-md-7 mx-auto requisition-right">
-                    <form id="requisitionForm" method="post" action="@Url.Action("Add", "AdminRequisition")">  
+                    <form id="requisitionForm" method="post" action="@Url.Action("Add", "AdminRequisition")">
                         <div class="input-grids">
                             <div class="row">
                                 <div class="col-sm-6">
@@ -64,7 +64,7 @@
                                     <input type="text" name="price" id="price" placeholder="Price" class="requisition-input" disabled />
                                 </div>
                                 <div class="col-sm-6" style="width: 50%">
-                                    <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required/>
+                                    <input type="text" name="total" id="total" placeholder="Total" class="requisition-input" disabled required />
                                     <input type="hidden" name="ReqItem_Total" id="ReqItem_Total" />
                                 </div>
                             </div>
@@ -181,4 +181,3 @@
     </script>
 </body>
 </html>
-

@@ -1,8 +1,88 @@
-﻿
+﻿﻿@model InstrumentShop.Models.adminPageModel
 
+<link href="~/Content/staff.css" rel="stylesheet" />
 <section class="home-section">
     <div class="home-content">
         <i class='bx bx-menu'></i>
         <span class="text">GELTAN MUSIC ZONE</span>
+    </div>
+
+    <div class="w3l-grids-block-5 py-5">
+        <div class="container py-md-5 py-4">
+            <div class="col-12 mb-4">
+                <h2 class="text-center mb-4"><strong>Pending requisitions</strong></h2>
+            </div>
+            <div class="row justify-content-center">
+                <div class="row">
+
+                    @foreach (var details in Model.pendingDetails)
+                    {
+                        <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px; @(Model.pendingDetails.Count == 1 ? "margin: 0 auto;" : "")">
+                            <div class="supplier-card-single">
+                                <div class="content-main-top">
+                                    <ul class="list-unstyled d-flex align-items-center justify-content-between">
+                                        <li>
+                                            <i class='bx bxs-file'></i>&nbsp; Requisition code:
+                                        </li>
+                                    </ul>
+                                    <h4><a>@details.rf_code</a></h4>
+                                    <p><strong>Date requested:</strong>&emsp; @details.rf_date_requested</p>
+                                    <p><strong>Name of the requestor:</strong>&emsp; @details.rf_requestor</p>
+                                    <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                                    <p><strong>Status:</strong>&emsp; @details.rf_status</p>
+                                    <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
+                                        <a class="btn btn-style-primary" style="margin-left: 200px" href="/AdminRequisition/ViewRequisition?request_ID=@details.rf_id">
+                                            Know Details <i class='bx bx-right-arrow-alt'></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <!-- //Pagination -->
+            <div class="pagination-style text-center mt-5">
+                <ul>
+                    <li>
+                        @if (ViewBag.PageNumber > 1)
+                        {
+                            <a href="@Url.Action("AdminPage", new { page = ViewBag.PageNumber - 1, pageSize = ViewBag.PageSize })">
+                                <i class='bx bx-chevrons-left'></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="not-allowed disabled">
+                                <i class='bx bx-chevrons-left'></i>
+                            </span>
+                        }
+                    </li>
+
+                    @for (int i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+                    {
+                        <li class="@(i == ViewBag.PageNumber ? "active" : "")">
+                            <a href="@Url.Action("AdminPage", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                        </li>
+                    }
+
+                    <li>
+                        @if (ViewBag.PageNumber < Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize))
+                        {
+                            <a href="@Url.Action("AdminPage", new { page = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })">
+                                <i class='bx bx-chevrons-right'></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="not-allowed disabled">
+                                <i class='bx bx-chevrons-right'></i>
+                            </span>
+                        }
+                    </li>
+                </ul>
+            </div>
+            <!-- //Pagination -->
+        </div>
     </div>
 </section>

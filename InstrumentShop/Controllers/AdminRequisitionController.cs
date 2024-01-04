@@ -123,25 +123,6 @@ namespace InstrumentShop.Controllers
 
                                             };
 
-                                            // Retrieve user details
-                                            using (var cmdUser = db.CreateCommand())
-                                            {
-                                                cmdUser.CommandType = CommandType.Text;
-                                                cmdUser.CommandText = "SELECT * FROM users where user_id = @id";
-                                                cmdUser.Parameters.AddWithValue("@id", user);
-
-                                                using (SqlDataReader reader3 = cmdUser.ExecuteReader())
-                                                {
-                                                    while (reader3.Read())
-                                                    {
-                                                        list.RF_Requestor = reader3["user_fname"].ToString() + " " +
-                                                            reader3["user_mi"].ToString() + ". " +
-                                                            reader3["user_lname"].ToString();
-                                                        
-                                                    }
-                                                }
-                                            }
-
                                             details.Add(list);
 
                                         }
@@ -1025,69 +1006,6 @@ namespace InstrumentShop.Controllers
                 cmd.ExecuteNonQuery();
             }
         }
-        public string RecentStatus(SqlConnection db, int rfId)
-        {
-            string recentStatus = null;
 
-            using (var cmd = db.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT rf_status FROM [dbo].[requisition] WHERE rf_id = @id";
-                cmd.Parameters.AddWithValue("@id", rfId);
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        // Assuming rf_status is a string column; adjust the type accordingly
-                        recentStatus = reader["rf_status"].ToString();
-                    }
-                }
-            }
-
-            return recentStatus;
-        }
-
-        public string AccessRecentStatus(SqlConnection db, int rfId)
-        {
-            string recentStatus = null;
-
-            using (var cmd = db.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT rf_recentStatus FROM [dbo].[requisition] WHERE rf_id = @id";
-                cmd.Parameters.AddWithValue("@id", rfId);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        // Assuming rf_status is a string column; adjust the type accordingly
-                        recentStatus = reader["rf_recentStatus"].ToString();
-                    }
-                }
-            }
-
-            return recentStatus;
-        }
-        public int UserDetails(SqlConnection db, int rfId)
-        {
-            int user = 0;
-            using (var cmd = db.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT user_id FROM [dbo].[requisition] WHERE rf_id = @id";
-                cmd.Parameters.AddWithValue("@id", rfId);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = Convert.ToInt32(reader["user_id"]);
-                    }
-                }
-            }
-
-            return user;
-        }
     }
 }

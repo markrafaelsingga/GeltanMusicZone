@@ -1,4 +1,4 @@
-﻿@using InstrumentShop.Models
+﻿﻿@using InstrumentShop.Models
 @model List<ViewRequisitionForm>
 
 <!DOCTYPE html>
@@ -72,6 +72,10 @@
                             <div class="col-sm-6">
                                 <p style="font-size: 15px"> Date requested:</p>
                                 <input type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().RF_Daterequested" />
+                            </div>
+                            <div class="col-sm-6">
+                                <p style="font-size: 15px"> Requested by:</p>
+                                <input style="font-weight: 600; text-align: center" type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().RF_Requestor" />
                             </div>
                         </div>
                     </div>

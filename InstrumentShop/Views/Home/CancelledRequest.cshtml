@@ -1,4 +1,4 @@
-﻿@using InstrumentShop.Models;
+﻿﻿@using InstrumentShop.Models;
 @{
     ViewBag.Title = "CancelledRequest";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
@@ -24,6 +24,10 @@
 <!-- //inner banner -->
 <!-- Content block -->
 <div class="w3l-grids-block-5 py-5">
+    @{
+        // Sort the requisitions based on the latest date
+        var sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+    }
     @if (Model != null && Model.Any())
     {
         <div class="container py-md-5 py-4">
@@ -49,7 +53,7 @@
             <!-- Search for requisition -->
             <div class="row justify-content-center">
                 <div class="row">
-                    @foreach (var details in Model)
+                    @foreach (var details in sortedRequisitions)
                     {
                         <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
                             <div class="supplier-card-single">
@@ -123,4 +127,3 @@
     //    });
     //});
 </script>
-
