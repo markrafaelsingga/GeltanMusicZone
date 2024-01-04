@@ -108,13 +108,15 @@ namespace InstrumentShop.Controllers
 
         public ActionResult Purchasing()
         {
-            using(var db = new SqlConnection(mainconn))
+            int user = (int)Session["user_id"];
+            using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
                 using(var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM REQUISITION WHERE RF_STATUS = @status";
+                    cmd.CommandText = "SELECT * FROM REQUISITION WHERE RF_STATUS = @status AND USER_ID = @userId";
+                    cmd.Parameters.AddWithValue("@userId",user);
                     cmd.Parameters.AddWithValue("@status", "Approved");
                 }
             }
