@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using InstrumentShop.Models;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web.Script.Serialization;
 
 namespace InstrumentShop.Controllers
 {
@@ -43,7 +44,8 @@ namespace InstrumentShop.Controllers
 
                     }
                     ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
-                 
+                   
+
                 }
             }
 

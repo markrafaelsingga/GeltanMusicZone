@@ -35,7 +35,7 @@
 });
 
 
-function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword,uimg) {  
+function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword) {
     document.getElementById('editModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editModal')" style="font-size: 35px !important;"></i>
@@ -43,10 +43,6 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
                 <h1>Edit Staff</h1>
             </div>
             <div class="form-container">
-               <div class="form-group">
-                <label for="userId">ID:</label>
-                <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus  oninput="updateModalContent('userId', this.value)" />
-               </div>
             <div class="form-group">
                 <label for="fname">Firstname:</label>
                 <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus  oninput="updateModalContent('fname', this.value)" />
@@ -82,20 +78,8 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
             <div class="form-group">
                 <label for="pword">Password:</label>
                 <input type="text" id="pword" name="pword" class="textbox-style" style="width: 300px !important;" value="${pword}" requiredoninput="updateModalContent('pword', this.value)" />
-            </div>
-                <div class="form-group">
-                    <label for="DepartmentSelect">Department:</label>
-                    <select id="DepartmentSelect" name="DepartmentSelect" class="form-control">
-                        <option selected disabled>${department}</option>
-                        @foreach (var dep in ViewBag.DepList)
-                        {
-                            <option value="@dep.Value">@dep.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="depId" class="text-danger"></span>
-                </div>
-            </div>
-
+            </div>                  
+        </div>
             <div class="form-group">
                 <button type="button" onclick="editStaff('${userId}')">Submit</button>
             </div>
@@ -113,7 +97,6 @@ function editStaff(userId) {
     form.setAttribute("method", "post");
     form.setAttribute("action", '/Staff/EditStaff');
 
-    // Create hidden inputs for each field
     function createHiddenInput(name, value) {
         var input = document.createElement("input");
         input.setAttribute("type", "hidden");
@@ -122,7 +105,6 @@ function editStaff(userId) {
         form.appendChild(input);
     }
 
-    // Retrieve values from the modal inputs
     var updatedUserId = document.getElementById('userId').value;
     var updatedFname = document.getElementById('fname').value;
     var updatedMi = document.getElementById('mi').value;
@@ -134,7 +116,6 @@ function editStaff(userId) {
     var updatedUname = document.getElementById('uname').value;
     var updatedPword = document.getElementById('pword').value;
 
-    // Create hidden inputs for each field
     createHiddenInput("userId", updatedUserId);
     createHiddenInput("fname", updatedFname);
     createHiddenInput("mi", updatedMi);
@@ -146,18 +127,15 @@ function editStaff(userId) {
     createHiddenInput("uname", updatedPword);
     createHiddenInput("pword", updatedUname);
 
-    // Append the form to the body and submit it
     document.body.appendChild(form);
     form.submit();
 }
 
 function updateModalContent(fieldId, fieldValue) {
-    // Update the value in the modal content
     document.getElementById(fieldId).value = fieldValue;
 }
 
 function openDetailModal(userId, fname, mi, lname, department, status,phone,email,address) {
-    // Update modal content based on the provided details
     document.getElementById('detailModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('detailModal')" style="font-size: 35px !important;"></i>
@@ -181,14 +159,11 @@ function openDetailModal(userId, fname, mi, lname, department, status,phone,emai
 
         </div>
     `;
-
-    // Show the modal
     document.getElementById('detailModal').style.display = 'block';
 }
 
 
 
 function closeModal(modalId) {
-    // Hide the specified modal
     document.getElementById(modalId).style.display = 'none';
 }

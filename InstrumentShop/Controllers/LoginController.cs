@@ -52,15 +52,18 @@ namespace InstrumentShop.Controllers
                             Session["role_id"] = role_id;
                             if (uname == user & pword == pass)
                             {
-                                if (dep_id == 1)
+                                if (dep_id == 1 && role_id == 2)
+                                {
+                                    return RedirectToAction("Index", "Home");                                    
+                                }                              
+                                else if (dep_id == 2 && role_id == 2)
                                 {
                                     return RedirectToAction("Index", "Home");
-                                }                              
-                                else 
+                                }
+                                else
                                 {
                                     return RedirectToAction("AdminPage", "Home");
-                                }
-                               
+                                }                             
                             }
                             else
                             {

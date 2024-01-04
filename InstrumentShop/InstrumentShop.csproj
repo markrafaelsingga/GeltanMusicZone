@@ -227,6 +227,7 @@
     <Content Include="Scripts\modal.js" />
     <Content Include="Scripts\modalV1.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\promptmessage.js" />
     <Content Include="StyleSheet1.css" />
     <Content Include="Views\Register\Register.css" />
     <Content Include="Web.config" />
@@ -269,6 +270,7 @@
     <Content Include="Views\AdminRequisition\addItem.cshtml" />
     <Content Include="Views\AdminRequisition\_ApprovalPartialView.cshtml" />
     <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
+    <Content Include="Views\Home\Purchasing.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
