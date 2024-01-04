@@ -1062,7 +1062,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult SearchRequisition(string search)
+        public ActionResult SearchRequisition(string fromSearch, string toSearch)
         {
             using (var db = new SqlConnection(mainconn))
             {
@@ -1070,8 +1070,10 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] where rf_status != 'Cancelled' and rf_date_requested LIKE '%' + @key + '%'";
-                    cmd.Parameters.AddWithValue("@key", search);
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != 'Cancelled' AND rf_date_requested BETWEEN @fromDate AND @toDate";
+                    cmd.Parameters.AddWithValue("@fromDate", fromSearch);
+                    cmd.Parameters.AddWithValue("@toDate", toSearch);
+
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -1080,9 +1082,8 @@ namespace InstrumentShop.Controllers
 
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        requisitionDetails supplier = new requisitionDetails
+                        requisitionDetails requisition = new requisitionDetails
                         {
-                            // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
                             rf_date_requested = dr["rf_date_requested"].ToString(),
                             rf_code = dr["rf_code"].ToString(),
@@ -1090,16 +1091,16 @@ namespace InstrumentShop.Controllers
                             rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
                         };
 
-                        lemp.Add(supplier);
+                        lemp.Add(requisition);
                     }
 
                     db.Close();
 
-                    // Pass the list to the view
-                    return View(lemp);
+                    return View("Requisition",lemp);
                 }
             }
         }
+
         public ActionResult StaffProfile()
         {
             

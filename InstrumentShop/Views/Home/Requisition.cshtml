@@ -40,21 +40,19 @@
 
             <br />
             <!-- Search for requisition -->
-            @*<div class="search-container">
-                <form method="post">
+            <div class="search-container">
+                <form method="post" action="@Url.Action("SearchRequisition", "Home")">
                     <div class="search-wrapper">
                         <label>
                             From: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;To:
                         </label><br />
-                        <input type="date" name="Fromsearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")" onchange="updateToDateMin()">
+                        <input type="date" name="fromSearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")" onchange="updateToDateMin()">
                         <i class="fa fa-arrow-right"></i>
-                        <input type="date" name="Tosearch" class="search-box" id="searchBox2" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
+                        <input type="date" name="toSearch" class="search-box" id="searchBox2" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
                         <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
-
                     </div>
-
                 </form>
-            </div>*@
+            </div>
             <!-- Search for requisition -->
 
             <!-- Dropdown for requisition -->
@@ -195,7 +193,10 @@
         toDateElement.min = fromDateValue;
 
         // Update the "min" attribute of the "To" date input with the current date
-        toDateElement.min = new Date().toISOString().split('T')[0];
+        var currentDate = new Date().toISOString().split('T')[0];
+        if (toDateElement.min > currentDate) {
+            toDateElement.min = currentDate;
+        }
     }
 
 </script>
