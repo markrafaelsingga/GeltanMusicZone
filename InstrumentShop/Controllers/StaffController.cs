@@ -53,7 +53,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_username,users.user_password,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2;";
+                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_username,users.user_password,users.user_pic,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2;";
                     cmd.Parameters.AddWithValue("@role_id", 2);
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -72,7 +72,8 @@ namespace InstrumentShop.Controllers
                             address = row.Field<string>("user_address"),
                             email = row.Field<string>("user_email"),
                             uname = row.Field<string>("user_username"),
-                            pword = row.Field<string>("user_password")
+                            pword = row.Field<string>("user_password"),
+                            uimg = row.Field<string>("user_pic")
                         };
                         staffList.Add(staff);
                     }

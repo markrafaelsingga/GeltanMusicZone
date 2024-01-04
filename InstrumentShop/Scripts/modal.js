@@ -35,7 +35,7 @@
 });
 
 
-function openEditModal(userId, fname, mi, lname, department, phone, address, email,uname,pword) {
+function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword,uimg) {  
     document.getElementById('editModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editModal')" style="font-size: 35px !important;"></i>
@@ -43,7 +43,6 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
                 <h1>Edit Staff</h1>
             </div>
             <div class="form-container">
-           
                <div class="form-group">
                 <label for="userId">ID:</label>
                 <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus  oninput="updateModalContent('userId', this.value)" />
@@ -110,10 +109,6 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
 }
 
 function editStaff(userId) {
-    /*<i class='bx bxs-edit-alt' onclick="editStaff(${userId})" style="margin-left: 1000px; font-size: 30px !important;"></i>*/
-    // Get the form element
-    /*var formData = new FormData(document.getElementById('editStaffForm'));*/
-
     var form = document.createElement("form");
     form.setAttribute("method", "post");
     form.setAttribute("action", '/Staff/EditStaff');
@@ -161,67 +156,7 @@ function updateModalContent(fieldId, fieldValue) {
     document.getElementById(fieldId).value = fieldValue;
 }
 
-/*function updateModalContent() {
-    // Retrieve the values directly from the input fields
-    *//*var updatedUserId = document.getElementById('userId').value;
-    var updatedFname = document.getElementById('fname').value;
-    var updatedMi = document.getElementById('mi').value;
-    var updatedLname = document.getElementById('lname').value;
-    var updatedDepartment = document.getElementById('DepartmentSelect').value;
-    var updatedPhone = document.getElementById('phone').value;
-    var updatedAddress = document.getElementById('address').value;
-    var updatedEmail = document.getElementById('email').value;*//*
-
-    var updatedUserId = document.getElementById('userId').value;
-    var updatedFname = document.getElementById('fname').value;
-    var updatedMi = document.getElementById('mi').value;
-    var updatedLname = document.getElementById('lname').value;
-    var updatedDepartment = document.getElementById('DepartmentSelect').value;
-    var updatedPhone = document.getElementById('phone').value;
-    var updatedAddress = document.getElementById('address').value;
-    var updatedEmail = document.getElementById('email').value;
-
-    // Update the values in the existing modal
-    document.getElementById('userId').value = updatedUserId;
-    document.getElementById('fname').value = updatedFname;
-    document.getElementById('mi').value = updatedMi;
-    document.getElementById('lname').value = updatedLname;
-    document.getElementById('Department').value = updatedDepartment;
-    document.getElementById('phone').value = updatedPhone;
-    document.getElementById('address').value = updatedAddress;
-    document.getElementById('email').value = updatedEmail;
-
-    // Call the openEditModal function with updated values
-    openEditModal(updatedUserId, updatedFname, updatedMi, updatedLname, updatedDepartment, updatedPhone, updatedAddress, updatedEmail);
-}*/
-/*function updateModalContent() {
-    // Retrieve the values directly from the input fields
-    var updatedUserId = document.getElementById('userId').value;
-    var updatedFname = document.getElementById('fname').value;
-    var updatedMi = document.getElementById('mi').value;
-    var updatedLname = document.getElementById('lname').value;
-    var updatedDepartment = document.getElementById('DepartmentSelect').value;
-    var updatedPhone = document.getElementById('phone').value;
-    var updatedAddress = document.getElementById('address').value;
-    var updatedEmail = document.getElementById('email').value;
-
-    // Update the values in the existing modal
-    document.getElementById('userId').value = updatedUserId;
-    document.getElementById('fname').value = updatedFname;
-    document.getElementById('mi').value = updatedMi;
-    document.getElementById('lname').value = updatedLname;
-    document.getElementById('Department').value = updatedDepartment;
-    document.getElementById('phone').value = updatedPhone;
-    document.getElementById('address').value = updatedAddress;
-    document.getElementById('email').value = updatedEmail;
-}*/
-
-
-
-
-
-
-function openDetailModal(userId, fname, mi, lname, department, status) {
+function openDetailModal(userId, fname, mi, lname, department, status,phone,email,address) {
     // Update modal content based on the provided details
     document.getElementById('detailModal').innerHTML = `
         <div class="modal-content">
@@ -235,6 +170,10 @@ function openDetailModal(userId, fname, mi, lname, department, status) {
                 <p><strong>M.I:</strong> ${mi}</p>
                 <p><strong>Lastname:</strong> ${lname}</p>
                 <p><strong>Department:</strong>${department}</p>
+                <p><strong>Status:</strong>${status}</p>
+                <p><strong>Phone:</strong>${phone}</p
+                <p><strong>Email:</strong>${email}</p>
+                <p><strong>Address:</strong>${address}</p>
                 <!-- Add more fields as needed -->
             </div>
 

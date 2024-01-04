@@ -23,6 +23,7 @@ namespace InstrumentShop.Models
         public string depName { get; set; }
         public string uname { get; set; }
         public string pword { get; set; }
+        public string uimg { get; set; }
        /* public List<Department> Departments { get; set; } = new List<Department>();*/
 
 
