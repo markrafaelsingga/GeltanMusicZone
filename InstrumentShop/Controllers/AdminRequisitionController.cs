@@ -590,6 +590,26 @@ namespace InstrumentShop.Controllers
         {
             return PartialView("_DeclinePartialView");
         }
+        /*  public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
+          {
+              int user = (int)Session["user_id"];
+              using (var db = new SqlConnection(mainconn))
+              {
+                  db.Open();
+
+                  // Update the status and the cost
+                  UpdateRF_Status(db, selectedStatus, request_ID);
+                  UpdateCost(db, EstimateTotal, request_ID);
+
+                  InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
+
+                  ViewBag.Message = "Requisition form approved successfully!";
+
+                  // Redirect to the "ViewRequisition" action
+                  return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
+              }
+          }*/
+
         public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
         {
             int user = (int)Session["user_id"];
@@ -600,8 +620,17 @@ namespace InstrumentShop.Controllers
                 // Update the status and the cost
                 UpdateRF_Status(db, selectedStatus, request_ID);
                 UpdateCost(db, EstimateTotal, request_ID);
-
                 InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
+
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "UPDATE requisition_item SET ri_status = @stat WHERE rf_id = @id AND ri_status <> 'Declined'";
+                    cmd.Parameters.AddWithValue("@stat", "Approved");
+                    cmd.Parameters.AddWithValue("@id", request_ID);
+
+                    cmd.ExecuteNonQuery();
+                }
 
                 ViewBag.Message = "Requisition form approved successfully!";
 
@@ -1005,6 +1034,71 @@ namespace InstrumentShop.Controllers
 
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        public string RecentStatus(SqlConnection db, int rfId)
+        {
+            string recentStatus = null;
+
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT rf_status FROM [dbo].[requisition] WHERE rf_id = @id";
+                cmd.Parameters.AddWithValue("@id", rfId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        // Assuming rf_status is a string column; adjust the type accordingly
+                        recentStatus = reader["rf_status"].ToString();
+                    }
+                }
+            }
+
+            return recentStatus;
+        }
+
+        public string AccessRecentStatus(SqlConnection db, int rfId)
+        {
+            string recentStatus = null;
+
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT rf_recentStatus FROM [dbo].[requisition] WHERE rf_id = @id";
+                cmd.Parameters.AddWithValue("@id", rfId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        // Assuming rf_status is a string column; adjust the type accordingly
+                        recentStatus = reader["rf_recentStatus"].ToString();
+                    }
+                }
+            }
+
+            return recentStatus;
+        }
+        public int UserDetails(SqlConnection db, int rfId)
+        {
+            int user = 0;
+            using (var cmd = db.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT user_id FROM [dbo].[requisition] WHERE rf_id = @id";
+                cmd.Parameters.AddWithValue("@id", rfId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = Convert.ToInt32(reader["user_id"]);
+                    }
+                }
+            }
+
+            return user;
         }
 
     }
