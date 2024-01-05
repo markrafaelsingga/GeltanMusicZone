@@ -2,8 +2,8 @@
 @{
     ViewBag.Title = "Requisition";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
-    DateTime minDate = ViewBag.MinDate;
-    DateTime maxDate = ViewBag.MaxDate;
+    DateTime? minDate = ViewBag.MinDate;
+    DateTime? maxDate = ViewBag.MaxDate;
 }
 @model List<requisitionDetails>
 
@@ -40,20 +40,19 @@
 
             <br />
             <!-- Search for requisition -->
-            @*<div class="search-container">
-                <form method="post" action="@Url.Action("SearchRequisition", "Home")">
-                    <div class="search-wrapper">
-                        <label>
-                            From: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;To:
-                        </label><br />
-                        <input type="date" name="fromSearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")" onchange="updateToDateMin()">
-                        <i class="fa fa-arrow-right"></i>
-                        <input type="date" name="toSearch" class="search-box" id="searchBox2" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
-                        <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
-                    </div>
-                </form>
-            </div>*@
+            <div class="search-container" style="display: flex">
+                <div class="search-wrapper">
+                    <label>
+                        Search through date: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;@* From: *@
+                    </label><br />
+                    <input type="date" name="fromSearch" class="search-box" id="searchBox1" min="@((minDate ?? DateTime.MinValue).ToString("yyyy-MM-dd"))" max="@((maxDate ?? DateTime.MaxValue).ToString("yyyy-MM-dd"))" onchange="updateRequisitions()">
+                    <button type="button" class="btn btn-style-3" onclick="window.location.href='/Home/Requisition'">
+                        Refresh
+                    </button>
+                </div>
+            </div>
             <!-- Search for requisition -->
+
 
             <!-- Dropdown for requisition -->
             <div class="row requisition-block" style="margin-left: 5px;">
@@ -72,28 +71,33 @@
                 <div class="row">
 
                     @{
-                        // Get the selected status from the updated query string
+                        // Get the selected status and date from the updated query string
                         var selectedStatus = Request.QueryString["selectedStatus"];
+                        var fromDate = Request.QueryString["fromDate"];
 
                         // Define a variable to hold the requisitions
                         List<requisitionDetails> sortedRequisitions;
 
-                        // Check if a status is selected
-                        if (selectedStatus == null || selectedStatus == "All")
+                        // Check if a specific date is selected and is in a valid format
+                        if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out var parsedDate))
                         {
-                            // No specific status selected, show all requisitions
-                            sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+                            // Filter requisitions based on both status and date
+                            sortedRequisitions = Model
+                                .Where(r => (selectedStatus == "All" || r.rf_status == selectedStatus) && DateTime.Parse(r.rf_date_requested).Date == parsedDate.Date)
+                                .OrderByDescending(r => DateTime.Parse(r.rf_date_requested))
+                                .ToList();
                         }
                         else
                         {
-                            // Show requisitions only when the status matches the selected status
+                            // No specific date selected or invalid date format, show requisitions with the selected status
                             sortedRequisitions = Model
-                                .Where(r => r.rf_status == selectedStatus)
-                                .OrderByDescending(r => r.rf_date_requested)
+                                .Where(r => string.IsNullOrEmpty(selectedStatus) || r.rf_status == selectedStatus)
+                                .OrderByDescending(r => DateTime.Parse(r.rf_date_requested))
                                 .ToList();
                         }
-
                     }
+
+
 
 
                     @if (sortedRequisitions.Any())
@@ -165,20 +169,27 @@
     //    });
     //});
 
-    // Function to update the query string and trigger the form submission
+    // Get the selected date from the query string
+    var selectedDateFromQueryString = '@Request.QueryString["fromDate"]';
+
+    // Set the selected value of the date picker
+    $('#searchBox1').val(selectedDateFromQueryString);
+
     function updateQueryString() {
         var selectedStatus = $("#selectedStatus").val();
+        var fromDate = $("#searchBox1").val();
 
         // Update the URL with the new query string
         var url = new URL(window.location.href);
         url.searchParams.set("selectedStatus", selectedStatus);
+        url.searchParams.set("fromDate", fromDate);
 
         // Redirect to the updated URL
         window.location.href = url.toString();
     }
 
-    // Attach the updateQueryString function to the onchange event of the dropdown
-    $("#selectedStatus").on("change", function () {
+    // Attach the updateQueryString function to the onchange event of the dropdown and date picker
+    $("#selectedStatus, #searchBox1").on("change", function () {
         updateQueryString();
     });
 
@@ -197,6 +208,9 @@
         if (toDateElement.min > currentDate) {
             toDateElement.min = currentDate;
         }
+
+        // Trigger form submission when "From" date changes
+        updateQueryString();
     }
 
 </script>
