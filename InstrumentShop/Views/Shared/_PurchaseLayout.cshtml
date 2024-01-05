@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Geltan's Music Zone</title>
+    <!-- Google fonts -->
+    <link href="//fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Template CSS Style link -->
+
+    <link href="~/Content/staff.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.2/css/all.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="@Url.Action("Index", "Purchase")">
+                    <i class="fas fa-headphones"></i>Music Zone
+                </a>
+                <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarScroll">
+                    <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll">
+                        <li class="nav-item">
+                            <a href="/Purchase/Index" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Purchase/Purchase" class="nav-link">Purchase</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Purchase/Supplier" class="nav-link">Supplier</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("StaffProfile","Purchase")" class="nav-link">Profile</a>
+                        </li>
+                        <!-- Logout icon button -->
+                        <li class="nav-item">
+                            <a href="/Login/Login" class="nav-link">
+                                <i class="fas fa-power-off"></i>
+                            </a>
+                        </li>
+                        <!-- End Logout icon button -->
+                    </ul>
+                    <!-- search-right -->
+                    <!--<div class="search-toggle">
+                        <input type="text" placeholder="Search........">
+                        <i class="fa fa-search"></i>
+                    </div>-->
+                    <!--//search-right-->
+
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="cont-ser-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+
+
+
+
+            </nav>
+        </div>
+    </header>
+    <!-- //header -->
+
+    <div>
+        @RenderBody()
+    </div>
+
+    <!-- footer block -->
+    <footer class="w3l-footer-29-main">
+        <div class="footer-29 pt-5 pb-4">
+            <div class="container pt-md-4">
+                <div class="row footer-top-29">
+                    <div class="col-lg-4 col-md-6 footer-list-29">
+                        <h6 class="footer-title-29">Contact Info </h6>
+                        <p class="mb-2 pe-xl-5">
+                            Address : Corner M.J Cuenco, R. Palma St., Cebu City, 6000
+                        </p>
+                        <p class="mb-2">Phone Number : <a href="tel:+1(21) 234 4567">+1(21) 234 4567</a></p>
+                        <p class="mb-2">Email : <a href="mailto:info@example.com">info@example.com</a></p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6 footer-list-29 mt-md-0 mt-4">
+                        <ul>
+                            <h6 class="footer-title-29">Quick Links</h6>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="requisition.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-8 footer-list-29 mt-lg-0 mt-4 ps-lg-5">
+                        <div class="text-center mb-3">
+                            <h6 class="footer-title-29">Developers:</h6>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="color: white">
+                            <div class="mr-4 text-center">
+                                <img src="~/images/dev1.png" alt="Person 1" class="rounded-circle mb-2" width="100" height="100">
+                                <span>Mark Rafael</span>
+                            </div>
+                            <div class="mr-4 text-center">
+                                <img src="~/images/dev2.png" alt="Person 2" class="rounded-circle mb-2" width="100" height="100">
+                                <span>Dolph</span>
+                            </div>
+                            <div class="mr-4 text-center">
+                                <img src="~/images/dev3.png" alt="Person 3" class="rounded-circle mb-2" width="100" height="100">
+                                <span>Crizel</span>
+                            </div>
+                            <div class="text-center">
+                                <img src="~/images/team2.png" alt="Person 4" class="rounded-circle mb-2" width="100" height="100">
+                                <span>Louis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- //footer block -->
+    <!-- Js scripts -->
+    <!-- common jquery plugin -->
+    <script src="~/assets/js/jquery-3.3.1.min.js"></script>
+    <!-- //common jquery plugin -->
+    <!-- /counter-->
+    <script src="~/assets/js/counter.js"></script>
+    <!-- //counter-->
+    <!-- theme switch js (light and dark)-->
+    <script src="~/assets/js/theme-change.js"></script>
+    <!-- //theme switch js (light and dark)-->
+    <!-- MENU-JS -->
+    <script>
+        $(window).on("scroll", function () {
+            var scroll = $(window).scrollTop();
+
+            if (scroll >= 80) {
+                $("#site-header").addClass("nav-fixed");
+            } else {
+                $("#site-header").removeClass("nav-fixed");
+            }
+        });
+
+        //Main navigation Active Class Add Remove
+        $(".navbar-toggler").on("click", function () {
+            $("header").toggleClass("active");
+        });
+        $(document).on("ready", function () {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+            $(window).on("resize", function () {
+                if ($(window).width() > 991) {
+                    $("header").removeClass("active");
+                }
+            });
+        });
+    </script>
+    <!-- //MENU-JS -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+        $(function () {
+            $('.navbar-toggler').click(function () {
+                $('body').toggleClass('noscroll');
+            })
+        });
+    </script>
+    <!-- //disable body scroll which navbar is in active -->
+    <!-- bootstrap -->
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <!-- //bootstrap -->
+    <!-- //Js scripts -->
+</body>
+</html>

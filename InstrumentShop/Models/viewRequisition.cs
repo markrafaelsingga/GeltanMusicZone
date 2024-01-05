@@ -65,6 +65,7 @@ namespace InstrumentShop.Models
         public decimal RF_Price { get; set; }
         public decimal RF_Total { get; set; }
         public decimal RF_Estimatecost { get; set; }
+        public string RF_Supplier { get; set; }
         public int Cancel { get; set; }
         public int Restore { get; set; }
         public string selectedStatus { get; set; }

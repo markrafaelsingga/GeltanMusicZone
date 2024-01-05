@@ -133,6 +133,7 @@
     <Compile Include="Controllers\EditStaffController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
     <Compile Include="Global.asax.cs">
@@ -269,6 +270,14 @@
     <Content Include="Views\AdminRequisition\addItem.cshtml" />
     <Content Include="Views\AdminRequisition\_ApprovalPartialView.cshtml" />
     <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
+    <Content Include="Views\Shared\_PurchaseLayout.cshtml" />
+    <Content Include="Views\Purchase\Index.cshtml" />
+    <Content Include="Views\Purchase\Supplier.cshtml" />
+    <Content Include="Views\Purchase\SupplierDetails.cshtml" />
+    <Content Include="Views\Purchase\Purchase.cshtml" />
+    <Content Include="Views\Purchase\StaffProfile.cshtml" />
+    <Content Include="Views\Purchase\ViewApproveRF.cshtml" />
+    <Content Include="Views\Purchase\CreateNewPurchase.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

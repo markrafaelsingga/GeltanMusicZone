@@ -56,7 +56,10 @@ namespace InstrumentShop.Controllers
                                 {
                                     return RedirectToAction("Index", "Home");
                                 }
-                               
+                                else if(dep_id == 2)
+                                {
+                                    return RedirectToAction("Index", "Purchase");
+                                }
                                 else
                                 {
                                     return RedirectToAction("AdminPage", "Home");

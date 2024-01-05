@@ -1,0 +1,268 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "CreateNewPurchase";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
+}
+@model List<requisitionDetails>
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Create new</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Purchase/Index">Home</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Purchase/Purchase">Purchase</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Create new purchase</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!--Requisition Block-->
+<section class="w3l-servicesblock py-5 mb-lg-5" id="requisition">
+    <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+        <p class="text-uppercase">Create a purchase</p>
+        <h3 class="title-style">Add a new purchase</h3>
+    </div>
+
+    <!--Add Requisition Items-->
+    <div class="row requisition-block">
+        <div class="col-md-7 mx-auto requisition-right">
+            <form id="requisitionForm" method="post" action="@Url.Action("AddRequisition", "Home")">
+                <div class="col-sm-6" style="margin-left: 89%">
+                    <!-- First Select: Requisition -->
+                    <p>Requisition code:</p>
+                    <select name="ReqItem_Requisition" id="ReqItem_Requisition" class="requisition-select" required="">
+                        <option value="" disabled selected style="text-align: center">--- Select Requisition ---</option>
+                        @foreach (var canvasRF in Model)
+                        {
+                            <option value="@canvasRF.rf_id">@canvasRF.rf_code</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row requisition-block" style="margin-left: 150px;">
+        <div class="col-sm-6" style=" width: 250px;">
+            <!-- Second Select: Items -->
+            <p>Supplier:</p>
+            <select name="ReqItem_Supplier" id="ReqItem_Supplier" class="requisition-select" required="">
+                <option value="" disabled selected style="text-align: center">--- Select Supplier ---</option>
+            </select>
+        </div>
+    </div>
+    <!--Add Requisition Items-->
+
+    <!--View Requisition Items-->
+    <div class="row requisition-block">
+        <div class="col-md-7 mx-auto requisition-right" style="width: 80%">
+            <p><strong>List of items to be purchase:</strong></p>
+            <table class="table-striped table-bordered" id="item-list" style="width: 100%">
+                <colgroup>
+                    <col width="3%">
+                    <col width="10%">
+                    <col width="31%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="12%">
+                    <col width="12%">
+                </colgroup>
+                <thead>
+                    <tr style="background-color: #fbb034; color: #000000;">
+                        <th class="px-1 py-1 text-center">#</th>
+                        <th class="px-1 py-1 text-center">Item</th>
+                        <th class="px-1 py-1 text-center">Description</th>
+                        <th class="px-1 py-1 text-center">Quantity</th>
+                        <th class="px-1 py-1 text-center">Unit</th>
+                        <th class="px-1 py-1 text-center">Price</th>
+                        <th class="px-1 py-1 text-center">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="item-list-body">
+
+                </tbody>
+            </table>
+            <div class="text-start">
+                <br />
+                <form class="submit-form" method="post" action="@Url.Action("SubmitDataRF", "Home")">
+                    <input type="hidden" name="EstimateTotal" id="EstimateTotal" />
+                    <button type="button" class="btn btn-style btn-style-3" onclick="confirmSubmit(this)" style="margin-left: 84%">Purchase Order</button> <br />
+                    @*<p style="font-size:12px; text-align: right"><strong>Note: </strong><i>Review thoroughly the items you intend to order.<br />Once a purchase order is submitted, it will be locked<br /> for editing to prevent any modifications.</i></p>*@
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--View Requisition Items-->
+</section>
+<!--Requisition Block-->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // JavaScript to handle dynamic updating of the second select based on the first select
+    document.getElementById("ReqItem_Requisition").addEventListener("change", function () {
+        var selectedRequisitionId = this.value;
+
+        console.log("Selected Requisition ID: " + selectedRequisitionId);
+
+        // Ensure a requisition is selected
+        if (selectedRequisitionId) {
+            var url = "/Purchase/GetDistinctSuppliersForRequisition";
+            var data = { requisitionId: selectedRequisitionId };
+
+            $.get(url, data, function (suppliers) {
+                console.log("Received Suppliers:", suppliers);
+
+                var selectSupplier = $("#ReqItem_Supplier");
+                selectSupplier.empty();
+
+                // Populate the second select with supplier options
+                $.each(suppliers, function (index, supplier) {
+                    selectSupplier.append('<option value="' + supplier + '">' + supplier + '</option>');
+                });
+
+                // Trigger change event to fetch items for the newly selected supplier
+                selectSupplier.change();
+            });
+        } else {
+            // Clear the second select if no requisition is selected
+            $("#ReqItem_Supplier").empty();
+            $("#ReqItem_Supplier").append('<option value="" disabled selected style="text-align: center">--- Select Supplier ---</option>');
+        }
+    });
+
+    // Event listener for the change in the second select (Supplier)
+    $("#ReqItem_Supplier").change(function () {
+        var selectedSupplier = $(this).val();
+        console.log("Selected Supplier:", selectedSupplier);
+
+        if (selectedSupplier) {
+            // Fetch details from the database based on the selected supplier
+            fetchDetailsForSelectedSupplier(selectedSupplier);
+        } else {
+            // Clear the table when no supplier is selected
+            clearTable();
+        }
+    });
+
+    // Function to fetch details from the database based on the selected supplier
+    function fetchDetailsForSelectedSupplier(selectedSupplier) {
+        console.log("Fetching details for supplier:", selectedSupplier);
+
+        var url = "/Purchase/GetDetailsForSelectedSupplier";
+        var data = { supplier: selectedSupplier };
+
+        $.get(url, data, function (details) {
+            console.log("Received Details:", details);
+
+            // Process the fetched details and update the HTML table
+            updateTableWithDetails(details);
+
+            // Add the total estimated cost row
+            updateTotalEstimatedCostRow();
+        });
+    }
+
+    // Function to update the HTML table with the fetched details
+    function updateTableWithDetails(details) {
+        // Clear existing rows from the table body
+        $("#item-list tbody").empty();
+
+        // Iterate through the fetched details and append rows to the table
+        $.each(details, function (index, detail) {
+            var rowNumber = index + 1;
+
+            var rowHtml = `
+            <tr style="text-align: center">
+                <td><p class="row-number">${rowNumber}</p></td>
+                <td>${detail.CanvasItem}</td>
+                <td>${detail.CanvasDesc}</td>
+                <td>${detail.CanvasQuantity}</td>
+                <td>${detail.CanvasUnit}</td>
+                <td style="text-align: center">${detail.CanvasPrice}</td>
+                <td class="canvas-total-value">${detail.CanvasTotal}</td>
+            </tr>`;
+
+            // Append the row to the table
+            $("#item-list tbody").append(rowHtml);
+        });
+
+        // Add the total estimated cost row
+        updateTotalEstimatedCostRow();
+    }
+
+    // Function to add a new row for the total estimated cost
+    function addTotalEstimatedCostRow(totalCost) {
+        var formattedTotalCost = formatAmountInPesos(totalCost);
+
+        var totalRowHtml = `
+        <tr style="text-align: center; font-weight:600" class="total-row">
+            <td colspan="6" style="text-align: right">Total estimated cost: &emsp;</td>
+            <td><p class="total-cost">${formattedTotalCost}</p></td>
+        </tr>`;
+
+        // Remove existing total row if present
+        $('#item-list-body .total-row').remove();
+
+        // Append the updated total estimated cost row to the table body
+        $("#item-list tbody").append(totalRowHtml);
+
+        // Update the hidden input for submitting the total cost with the form
+        $('#EstimateTotal').val(totalCost.toFixed(2));
+    }
+
+    // Function to format an amount in pesos with dots as thousand separators
+    function formatAmountInPesos(amount) {
+        return `₱${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+    }
+
+    // Function to update the total estimated cost row
+    function updateTotalEstimatedCostRow() {
+        var totalCost = 0;
+
+        // Iterate through the table rows and sum up the total cost
+        $('#item-list-body tr:not(.total-row)').each(function () {
+            var rowTotal = parseFloat($(this).find('.canvas-total-value').text());
+            if (!isNaN(rowTotal)) {
+                totalCost += rowTotal;
+            }
+        });
+
+        // Remove existing total row if present
+        $('#item-list-body .total-row').remove();
+
+        // Add the updated total estimated cost row
+        addTotalEstimatedCostRow(totalCost);
+
+        // Update the hidden input for submitting the total cost with the form
+        $('#EstimateTotal').val(totalCost.toFixed(2));
+    }
+
+    // Function to clear the HTML table
+    function clearTable() {
+        $("#item-list tbody").empty();
+    }
+
+    // ===Add row numbers to each row in the table
+    document.addEventListener('DOMContentLoaded', function () {
+        var table = document.getElementById('item-list');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            var cell = rows[i].getElementsByTagName('td')[0];
+            cell.innerHTML = i + 1;
+        }
+    });
+
+    // ===To submit a requisition form
+    function confirmSubmit(button) {
+        var confirmation = confirm("Are you sure you want to submit this requisition?");
+        if (confirmation) {
+            var form = button.closest('.submit-form');
+            form.submit();
+        }
+    }
+
+</script>
