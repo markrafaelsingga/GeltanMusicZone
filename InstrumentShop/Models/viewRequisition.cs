@@ -58,8 +58,6 @@ namespace InstrumentShop.Models
         public string RF_Code { get; set; }
         public string RF_Daterequested { get; set; }
         public string RF_Itemcode { get; set; }
-        public string RF_Suppliercompany { get; set; }
-        public int RF_SupplierID { get; set; }
         public string RF_Item { get; set; }
         public string RF_Description { get; set; }
         public int RF_Quantity { get; set; }
