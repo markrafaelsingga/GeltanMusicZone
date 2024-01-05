@@ -12,7 +12,7 @@ namespace InstrumentShop.Controllers
 {
     public class HomeController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         public ActionResult AdminPage(int page = 1, int pageSize = 3)
         {
             Home model = null;
@@ -82,11 +82,11 @@ namespace InstrumentShop.Controllers
 
                     // Call GetMinDate with a requisitionDetails instance
                     requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    GetMinDate(minDateModel, "Pending");
 
                     // Call GetMaxDate with a requisitionDetails instance
                     requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
+                    GetMaxDate(maxDateModel, "Pending");
 
                     adminPageModel combine = new adminPageModel
                     {
@@ -104,23 +104,6 @@ namespace InstrumentShop.Controllers
                     return View(combine);
                 }
             }
-        }
-
-        public ActionResult Purchasing()
-        {
-            int user = (int)Session["user_id"];
-            using (var db = new SqlConnection(mainconn))
-            {
-                db.Open();
-                using(var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM REQUISITION WHERE RF_STATUS = @status AND USER_ID = @userId";
-                    cmd.Parameters.AddWithValue("@userId",user);
-                    cmd.Parameters.AddWithValue("@status", "Approved");
-                }
-            }
-            return View();
         }
         public ActionResult Index()
         {
@@ -244,11 +227,11 @@ namespace InstrumentShop.Controllers
 
                     // Call GetMinDate with a requisitionDetails instance
                     requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    GetMinDate(minDateModel, "Canceled");
 
                     // Call GetMaxDate with a requisitionDetails instance
                     requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
+                    GetMaxDate(maxDateModel, "Canceled");
 
                     // Perform pagination logic
                     var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -271,6 +254,7 @@ namespace InstrumentShop.Controllers
         {
             int user = (int)Session["user_id"];
             DeleteCanvasItem();
+
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -282,7 +266,6 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@Deleted", "Deleted");
                     cmd.Parameters.AddWithValue("@user", user);
 
-
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -293,7 +276,6 @@ namespace InstrumentShop.Controllers
                     {
                         requisitionDetails request = new requisitionDetails
                         {
-                            // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
                             rf_date_requested = dr["rf_date_requested"].ToString(),
                             rf_code = dr["rf_code"].ToString(),
@@ -306,24 +288,20 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Call GetMinDate with a requisitionDetails instance
-                    requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    // Find the minimum and maximum dates directly from the list
+                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
 
-                    // Call GetMaxDate with a requisitionDetails instance
-                    requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
-
-
-                    // Pass the paginated list and minimum date model to the view
-                    ViewBag.MinDate = minDateModel.fromRequestdate;
-                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+                    // Pass the paginated list, minimum date, and maximum date to the view
+                    ViewBag.MinDate = minDate;
+                    ViewBag.MaxDate = maxDate;
 
                     // Pass the paginated list to the view
                     return View(lemp);
                 }
             }
         }
+
         public void DeleteCanvasItem()
         {
             using (var db = new SqlConnection(mainconn))
@@ -340,7 +318,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        private void GetMinDate(requisitionDetails model)
+        private void GetMinDate(requisitionDetails model, string status)
         {
             model.fromRequestdate = DateTime.MinValue; // Initialize with a default value
 
@@ -350,8 +328,8 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition";
-
+                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition WHERE rf_status = @stats";
+                    cmd.Parameters.AddWithValue("@stats", status);
 
                     // Execute the command and retrieve the result
                     object result = cmd.ExecuteScalar();
@@ -367,7 +345,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        private void GetMaxDate(requisitionDetails model)
+        private void GetMaxDate(requisitionDetails model, string status)
         {
             model.toRequestdate = DateTime.MaxValue; // Initialize with a default value
 
@@ -377,7 +355,8 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition";
+                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition WHERE rf_status = @stats";
+                    cmd.Parameters.AddWithValue("@stats", status);
 
 
                     // Execute the command and retrieve the result
@@ -842,8 +821,6 @@ namespace InstrumentShop.Controllers
                                 RF_Code = reader["rf_code"].ToString(),
                                 RF_Daterequested = reader["rf_date_requested"].ToString(),
                                 RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
@@ -915,8 +892,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader1["rf_code"].ToString(),
                                                 RF_Daterequested = reader1["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader1["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
-                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
                                                 RF_Item = reader1["prod_name"].ToString(),
                                                 RF_Description = reader1["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
@@ -958,8 +933,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader2["rf_code"].ToString(),
                                                 RF_Daterequested = reader2["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader2["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
-                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
                                                 RF_Item = reader2["prod_name"].ToString(),
                                                 RF_Description = reader2["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
@@ -1079,7 +1052,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult SearchRequisition(string search)
+        public ActionResult SearchRequisition(string fromSearch, string toSearch)
         {
             using (var db = new SqlConnection(mainconn))
             {
@@ -1087,8 +1060,10 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] where rf_status != 'Cancelled' and rf_date_requested LIKE '%' + @key + '%'";
-                    cmd.Parameters.AddWithValue("@key", search);
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != 'Cancelled' AND rf_date_requested BETWEEN @fromDate AND @toDate";
+                    cmd.Parameters.AddWithValue("@fromDate", fromSearch);
+                    cmd.Parameters.AddWithValue("@toDate", toSearch);
+
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -1097,9 +1072,8 @@ namespace InstrumentShop.Controllers
 
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        requisitionDetails supplier = new requisitionDetails
+                        requisitionDetails requisition = new requisitionDetails
                         {
-                            // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
                             rf_date_requested = dr["rf_date_requested"].ToString(),
                             rf_code = dr["rf_code"].ToString(),
@@ -1107,16 +1081,16 @@ namespace InstrumentShop.Controllers
                             rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
                         };
 
-                        lemp.Add(supplier);
+                        lemp.Add(requisition);
                     }
 
                     db.Close();
 
-                    // Pass the list to the view
-                    return View(lemp);
+                    return View("Requisition", lemp);
                 }
             }
         }
+
         public ActionResult StaffProfile()
         {
 
@@ -1127,7 +1101,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USERS.USER_PIC,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
+                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
                     cmd.Parameters.AddWithValue("@id", id);
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -1144,7 +1118,6 @@ namespace InstrumentShop.Controllers
                                 dob = (DateTime)reader["USER_DOB"],
                                 department = reader["DEP_NAME"].ToString(),
                                 role = reader["ROLE_DESC"].ToString(),
-                                uimg = reader["USER_PIC"].ToString()
                             };
                             ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
                             ViewBag.address = model.address;

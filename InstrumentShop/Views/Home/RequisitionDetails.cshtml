@@ -61,7 +61,6 @@
                     <colgroup>
                         <col width="3%">
                         <col width="12%">
-                        <col width="12%">
                         <col width="10%">
                         <col width="25%">
                         <col width="6%">
@@ -73,7 +72,6 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Requisition code</th>
-                            <th class="px-1 py-1 text-center">Supplier</th>
                             <th class="px-1 py-1 text-center">Item</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
@@ -88,8 +86,6 @@
                             <tr style="text-align: center">
                                 <td><p class="row-number"></p></td>
                                 <td> @form.RF_Itemcode</td>
-                                <td> @form.RF_Suppliercompany</td>
-                                <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
                                 <td> @form.RF_Item</td>
                                 <td> @form.RF_Description</td>
                                 <td> @form.RF_Quantity</td>
@@ -102,7 +98,7 @@
                         }
 
                         <tr style="text-align: center; font-weight:600">
-                            <td colspan="8" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td colspan="7" style="text-align: right">Total estimated cost: &emsp;</td>
                             <td>
                                 <p class="total-cost">@Model.First().RF_Estimatecost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
                                 <!-- "C2" format specifier represents currency with two decimal places -->
@@ -118,7 +114,6 @@
                     <colgroup>
                         <col width="3%">
                         <col width="12%">
-                        <col width="12%">
                         <col width="10%">
                         <col width="25%">
                         <col width="6%">
@@ -130,7 +125,6 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Requisition code</th>
-                            <th class="px-1 py-1 text-center">Supplier</th>
                             <th class="px-1 py-1 text-center">Item</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
@@ -145,8 +139,6 @@
                             <tr style="text-align: center">
                                 <td><p class="row-number"></p></td>
                                 <td> @form.RF_Itemcode</td>
-                                <td> @form.RF_Suppliercompany</td>
-                                <input type="hidden" name="supID" id="supID" value="@form.RF_SupplierID" />
                                 <td> @form.RF_Item</td>
                                 <td> @form.RF_Description</td>
                                 <td> @form.RF_Quantity</td>

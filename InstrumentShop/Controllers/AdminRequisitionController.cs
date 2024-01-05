@@ -11,7 +11,7 @@ namespace InstrumentShop.Controllers
 {
     public class AdminRequisitionController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         // GET: AdminRequisition
         public ActionResult Requisition()
         {
@@ -111,8 +111,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader1["rf_code"].ToString(),
                                                 RF_Daterequested = reader1["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader1["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
-                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
                                                 RF_Item = reader1["prod_name"].ToString(),
                                                 RF_Description = reader1["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
@@ -122,6 +120,24 @@ namespace InstrumentShop.Controllers
                                                 RF_Estimatecost = Convert.ToDecimal(reader1["rf_estimated_cost"]),
 
                                             };
+
+                                            // Retrieve user details
+                                            using (var cmdUser = db.CreateCommand())
+                                            {
+                                                cmdUser.CommandType = CommandType.Text;
+                                                cmdUser.CommandText = "SELECT * FROM users where user_id = @id";
+                                                cmdUser.Parameters.AddWithValue("@id", user);
+
+                                                using (SqlDataReader reader3 = cmdUser.ExecuteReader())
+                                                {
+                                                    while (reader3.Read())
+                                                    {
+                                                        list.RF_Requestor = reader3["user_fname"].ToString() + " " +
+                                                            reader3["user_mi"].ToString() + ". " +
+                                                            reader3["user_lname"].ToString();
+                                                    }
+                                                }
+                                            }
 
                                             details.Add(list);
 
@@ -156,8 +172,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader2["rf_code"].ToString(),
                                                 RF_Daterequested = reader2["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader2["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
-                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
                                                 RF_Item = reader2["prod_name"].ToString(),
                                                 RF_Description = reader2["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
@@ -333,8 +347,6 @@ namespace InstrumentShop.Controllers
                                 RF_Code = reader["rf_code"].ToString(),
                                 RF_Daterequested = reader["rf_date_requested"].ToString(),
                                 RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
@@ -362,8 +374,6 @@ namespace InstrumentShop.Controllers
                             {
                                 RF_ItemStatus = "Canvas",
                                 RF_ItemID = Convert.ToInt32(reader["canvas_id"]),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
@@ -590,26 +600,6 @@ namespace InstrumentShop.Controllers
         {
             return PartialView("_DeclinePartialView");
         }
-        /*  public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
-          {
-              int user = (int)Session["user_id"];
-              using (var db = new SqlConnection(mainconn))
-              {
-                  db.Open();
-
-                  // Update the status and the cost
-                  UpdateRF_Status(db, selectedStatus, request_ID);
-                  UpdateCost(db, EstimateTotal, request_ID);
-
-                  InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
-
-                  ViewBag.Message = "Requisition form approved successfully!";
-
-                  // Redirect to the "ViewRequisition" action
-                  return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
-              }
-          }*/
-
         public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
         {
             int user = (int)Session["user_id"];
@@ -1035,7 +1025,6 @@ namespace InstrumentShop.Controllers
                 cmd.ExecuteNonQuery();
             }
         }
-
         public string RecentStatus(SqlConnection db, int rfId)
         {
             string recentStatus = null;
@@ -1100,6 +1089,5 @@ namespace InstrumentShop.Controllers
 
             return user;
         }
-
     }
 }

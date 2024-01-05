@@ -78,7 +78,6 @@
                     <colgroup>
                         <col width="3%">
                         <col width="12%">
-                        <col width="10%">
                         <col width="25%">
                         <col width="6%">
                         <col width="6%">
@@ -91,7 +90,6 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Item</th>
-                            <th class="px-1 py-1 text-center">Supplier</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -120,7 +118,6 @@
                                         <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                     </td>
                                     <td>@form.RF_Item</td>
-                                    <td>@form.RF_Suppliercompany</td>
                                     <td>@form.RF_Description</td>
                                     <td>
                                         <input disabled type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
@@ -163,7 +160,6 @@
                                         <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                     </td>
                                     <td>@form.RF_Item</td>
-                                    <td>@form.RF_Suppliercompany</td>
                                     <td>@form.RF_Description</td>
                                     <td>
                                         <input disabled type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
@@ -203,7 +199,7 @@
 
 
                         <tr style="text-align: center; font-weight:600">
-                            <td colspan="7" style="text-align: right; font-size: medium">
+                            <td colspan="6" style="text-align: right; font-size: medium">
                                 <a href="/AdminRequisition/addItem?request_ID=@Model.First().RF_ID" class="btn btn-style-3">
                                     <i class='bx bxs-plus-square'></i>&emsp;<strong>Add Item</strong>
                                 </a>
@@ -243,7 +239,6 @@
                     <colgroup>
                         <col width="3%">
                         <col width="12%">
-                        <col width="10%">
                         <col width="25%">
                         <col width="6%">
                         <col width="6%">
@@ -255,7 +250,6 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Item</th>
-                            <th class="px-1 py-1 text-center">Supplier</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -273,7 +267,6 @@
                                     <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                 </td>
                                 <td>@form.RF_Item</td>
-                                <td>@form.RF_Suppliercompany</td>
                                 <td>@form.RF_Description</td>
                                 <td>@form.RF_Quantity</td>
                                 <td>@form.RF_Unit</td>
