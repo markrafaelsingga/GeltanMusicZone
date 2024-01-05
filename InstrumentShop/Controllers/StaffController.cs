@@ -17,8 +17,7 @@ namespace InstrumentShop.Controllers
         {
             string name = Session["uname"].ToString();
             ViewBag.uname = name;
-            string pic = Session["images"].ToString();
-            ViewBag.picture = pic;
+            
             List<Staff> staffList = new List<Staff>();
             List<Department> departments = new List<Department>();
   

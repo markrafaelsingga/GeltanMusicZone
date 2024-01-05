@@ -135,6 +135,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
+    <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -150,6 +151,7 @@
     <Compile Include="Models\requisitionModel.cs" />
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Models\StaffProfile.cs" />
+    <Compile Include="Models\Supplier.cs" />
     <Compile Include="Models\supplierDetails.cs" />
     <Compile Include="Models\viewRequisition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -271,6 +273,7 @@
     <Content Include="Views\AdminRequisition\_ApprovalPartialView.cshtml" />
     <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
     <Content Include="Views\Home\Purchasing.cshtml" />
+    <Content Include="Views\Supplier\Supplier.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

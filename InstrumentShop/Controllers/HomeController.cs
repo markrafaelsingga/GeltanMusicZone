@@ -1127,7 +1127,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
+                    cmd.CommandText = "SELECT USERS.USER_FNAME,USERS.USER_MI,USERS.USER_LNAME,USERS.USER_ADDRESS,USERS.USER_EMAIL,USERS.USER_DOB,USERS.USER_PHONE,USERS.USER_PIC,USER_ROLE.ROLE_DESC,DEPARTMENT.DEP_NAME FROM USERS JOIN USER_ROLE ON USER_ROLE.ROLE_ID = USERS.ROLE_ID JOIN DEPARTMENT ON DEPARTMENT.DEP_ID = USERS.DEP_ID WHERE USERS.USER_ID = @id";
                     cmd.Parameters.AddWithValue("@id", id);
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -1144,6 +1144,7 @@ namespace InstrumentShop.Controllers
                                 dob = (DateTime)reader["USER_DOB"],
                                 department = reader["DEP_NAME"].ToString(),
                                 role = reader["ROLE_DESC"].ToString(),
+                                uimg = reader["USER_PIC"].ToString()
                             };
                             ViewBag.fullname = model.fname + " " + model.mi + " " + model.lname;
                             ViewBag.address = model.address;
