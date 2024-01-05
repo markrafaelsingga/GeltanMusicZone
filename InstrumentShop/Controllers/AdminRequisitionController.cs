@@ -11,7 +11,7 @@ namespace InstrumentShop.Controllers
 {
     public class AdminRequisitionController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         // GET: AdminRequisition
         public ActionResult Requisition()
         {
@@ -120,24 +120,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Estimatecost = Convert.ToDecimal(reader1["rf_estimated_cost"]),
 
                                             };
-
-                                            // Retrieve user details
-                                            using (var cmdUser = db.CreateCommand())
-                                            {
-                                                cmdUser.CommandType = CommandType.Text;
-                                                cmdUser.CommandText = "SELECT * FROM users where user_id = @id";
-                                                cmdUser.Parameters.AddWithValue("@id", user);
-
-                                                using (SqlDataReader reader3 = cmdUser.ExecuteReader())
-                                                {
-                                                    while (reader3.Read())
-                                                    {
-                                                        list.RF_Requestor = reader3["user_fname"].ToString() + " " +
-                                                            reader3["user_mi"].ToString() + ". " +
-                                                            reader3["user_lname"].ToString();
-                                                    }
-                                                }
-                                            }
 
                                             details.Add(list);
 
@@ -600,6 +582,26 @@ namespace InstrumentShop.Controllers
         {
             return PartialView("_DeclinePartialView");
         }
+        /*  public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
+          {
+              int user = (int)Session["user_id"];
+              using (var db = new SqlConnection(mainconn))
+              {
+                  db.Open();
+
+                  // Update the status and the cost
+                  UpdateRF_Status(db, selectedStatus, request_ID);
+                  UpdateCost(db, EstimateTotal, request_ID);
+
+                  InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
+
+                  ViewBag.Message = "Requisition form approved successfully!";
+
+                  // Redirect to the "ViewRequisition" action
+                  return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
+              }
+          }*/
+
         public ActionResult ApproveRequest(int request_ID, decimal EstimateTotal, string selectedStatus, string ApprovalNote)
         {
             int user = (int)Session["user_id"];
@@ -1025,6 +1027,7 @@ namespace InstrumentShop.Controllers
                 cmd.ExecuteNonQuery();
             }
         }
+
         public string RecentStatus(SqlConnection db, int rfId)
         {
             string recentStatus = null;
@@ -1089,5 +1092,6 @@ namespace InstrumentShop.Controllers
 
             return user;
         }
+
     }
 }
