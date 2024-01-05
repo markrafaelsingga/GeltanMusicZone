@@ -28,7 +28,7 @@ namespace InstrumentShop.Controllers
                     sda.Fill(dt);
                     foreach (DataRow row in dt.Rows)
                     {
-                        Supplier staff = new Supplier
+                        Supplier supp = new Supplier
                         {
                             suppid = row.Field<int>("SUP_ID"),
                             company = row.Field<string>("SUP_COMPANY"),
@@ -41,7 +41,7 @@ namespace InstrumentShop.Controllers
                             email = row.Field<string>("SUP_email"),
 
                         };
-                        suppList.Add(staff);
+                        suppList.Add(supp);
                     }
                 }
             }
@@ -94,8 +94,8 @@ namespace InstrumentShop.Controllers
                 }
             }         
         }
-
-        public ActionResult EditSupplier(int suppid,string company,string fname,string mi,string lname,string phone,string address,string email)
+        [HttpPost]
+        public ActionResult EditSupplier(int suppid,string company,string fname,string mi,string lname,string phone,string address,string email,Supplier model)
         {
             using (var db = new SqlConnection(connString))
             {

@@ -132,6 +132,7 @@
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\EditStaffController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Models\Home.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\originalData.cs" />
+    <Compile Include="Models\Product.cs" />
     <Compile Include="Models\productLists.cs" />
     <Compile Include="Models\Register.cs" />
     <Compile Include="Models\requisitionItemLists.cs" />
@@ -274,6 +276,7 @@
     <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
     <Content Include="Views\Home\Purchasing.cshtml" />
     <Content Include="Views\Supplier\Supplier.cshtml" />
+    <Content Include="Views\Inventory\Inventory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

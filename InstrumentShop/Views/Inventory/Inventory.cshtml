@@ -1,0 +1,73 @@
+﻿@model List<InstrumentShop.Models.Product>
+<head>
+    <link href="~/Gridview.css" rel="stylesheet" />
+    <link href="~/Content/modal.css" rel="stylesheet" />
+    <link href="~/Content/StaffTextBox.css" rel="stylesheet" />
+</head>
+
+<section class="home-section">
+    <div class="home-content">
+        <i class='bx bx-menu'></i>
+        <span class="text">INVENTORY</span>
+    </div>
+    <br /><br /><br /><br />
+    <form class="register-form">
+         <div class="form-group">
+                <button type="button" onclick="openAddProduct()">Submit</button>
+            </div>
+        <div class="table-wrapper">
+            <table class="fl-table">
+                <thead>
+                    <tr>
+                        <th>Product Code</th>
+                        <th>Product Name</th>
+                        <th>Product Price</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
+                            <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
+                            <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.prodPrice}")</td>
+                            <td>
+                                <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
+                                    <i class='bx bxs-user-detail' style="color: darkblue"></i>
+                                </a>
+
+                                &nbsp;&nbsp;
+                                <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
+                                    <i class='bx bxs-edit-alt' style="color: orange"></i>
+                                </a>
+
+                                &nbsp;&nbsp;
+                                @*<a href="@Url.Action("DeleteStaff", new { suppid = supplier.suppid })">
+                                    <i class='bx bxs-trash' style="color: red"></i>
+                                </a>
+                                <a href="@Url.Action("ReactivateStaff", new { suppid = supplier.suppid })">
+                                    <i class='bx bxs-bulb' style="color: green;"></i>
+                                </a>*@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="detailModal"></div>
+        <div id="editModal"> </div>
+        <div id="supDetailModal"></div>
+        <div id="editSupModal"></div>
+        <div id="addProd"></div>
+    </form>
+
+    <script src="~/error.js"></script>
+    <script src="~/Scripts/modal.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+
+
+</section>
+
+

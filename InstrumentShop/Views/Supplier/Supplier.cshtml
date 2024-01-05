@@ -44,7 +44,7 @@
                             </a>
 
                             &nbsp;&nbsp;
-                            <a href="javascript:void(0);" onclick="openEditModal('@supplier.company', '@supplier.fname', '@supplier.mi', '@supplier.lname', '@supplier.phone', '@supplier.address', '@supplier.email')">
+                            <a href="javascript:void(0);" onclick="openSupEditModal('@supplier.suppid', '@supplier.company', '@supplier.fname', '@supplier.mi', '@supplier.lname', '@supplier.phone', '@supplier.address', '@supplier.email')">
                                 <i class='bx bxs-edit-alt' style="color: orange"></i>
                             </a>
 
@@ -61,22 +61,16 @@
                 </tbody>
             </table>
         </div>
-        <div id="detailModal"></div>
-        <div id="editModal"> </div>
+        <div id ="detailModal"></div>
+        <div id ="editModal"> </div>
         <div id ="supDetailModal"></div>
+        <div id ="editSupModal"></div>
     </form>
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script>
-    // Check if CustomAlertMessage is set in TempData
-    var customAlertMessage = '@TempData["CustomAlertMessage"]';
-
-    if (customAlertMessage) {
-        alert(customAlertMessage);
-    }
-    </script>
+  
 
 
 </section>
