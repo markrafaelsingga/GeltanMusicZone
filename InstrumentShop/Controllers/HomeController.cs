@@ -82,11 +82,11 @@ namespace InstrumentShop.Controllers
 
                     // Call GetMinDate with a requisitionDetails instance
                     requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    GetMinDate(minDateModel, "Pending");
 
                     // Call GetMaxDate with a requisitionDetails instance
                     requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
+                    GetMaxDate(maxDateModel, "Pending");
 
                     adminPageModel combine = new adminPageModel
                     {
@@ -227,11 +227,11 @@ namespace InstrumentShop.Controllers
 
                     // Call GetMinDate with a requisitionDetails instance
                     requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    GetMinDate(minDateModel, "Canceled");
 
                     // Call GetMaxDate with a requisitionDetails instance
                     requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
+                    GetMaxDate(maxDateModel, "Canceled");
 
                     // Perform pagination logic
                     var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -254,6 +254,7 @@ namespace InstrumentShop.Controllers
         {
             int user = (int)Session["user_id"];
             DeleteCanvasItem();
+
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
@@ -265,7 +266,6 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@Deleted", "Deleted");
                     cmd.Parameters.AddWithValue("@user", user);
 
-
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
                     sda.Fill(ds);
@@ -276,7 +276,6 @@ namespace InstrumentShop.Controllers
                     {
                         requisitionDetails request = new requisitionDetails
                         {
-                            // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
                             rf_date_requested = dr["rf_date_requested"].ToString(),
                             rf_code = dr["rf_code"].ToString(),
@@ -289,24 +288,20 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Call GetMinDate with a requisitionDetails instance
-                    requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel);
+                    // Find the minimum and maximum dates directly from the list
+                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
 
-                    // Call GetMaxDate with a requisitionDetails instance
-                    requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel);
-
-
-                    // Pass the paginated list and minimum date model to the view
-                    ViewBag.MinDate = minDateModel.fromRequestdate;
-                    ViewBag.MaxDate = maxDateModel.toRequestdate;
+                    // Pass the paginated list, minimum date, and maximum date to the view
+                    ViewBag.MinDate = minDate;
+                    ViewBag.MaxDate = maxDate;
 
                     // Pass the paginated list to the view
                     return View(lemp);
                 }
             }
         }
+
         public void DeleteCanvasItem()
         {
             using (var db = new SqlConnection(mainconn))
@@ -323,7 +318,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        private void GetMinDate(requisitionDetails model)
+        private void GetMinDate(requisitionDetails model, string status)
         {
             model.fromRequestdate = DateTime.MinValue; // Initialize with a default value
 
@@ -333,8 +328,8 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition";
-
+                    cmd.CommandText = "SELECT MIN(rf_date_requested) FROM requisition WHERE rf_status = @stats";
+                    cmd.Parameters.AddWithValue("@stats", status);
 
                     // Execute the command and retrieve the result
                     object result = cmd.ExecuteScalar();
@@ -350,7 +345,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        private void GetMaxDate(requisitionDetails model)
+        private void GetMaxDate(requisitionDetails model, string status)
         {
             model.toRequestdate = DateTime.MaxValue; // Initialize with a default value
 
@@ -360,7 +355,8 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition";
+                    cmd.CommandText = "SELECT MAX(rf_date_requested) FROM requisition WHERE rf_status = @stats";
+                    cmd.Parameters.AddWithValue("@stats", status);
 
 
                     // Execute the command and retrieve the result
