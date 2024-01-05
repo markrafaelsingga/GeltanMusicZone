@@ -350,14 +350,6 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Find the minimum and maximum dates directly from the list
-                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
-                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
-
-                    // Pass the paginated list, minimum date, and maximum date to the view
-                    ViewBag.MinDate = minDate;
-                    ViewBag.MaxDate = maxDate;
-
                     // Pass the paginated list to the view
                     return View(lemp);
                 }
