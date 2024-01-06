@@ -1,0 +1,107 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "Supplier";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
+}
+
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Supplier</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Purchase/Index">Home</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Supplier</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!-- Content block -->
+<div class="w3l-grids-block-5 py-5">
+    <div class="container py-md-5 py-4">
+        <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+            <p class="text-uppercase">Geltan's Music Zone</p>
+            <h3 class="title-style">Suppliers</h3>
+        </div>
+
+        <!-- Search for suppliers -->
+        <!--<div class="search-container">
+            <form-->
+        @*action="@Url.Action("SearchSupplier", "Home")"*@ <!--method="post">-->
+        @*<div class="search-wrapper">
+                        <input type="text" placeholder="Search supplier.." name="search" class="search-box" id="searchBox">
+                        <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
+                    </div>
+                </form>
+            </div>*@
+        <!-- Search for suppliers -->
+        <!-- Loop for suppliers -->
+        <div class="row justify-content-center">
+            @model List<supplierDetails>
+
+            <div class="row">
+                @foreach (var supplier in Model)
+                {
+                    <div class="col-lg-4 col-md-6" style="margin-bottom: 20px;">
+                        <div class="supplier-card-single">
+                            <div class="content-main-top">
+                                <ul class="list-unstyled d-flex align-items-center justify-content-between">
+                                    <li><i class="fas fa-truck"></i>&nbsp; Supplier ID: &nbsp; @supplier.sup_id </li>
+                                </ul>
+                                <h4><a>@supplier.sup_company</a></h4>
+                                <p>Contact person:&emsp;@supplier.sup_fname &nbsp;@supplier.sup_mi . &nbsp; @supplier.sup_lname </p>
+                                <p>Email:&emsp;@supplier.sup_email</p>
+                                <p>Contact #:&emsp;@supplier.sup_phone</p>
+                                <p>Address:&emsp;@supplier.sup_address</p>
+                                <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
+                                    <a class="btn btn-style-primary" style="margin-left: 200px" href="/Purchase/SupplierDetails?supId=@supplier.sup_id">
+                                        Know Details <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- Loop for suppliers -->
+        <!-- //Pagination -->
+        <div class="pagination-style text-center mt-5">
+            <ul>
+                <li>
+                    <a href="@Url.Action("Supplier", new { page = 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber == 1 ? "not-allowed disabled" : "")">
+                        <span class="fa fa-angle-double-left" aria-hidden="true"></span>
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize); i++)
+                {
+                    <li class="@(i == ViewBag.PageNumber ? "active" : "")">
+                        <a href="@Url.Action("Supplier", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                    </li>
+                }
+
+                <li>
+                    <a href="@Url.Action("Supplier", new { page = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })" class="@(ViewBag.PageNumber >= Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize) ? "not-allowed disabled" : "")">
+                        <span class="fa fa-angle-double-right" aria-hidden="true"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- //Pagination -->
+    </div>
+</div>
+<!-- Content block -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    //$(document).ready(function () {
+    //    // Trigger form submission on search box change
+    //    $('#searchBox').on('input', function () {
+    //        // Submit the form
+    //        $('form').submit();
+    //    });
+    //});
+</script>

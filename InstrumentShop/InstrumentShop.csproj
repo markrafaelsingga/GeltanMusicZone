@@ -134,6 +134,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\PurchaseController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\StaffController.cs" />
     <Compile Include="Controllers\SupplierController.cs" />
@@ -277,6 +278,14 @@
     <Content Include="Views\Home\Purchasing.cshtml" />
     <Content Include="Views\Supplier\Supplier.cshtml" />
     <Content Include="Views\Inventory\Inventory.cshtml" />
+    <Content Include="Views\Purchase\Purchase.cshtml" />
+    <Content Include="Views\Purchase\StaffProfile.cshtml" />
+    <Content Include="Views\Purchase\Supplier.cshtml" />
+    <Content Include="Views\Purchase\SupplierDetails.cshtml" />
+    <Content Include="Views\Purchase\ViewApproveRF.cshtml" />
+    <Content Include="Views\Purchase\CreateNewPurchase.cshtml" />
+    <Content Include="Views\Purchase\Index.cshtml" />
+    <Content Include="Views\Shared\_PurchaseLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

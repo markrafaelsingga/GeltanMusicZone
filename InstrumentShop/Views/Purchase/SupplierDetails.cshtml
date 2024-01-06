@@ -1,0 +1,110 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "SupplierDetails";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
+}
+
+@model Tuple<supplierDetails, List<productLists>>
+
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Details</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Purchase/Index">Home</a></li>
+                <li><i class="fas fa-angle-right"></i></li> <!-- Add an arrow here -->
+                <li><a href="/Purchase/Supplier">Supplier</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Details</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!-- //Content block -->
+<section class="w3l-requisition py-5" id="requisition">
+    <div class="container py-md-5 py-4">
+        <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+            <p class="text-uppercase">Know more</p>
+            <h3 class="title-style">Supplier Details</h3>
+        </div>
+        <div class="row requisition-block" style="text-align: left">
+            <div class="col-md-7 requisition-right" style="width: 100%;">
+                <form method="post">
+                    <div class="input-grids">
+                        <div class="row">
+                            <div class="col-sm-6" style="width:200px">
+                                Company Name:
+                            </div>
+                            <div class="col-sm-6">
+                                @Model.Item1.sup_company
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6" style="width:200px">
+                                Contact Person:
+                            </div>
+                            <div class="col-sm-6">
+                                @Model.Item1.sup_fname &nbsp; @Model.Item1.sup_mi . &nbsp; @Model.Item1.sup_lname
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6" style="width:200px">
+                                Address:
+                            </div>
+                            <div class="col-sm-6">
+                                @Model.Item1.sup_address
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6" style="width:200px">
+                                Email address:
+                            </div>
+                            <div class="col-sm-6">
+                                @Model.Item1.sup_email
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6" style="width:200px">
+                                Contact number:
+                            </div>
+                            <div class="col-sm-6">
+                                @Model.Item1.sup_phone
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div><br /></div>
+                <table class="table-striped table-bordered" id="item-list">
+                    <colgroup>
+                        <col width="15%">
+                        <col width="15%">
+                        <col width="35%">
+                        <col width="15%">
+                    </colgroup>
+                    <thead>
+                        <tr class="bg-navy disabled" style="background-color: #fbb034; color: #000000;">
+                            <th class="px-1 py-1 text-center">Product Code</th>
+                            <th class="px-1 py-1 text-center">Product Name</th>
+                            <th class="px-1 py-1 text-center">Description</th>
+                            <th class="px-1 py-1 text-center">Price</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.Item2)
+                        {
+                            <tr style="text-align: center">
+                                <td>@product.prod_code</td>
+                                <td>@product.prod_name</td>
+                                <td>@product.prod_desc</td>
+                                <td>@product.prod_price</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- //Content block -->

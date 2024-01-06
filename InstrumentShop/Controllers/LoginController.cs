@@ -58,7 +58,7 @@ namespace InstrumentShop.Controllers
                                 }                              
                                 else if (dep_id == 2 && role_id == 2)
                                 {
-                                    return RedirectToAction("Index", "Home");
+                                    return RedirectToAction("Index", "Purchase");
                                 }
                                 else
                                 {

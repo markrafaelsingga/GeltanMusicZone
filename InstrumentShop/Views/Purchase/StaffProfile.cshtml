@@ -1,7 +1,7 @@
-﻿@model InstrumentShop.Models.StaffProfile
+﻿
 @{
-   // ViewBag.Title = "Profile";
-    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    ViewBag.Title = "StaffProfile";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
 }
 
 <!-- inner banner -->
@@ -10,7 +10,7 @@
         <div class="container pt-4 pb-sm-4">
             <h4 class="inner-text-title pt-5">Profile</h4>
             <ul class="breadcrumbs-custom-path">
-                <li><a href="/Home/Index">Home</a></li>
+                <li><a href="/Purchase/Index">Home</a></li>
                 <li class="active"><i class="fas fa-angle-right"></i>Profile</li>
             </ul>
         </div>
@@ -27,9 +27,7 @@
         <div class="row pb-xl-5 align-items-center">
             <div class="col-lg-3 col-6 text-center">
                 <a>
-                    <img src="@Url.Content(Model.uimg)?" class="arrow-png img-responsive" />
-
-
+                    <img src="~/images/profile.jpg" class="arrow-png img-responsive" />
                     <h4>Staff</h4>
                 </a>
             </div>
@@ -50,16 +48,10 @@
                     <li>
                         <i class="fas fa-map-marked"></i>
                         <strong>Address: </strong> @ViewBag.address
-                        @*California, 10001, 5th Avenue, #06 lane street, NY - 62617.*@
                     </li>
                     <li>
                         <i class="fas fa-envelope"></i>
                         <strong>Email address: </strong> @ViewBag.email
-                        @*crizel.estorba@gmail.com*@
-                    </li>
-                    <li>
-                        <i class="fas fa-user"></i>
-                        <strong>Username: </strong> _dntbthrme
                     </li>
                 </ul>
             </div>

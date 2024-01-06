@@ -106,7 +106,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult Purchasing()
+      /*  public ActionResult Purchasing()
         {
             int user = (int)Session["user_id"];
             using (var db = new SqlConnection(mainconn))
@@ -121,7 +121,7 @@ namespace InstrumentShop.Controllers
                 }
             }
             return View();
-        }
+        }*/
         public ActionResult Index()
         {
             DeleteCanvasItem();

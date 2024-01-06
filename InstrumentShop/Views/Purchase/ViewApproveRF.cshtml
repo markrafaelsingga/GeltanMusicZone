@@ -1,0 +1,135 @@
+﻿@using InstrumentShop.Models
+@{
+    ViewBag.Title = "ViewApproveRF";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
+}
+
+@model List<requisitionDetails>
+
+<!-- inner banner -->
+<section class="inner-banner py-5">
+    <div class="w3l-breadcrumb py-lg-5">
+        <div class="container pt-4 pb-sm-4">
+            <h4 class="inner-text-title pt-5">Approved requisitions</h4>
+            <ul class="breadcrumbs-custom-path">
+                <li><a href="/Purchase/Index">Home</a></li>
+                <li class="active"><i class="fas fa-angle-right"></i>Approved requisitions</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- //inner banner -->
+<!-- Content block -->
+<div class="w3l-grids-block-5 py-5">
+    <div class="container py-md-5 py-4">
+        @if (Model != null && Model.Any())
+        {
+            <div class="row justify-content-center">
+                <div class="row">
+
+                    @{
+                        var sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+                    }
+
+
+                    @if (sortedRequisitions.Any())
+                    {
+                        // Display requisitions
+                        foreach (var details in sortedRequisitions)
+                        {
+                            <div class="col-lg-4 col-md-6 mb-4" style="margin-bottom: 20px;">
+                                <div class="supplier-card-single" data-status="@details.rf_status">
+                                    <div class="content-main-top">
+                                        <ul class="list-unstyled d-flex align-items-center justify-content-between">
+                                            <li>
+                                                <i class="fas fa-id-card"></i>&nbsp; Requisition code:
+                                            </li>
+                                        </ul>
+                                        <h4><a>@details.rf_code</a></h4>
+                                        <p><strong>Date requested:</strong>&emsp; @details.rf_date_requested</p>
+                                        <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
+                                        <p><strong>Status:</strong>&emsp; @details.rf_status</p>
+                                        <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
+                                            <a class="btn btn-style-primary" style="margin-left: 200px" href="/Home/RequisitionDetails?request_ID=@details.rf_id">
+                                                Know Details <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center">
+                            <h3 class="text-uppercase" style="font-size: 25px; font-style: italic">NO APPROVED REQUISITIONS</h3>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+                <p class="text-uppercase">Geltan's Music Zone</p>
+                <h3 class="title-style">No Requisitions</h3>
+            </div>
+            <div class="text-start" style="margin-left: 71%; display: flex;">
+                <form class="submit-form" method="post" action="@Url.Action("CreateNewRequisition", "Home")">
+                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-plus-circle"></i>&emsp;Create new</button>
+                </form>&emsp;
+                <form class="bin-form" method="post" action="@Url.Action("CancelledRequest", "Home")">
+                    <button type="submit" class="btn btn-style btn-style-3"><i class="fas fa-trash"></i>&emsp;Bin</button>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+<!-- Content block -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    //$(document).ready(function () {
+    //    // Trigger form submission on search box change
+    //    $('#searchBox').on('input', function () {
+    //        // Submit the form
+    //        $('form').submit();
+    //    });
+    //});
+
+    // Function to update the query string and trigger the form submission
+    function updateQueryString() {
+        var selectedStatus = $("#selectedStatus").val();
+
+        // Update the URL with the new query string
+        var url = new URL(window.location.href);
+        url.searchParams.set("selectedStatus", selectedStatus);
+
+        // Redirect to the updated URL
+        window.location.href = url.toString();
+    }
+
+    // Attach the updateQueryString function to the onchange event of the dropdown
+    $("#selectedStatus").on("change", function () {
+        updateQueryString();
+    });
+
+    function updateToDateMin() {
+        // Get the selected value from the "From" date input
+        var fromDateValue = document.getElementById("searchBox1").value;
+
+        // Get the "To" date input element
+        var toDateElement = document.getElementById("searchBox2");
+
+        // Set the minimum date for the "To" date input
+        toDateElement.min = fromDateValue;
+
+        // Update the "min" attribute of the "To" date input with the current date
+        var currentDate = new Date().toISOString().split('T')[0];
+        if (toDateElement.min > currentDate) {
+            toDateElement.min = currentDate;
+        }
+    }
+
+</script>

@@ -207,7 +207,7 @@ namespace InstrumentShop.Controllers
 
                 using (var cmd = db.CreateCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandType = CommandType.Text;                    
                     cmd.CommandText = "UPDATE requisition SET rf_status = 'Deleted', rf_recentStatus = @recent WHERE rf_id = @id";
                     cmd.Parameters.AddWithValue("@id", delete_ID);
                     cmd.Parameters.AddWithValue("@recent", status);
@@ -228,6 +228,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
+
 
         public ActionResult RecycleBin()
         {
