@@ -139,6 +139,7 @@ namespace InstrumentShop.Controllers
                                 {
                                     ReqItem_ID = Convert.ToInt32(dr["prod_id"]),
                                     ReqItem_Item = dr["prod_name"].ToString(),
+                                    ReqItem_Cat = dr["prod_cat"].ToString(),
                                     ReqItem_Desc = dr["prod_desc"].ToString(),
                                     ReqItem_Price = Convert.ToDecimal(dr["prod_price"]),
                                 };
