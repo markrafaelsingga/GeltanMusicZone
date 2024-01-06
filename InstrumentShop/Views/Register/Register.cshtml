@@ -136,6 +136,12 @@
             </div>
         }
     </div>
+    @{
+        var serializedDepList = Json.Encode(ViewBag.DepList);
+    }
+    <script>
+    var depList = @Html.Raw(serializedDepList);
+    </script>
 
     @* <div>
             @Html.ActionLink("Back to List", "Index")

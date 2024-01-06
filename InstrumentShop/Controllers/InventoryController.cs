@@ -45,32 +45,74 @@ namespace InstrumentShop.Controllers
             return View(prodList);
         }
 
-        public ActionResult AddProduct(string prodName,string prodDesc,string prodPrice,int? supId)
+        public ActionResult AddProduct(string prodName, string prodCat, string prodDesc, int prodPrice, int qoh)
         {
-            using(var db = new SqlConnection(connString))
+            int prodId;
+
+            using (var db = new SqlConnection(connString))
             {
                 db.Open();
-                using(var cmd = db.CreateCommand())
-                { 
-                    cmd.CommandText = "INSERT INTO PRODUCT(prod_name,prod_desc,prod_price,sup_id)" +
-                        "VALUES(@prodName,@prodDesc,@prodPrice,@supId)";
-                    cmd.Parameters.AddWithValue("@prodName",prodName);
+
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO PRODUCT(prod_name, prod_cat, prod_desc, prod_price)" +
+                        "VALUES(@prodName, @prodCat, @prodDesc, @prodPrice)";
+                    cmd.Parameters.AddWithValue("@prodName", prodName);
+                    cmd.Parameters.AddWithValue("@prodCat", prodCat);
                     cmd.Parameters.AddWithValue("@prodDesc", prodDesc);
                     cmd.Parameters.AddWithValue("@prodPrice", prodPrice);
-                    cmd.Parameters.AddWithValue("@supId", supId);
+
                     var ctr = cmd.ExecuteNonQuery();
-                    if(ctr > 0)
+
+                    if (ctr > 0)
                     {
-                        return Json(new { success = true, message = "Added Successfully" }, JsonRequestBehavior.AllowGet);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "SELECT TOP 1 * FROM product ORDER BY prod_id DESC";
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                prodId = Convert.ToInt32(reader["prod_id"]);
+                            }
+                            else
+                            {
+                                return Json(new { success = false, message = "No product id fetched!" }, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+
+                        cmd.Parameters.Clear();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "INSERT INTO INVENTORY(inv_qoh, prod_id)" +
+                            "VALUES(@qoh, @prodId)";
+                        cmd.Parameters.AddWithValue("@qoh", qoh);
+                        cmd.Parameters.AddWithValue("@prodId", prodId);
+
+                        var ctr2 = cmd.ExecuteNonQuery();
+
+                        if (ctr2 > 0)
+                        {
+                            return Json(new { success = true, message = "Inserted Successfully" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Unsuccessful!" }, JsonRequestBehavior.AllowGet);
+                        }
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Unsuccessfull!" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, message = "Unsuccessful Product!" }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
-            
         }
+
+        public ActionResult updateProduct()
+        {
+            return View();
+        }
+
+
         public ActionResult InsertItem(string cat,int qoh)
         {
             using(var db = new SqlConnection(connString))

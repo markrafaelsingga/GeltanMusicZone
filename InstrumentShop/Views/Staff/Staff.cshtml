@@ -56,7 +56,7 @@
                                 </a>
 
                                 &nbsp;&nbsp;
-                                <a href="javascript:void(0);" onclick="openEditModal('@staff.userId', '@staff.fname', '@staff.mi', '@staff.lname', '@staff.dep', '@staff.phone', '@staff.address', '@staff.email', '@staff.uname', '@staff.pword')">
+                                <a href="javascript:void(0);" onclick="openEditModal('@staff.userId', '@staff.fname', '@staff.mi', '@staff.lname', '@staff.dep', '@staff.phone', '@staff.address', '@staff.email', '@staff.uname', '@staff.pword',depList)">
                                     <i class='bx bxs-edit-alt' style="color: orange"></i>
                                 </a>
 
@@ -78,6 +78,26 @@
 
         </div>
     </form>
+    @{
+        var serializedDepList = Json.Encode(ViewBag.DepList);
+    }
+    <script>
+    var depList = @Html.Raw(serializedDepList);
+
+    function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword, depList) {
+        // The rest of your function remains unchanged
+        document.getElementById('editModal').innerHTML = `
+            <!-- ... (your existing HTML) ... -->
+            <select id="Department" name="Department" class="textbox-style" style="width: 300px !important;" required autofocus oninput="updateModalContent('department', this.value)">
+                ${depList.map(dep => `<option value="${dep.Value}" ${dep.Value === department ? 'selected' : ''}>${dep.Text}</option>`).join('')}
+            </select>
+            <!-- ... (the rest of your HTML) ... -->
+        `;
+    }
+
+    // Call the function with the department list when needed
+    openEditModal('userIdValue', 'fnameValue', 'miValue', 'lnameValue', 'selectedDepValue', 'phoneValue', 'addressValue', 'emailValue', 'unameValue', 'pwordValue', depList);
+    </script>
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>

@@ -157,7 +157,7 @@ namespace InstrumentShop.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EditStaff(int userId,string fname,string mi,string lname, string phone,string address, string email, string uname,string pword,Staff model)
+        public ActionResult EditStaff(int userId,string fname,string mi,string lname,int department, string phone,string address, string email, string uname,string pword,Staff model)
         {
             
             using (var db = new SqlConnection(connString))
@@ -176,7 +176,7 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@uname", uname);
                     cmd.Parameters.AddWithValue("@pword", pword);
                     cmd.Parameters.AddWithValue("@email", email);
-                    cmd.Parameters.AddWithValue("@dep", 1);
+                    cmd.Parameters.AddWithValue("@dep", department);
 
                     var ctr = cmd.ExecuteNonQuery();
                     if (ctr >= 1)

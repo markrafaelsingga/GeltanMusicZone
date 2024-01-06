@@ -21,12 +21,18 @@
         document.getElementById('editSupModal').style.display = 'block';
     });
 
+    document.getElementById('showAddProductBtn').addEventListener('click', function () {
+        console.log('showAddProductBtn clicked');
+        document.getElementById('addProd').style.display = 'block';
+    });
+
     document.getElementById('closeBtn').addEventListener('click', function () {
         console.log('closeBtn clicked');
         document.getElementById('editModal').style.display = 'none';
         document.getElementById('detailModal').style.display = 'none';
         document.getElementById('supDetailModal').style.display = 'none';
         document.getElementById('editSupModal').style.display = 'none';
+        document.getElementById('addProd').style.display = 'none';
     });
 
     document.getElementById('mainCloseBtn').addEventListener('click', function () {
@@ -35,6 +41,7 @@
         document.getElementById('detailModal').style.display = 'none';
         document.getElementById('supDetailModal').style.display = 'none';
         document.getElementById('editSupModal').style.display = 'none';
+        document.getElementById('addProd').style.display = 'none';
     });
 
     window.addEventListener('click', function (event) {
@@ -51,11 +58,15 @@
         if (event.target == document.getElementById('editSupModal')) {
             document.getElementById('editSupModal').style.display = 'none';
         }
+        if (event.target == document.getElementById('editSupModal')) {
+            document.getElementById('addProd').style.display = 'none';
+        }
     });
 });
 
 
-function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword) {
+function openEditModal(userId, fname, mi, lname, department, phone, address, email, uname, pword, depList) {
+    console.log('openEditModal called');
     document.getElementById('editModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editModal')" style="font-size: 35px !important;"></i>
@@ -63,6 +74,10 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
                 <h1>Edit Staff</h1>
             </div>
             <div class="form-container">
+            <div class="form-group">
+                <label for="userId">ID:</label>
+                <input type="text" id="userId" name="userId" class="textbox-style" style="width: 300px !important;" value="${userId}" required autofocus  oninput="updateModalContent('userId', this.value)" />
+            </div>
             <div class="form-group">
                 <label for="fname">Firstname:</label>
                 <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus  oninput="updateModalContent('fname', this.value)" />
@@ -75,10 +90,7 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
                 <label for="lname">Lastname:</label>
                 <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required  oninput="updateModalContent('lname', this.value)" />
             </div>
-            <div class="form-group">
-                <label for="DepartmentLabel">Department:</label>
-                <input type="text" id="Department" name="Department" class="textbox-style" style="width: 300px !important;" value="${department}" required autofocus oninput="updateModalContent('department', this.value)" />
-            </div>
+           
             <div class="form-group">
                 <label for="phone">Phone:</label>
                 <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required oninput="updateModalContent('phone', this.value)" />
@@ -98,7 +110,13 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
             <div class="form-group">
                 <label for="pword">Password:</label>
                 <input type="text" id="pword" name="pword" class="textbox-style" style="width: 300px !important;" value="${pword}" requiredoninput="updateModalContent('pword', this.value)" />
-            </div>                  
+            </div>  
+        </div>
+        <div class="form-group">
+        <label for="Department">Deparment:</label>
+        <select id="Department" name="Department" class="textbox-style" style="width: 300px !important;" required autofocus oninput="updateModalContent('department', this.value)">
+            ${depList.map(dep => `<option value="${dep.Value}" ${dep.Value === department ? 'selected' : ''}>${dep.Text}</option>`).join('')}
+        </select>
         </div>
             <div class="form-group">
                 <button type="button" onclick="editStaff('${userId}')">Submit</button>
@@ -108,11 +126,11 @@ function openEditModal(userId, fname, mi, lname, department, phone, address, ema
         </div>
     `;
 
-    
     document.getElementById('editModal').style.display = 'block';
 }
 
 function editStaff(userId) {
+    console.log('editStaff called');
     var form = document.createElement("form");
     form.setAttribute("method", "post");
     form.setAttribute("action", '/Staff/EditStaff');
@@ -129,7 +147,7 @@ function editStaff(userId) {
     var updatedFname = document.getElementById('fname').value;
     var updatedMi = document.getElementById('mi').value;
     var updatedLname = document.getElementById('lname').value;
-    var updatedDepartment = document.getElementById('DepartmentSelect').value;
+    var updatedDepartment = document.getElementById('Department').value;
     var updatedPhone = document.getElementById('phone').value;
     var updatedAddress = document.getElementById('address').value;
     var updatedEmail = document.getElementById('email').value;
@@ -150,6 +168,7 @@ function editStaff(userId) {
     document.body.appendChild(form);
     form.submit();
 }
+
 
 
 function openSupEditModal(suppid,company, fname, mi, lname, phone, address, email) {
@@ -239,7 +258,7 @@ function editSupplier(suppid) {
 
 
 
-function openAddProduct(prodName,prodDesc,prodPrice,supId) {
+function openAddProduct(prodName,prodCat,prodDesc,prodPrice,qoh) {
     document.getElementById('addProd').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('addProd')" style="font-size: 35px !important;"></i>
@@ -248,29 +267,31 @@ function openAddProduct(prodName,prodDesc,prodPrice,supId) {
             </div>
             <div class="form-container">
              <div class="form-group">
-                <label for="prodN">Product Name:</label>
-                <input type="text" id="prodN" name="prodN" class="textbox-style" style="width: 300px !important;" value="${prodName}" required autofocus  oninput="updateModalContent('prodName', this.value)" />
+                <label for="prodName">Product Name:</label>
+                <input type="text" id="prodName" name="prodName" class="textbox-style" style="width: 300px !important;" value="${prodName}" required autofocus  oninput="updateModalContent('prodName', this.value)" />
             </div>
             <div class="form-group">
-                <label for="prodD">Product Description:</label>
-                <input type="text" id="prodD" name="prodD" class="textbox-style" style="width: 300px !important;" value="${prodDesc}" required autofocus  oninput="updateModalContent('prodDesc', this.value)" />
+                <label for="prodCat">Product Category:</label>
+                <input type="text" id="prodCat" name="prodCat" class="textbox-style" style="width: 300px !important;" value="${prodCat}" required autofocus  oninput="updateModalContent('prodCat', this.value)" />
             </div>
             <div class="form-group">
-                <label for="prodP">Product Price:</label>
-                <input type="text" id="prodP" name="prodP" class="textbox-style" style="width: 300px !important;" value="${prodPrice}" required autofocus  oninput="updateModalContent('prodPrice', this.value)" />
+                <label for="prodDesc">Product Description:</label>
+                <input type="text" id="prodDesc" name="prodDesc" class="textbox-style" style="width: 300px !important;" value="${prodDesc}" required autofocus  oninput="updateModalContent('prodDesc', this.value)" />
             </div>
             <div class="form-group">
-                <label for="">M.I:</label>
-                <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${supId}" required  oninput="updateModalContent('supId', this.value)" />
+                <label for="prodPrice">Product Price:</label>
+                <input type="text" id="prodPrice" name="prodPrice" class="textbox-style" style="width: 300px !important;" value="${prodPrice}" required autofocus  oninput="updateModalContent('prodPrice', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="qoh">Quantity on Hand:</label>
+                <input type="number" min="0" id="qoh" name="qoh" class="textbox-style" style="width: 300px !important;" value="${qoh}" required autofocus  oninput="updateModalContent('qoh', this.value)" />
             </div>
             <div class="form-group">
                 <button type="button" onclick="addProduct()">Submit</button>
             </div>
-
             </br></br>
         </div>
     `;
-
 
     document.getElementById('addProd').style.display = 'block';
 }
@@ -290,15 +311,16 @@ function addProduct() {
     }
 
     var pName = document.getElementById('prodName').value;
+    var pCat = document.getElementById('prodCat').value;
     var pDesc = document.getElementById('prodDesc').value;
     var pPrice = document.getElementById('prodPrice').value;
-    var sId = document.getElementById('supId').value;
+    var qoh = document.getElementById('qoh').value;
 
     createHiddenInput("prodName", pName);
+    createHiddenInput("prodCat", pCat);
     createHiddenInput("prodDesc", pDesc);
     createHiddenInput("prodPrice", pPrice);
-    createHiddenInput("supId", sId);
-
+    createHiddenInput("qoh", qoh);
 
     document.body.appendChild(form);
     form.submit();
