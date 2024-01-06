@@ -12,9 +12,9 @@
     </div>
     <br /><br /><br /><br />
     <form class="register-form">
-         <div class="form-group">
-                <button type="button" style="margin-left: 75%;" onclick="openAddProduct()">Submit</button>
-            </div>
+        <div class="form-group">
+            <button type="button" style="margin-left: 75%;" onclick="openAddProduct()">Submit</button>
+        </div>
         <div class="table-wrapper">
             <table class="fl-table">
                 <thead>
@@ -28,26 +28,26 @@
                 <tbody>
                     @foreach (var product in Model)
                     {
-                    <tr>
-                        <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
-                        <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
-                        <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.qoh}")</td>
-                        <td>
-                            <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
-                                <i class='bx bxs-user-detail' style="color: darkblue"></i>
-                            </a>
+                        <tr>
+                            <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
+                            <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
+                            <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.qoh}")</td>
+                            <td>
+                                <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
+                                    <i class='bx bxs-user-detail' style="color: darkblue"></i>
+                                </a>
 
-                            &nbsp;&nbsp;
-                            <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.cat', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh')">
-                                <i class='bx bxs-edit-alt' style="color: orange"></i>
-                            </a>
+                                &nbsp;&nbsp;
+                                <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.cat', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh', '@product.comp', supList, '@product.compName')">
+                                    <i class='bx bxs-edit-alt' style="color: orange"></i>
+                                </a>
 
-                            &nbsp;&nbsp;
-                            @*<a href="@Url.Action("DeleteStaff", new { suppid = supplier.suppid })">
-                                <i class='bx bxs-trash' style="color: red"></i>
-                            </a>*@
-                        </td>
-                    </tr>
+                                &nbsp;&nbsp;
+                                @*<a href="@Url.Action("DeleteStaff", new { suppid = supplier.suppid })">
+                                        <i class='bx bxs-trash' style="color: red"></i>
+                                    </a>*@
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -59,6 +59,44 @@
         <div id="addProd"></div>
         <div id="editProdModal"></div>
     </form>
+    @{
+        var serializedSupList = Json.Encode(ViewBag.suppList);
+    }
+    <script>
+    var supList = @Html.Raw(serializedSupList);
+
+        function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPrice, qoh, supplier, supList) {
+        // The rest of your function remains unchanged
+        document.getElementById('editModal').innerHTML = `
+            <!-- ... (your existing HTML) ... -->
+            <select id="Supplier" name="Supplier" class="textbox-style" style="width: 300px !important;" required autofocus oninput="updateModalContent('supplier', this.value)">
+                ${supList.map(comp => `<option value="${comp.Value}" ${comp.Value === supplier ? 'selected' : ''}>${comp.Text}</option>`).join('')}
+            </select>
+            <!-- ... (the rest of your HTML) ... -->
+        `;
+    }
+
+    // Call the function with the department list when needed
+        openProdEditModal('prodIdValue', 'prodCodeValue', 'prodCatValue', 'prodNameValue', 'prodDescValue', 'prodPriceValue', 'qohValue', 'selectedCompanyValue', supList,'compNameValue');
+    </script>
+
+    @*<script>
+    var supList = @Html.Raw(serializedSupList);
+
+        function openAddProduct(prodName, prodCat, prodDesc, prodPrice, qoh, supplier, supList)  {
+        // The rest of your function remains unchanged
+            document.getElementById('editModal').innerHTML = `
+            <!-- ... (your existing HTML) ... -->
+            <select id="Supplier" name="Supplier" class="textbox-style" style="width: 300px !important;" required autofocus oninput="updateModalContent('supplier', this.value)">
+                ${supList.map(comp => `<option value="${comp.Value}" ${comp.Value === supplier ? 'selected' : ''}>${comp.Text}</option>`).join('')}
+            </select>
+            <!-- ... (the rest of your HTML) ... -->
+        `;
+        }
+
+    // Call the function with the department list when needed
+        openAddProduct('prodNameValue', 'prodCatValue', 'prodDescValue', ' prodPriceValue', 'qohValue', 'selectedCompanyValue', supList)
+    </script>*@
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>

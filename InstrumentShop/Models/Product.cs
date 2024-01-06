@@ -17,5 +17,8 @@ namespace InstrumentShop.Models
         public decimal prodPrice { get; set; }
         public string cat { get; set; }
         public int qoh { get; set; }
+        public int supId { get; set; }
+        public string comp { get; set; }
+        public string compName { get; set; }
     }
 }

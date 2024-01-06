@@ -26,8 +26,8 @@
         document.getElementById('addProd').style.display = 'block';
     });
 
-    document.getElementById('showEditProductBtn').addEventListener('click', function () {
-        console.log('showEditProductBtn clicked');
+    document.getElementById('showEditProdModalBtn').addEventListener('click', function () {
+        console.log('showEditProdModalBtn clicked');
         document.getElementById('editProdModal').style.display = 'block';
     });
 
@@ -191,35 +191,35 @@ function openSupEditModal(suppid,company, fname, mi, lname, phone, address, emai
             <div class="form-container">
             <div class="form-group">
                 <label for="suppid">ID:</label>
-                <input type="text" id="suppid" name="suppid" class="textbox-style" style="width: 300px !important;" value="${suppid}" required autofocus  oninput="updateSuppModalContent('suppid', this.value)" />
+                <input type="text" id="suppid" name="suppid" class="textbox-style" style="width: 300px !important;" value="${suppid}" required autofocus  oninput="updateModalContent('suppid', this.value)" />
             </div>
             <div class="form-group">
                 <label for="company">Company:</label>
-                <input type="text" id="company" name="company" class="textbox-style" style="width: 300px !important;" value="${company}" required autofocus  oninput="updateSuppModalContent('company', this.value)" />
+                <input type="text" id="company" name="company" class="textbox-style" style="width: 300px !important;" value="${company}" required autofocus  oninput="updateModalContent('company', this.value)" />
             </div>
             <div class="form-group">
                 <label for="fname">Firstname:</label>
-                <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus  oninput="updateSuppModalContent('fname', this.value)" />
+                <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus  oninput="updateModalContent('fname', this.value)" />
             </div>
             <div class="form-group">
                 <label for="mi">M.I:</label>
-                <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required  oninput="updateSuppModalContent('mi', this.value)" />
+                <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required  oninput="updateModalContent('mi', this.value)" />
             </div>
             <div class="form-group">
                 <label for="lname">Lastname:</label>
-                <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required  oninput="updateSuppModalContent('lname', this.value)" />
+                <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required  oninput="updateModalContent('lname', this.value)" />
             </div>
             <div class="form-group">
                 <label for="phone">Phone:</label>
-                <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required oninput="updateSuppModalContent('phone', this.value)" />
+                <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required oninput="updateModalContent('phone', this.value)" />
             </div>
             <div class="form-group">
                 <label for="address">Address:</label>
-                <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required oninput="updateSuppModalContent('address', this.value)" />
+                <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required oninput="updateModalContent('address', this.value)" />
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required oninput="updateSuppModalContent('email', this.value)" />
+                <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required oninput="updateModalContent('email', this.value)" />
             </div>               
         </div>
             <div class="form-group">
@@ -269,7 +269,8 @@ function editSupplier(suppid) {
     form.submit();
 }
 
-function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPrice, qoh) {
+function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPrice, qoh, supplier, supList,compName) {
+    console.log('prodEditModal called');
     document.getElementById('editProdModal').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('editProdModal')" style="font-size: 35px !important;"></i>
@@ -280,32 +281,43 @@ function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPr
             
             <div class="form-group">
                 <label for="prodId">ID:</label>
-                <input type="text" id="prodId" name="prodId" class="textbox-style" style="width: 300px !important;" value="${prodId}" required autofocus  oninput="updateSuppModalContent('prodId', this.value)" />
+                <input type="text" id="prodId" name="prodId" class="textbox-style" style="width: 300px !important;" value="${prodId}" required autofocus  oninput="updateModalContent('prodId', this.value)" />
             </div>
             <div class="form-group">
                 <label for="prodCode">Code:</label>
-                <input type="text" id="prodCode" name="prodCode" class="textbox-style" style="width: 300px !important;" value="${prodCode}" required autofocus  oninput="updateSuppModalContent('prodCode', this.value)" />
+                <input type="text" id="prodCode" name="prodCode" class="textbox-style" style="width: 300px !important;" value="${prodCode}" required autofocus  oninput="updateModalContent('prodCode', this.value)" />
             </div>
             <div class="form-group">
                 <label for="prodCat">Category:</label>
-                <input type="text" id="prodCat" name="prodCat" class="textbox-style" style="width: 300px !important;" value="${prodCat}" required  oninput="updateSuppModalContent('prodCat', this.value)" />
+                <input type="text" id="prodCat" name="prodCat" class="textbox-style" style="width: 300px !important;" value="${prodCat}" required  oninput="updateModalContent('prodCat', this.value)" />
             </div>
             <div class="form-group">
                 <label for="prodName">Name:</label>
-                <input type="text" id="prodName" name="prodName" class="textbox-style" style="width: 300px !important;" value="${prodName}" required  oninput="updateSuppModalContent('prodName', this.value)" />
+                <input type="text" id="prodName" name="prodName" class="textbox-style" style="width: 300px !important;" value="${prodName}" required  oninput="updateModalContent('prodName', this.value)" />
             </div>
             <div class="form-group">
                 <label for="prodDesc">Description:</label>
-                <input type="text" id="prodDesc" name="prodDesc" class="textbox-style" style="width: 300px !important;" value="${prodDesc}" required oninput="updateSuppModalContent('prodDesc', this.value)" />
+                <input type="text" id="prodDesc" name="prodDesc" class="textbox-style" style="width: 300px !important;" value="${prodDesc}" required oninput="updateModalContent('prodDesc', this.value)" />
             </div>
             <div class="form-group">
                 <label for="prodPrice">Price:</label>
-                <input type="text" id="prodPrice" name="prodPrice" class="textbox-style" style="width: 300px !important;" value="${prodPrice}" required oninput="updateSuppModalContent('prodPrice', this.value)" />
+                <input type="text" id="prodPrice" name="prodPrice" class="textbox-style" style="width: 300px !important;" value="${prodPrice}" required oninput="updateModalContent('prodPrice', this.value)" />
             </div>
             <div class="form-group">
                 <label for="qoh">Quantity on Hand:</label>
-                <input type="number" min="0" id="qoh" name="qoh" class="textbox-style" style="width: 300px !important;" value="${qoh}" required oninput="updateSuppModalContent('qoh', this.value)" />
-            </div>               
+                <input type="number" min="0" id="qoh" name="qoh" class="textbox-style" style="width: 300px !important;" value="${qoh}" required oninput="updateModalContent('qoh', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="compName">Supplier:</label>
+                <input type="text" id="compName" name="compName" class="textbox-style" style="width: 300px !important;" value="${compName}" />
+            </div>
+           
+             <div class="form-group">
+                <label for="SupplierSelect">Update Supplier:</label>
+                <select id="SupplierSelect" name="SupplierSelect" class="textbox-style" style="width: 300px !important;" required autofocus oninput="updateModalContent('supplier', this.value)">
+                    ${supList.map(comp => `<option value="${comp.Value}" ${comp.Value === supplier ? 'selected' : ''}>${comp.Text}</option>`).join('')}
+                </select>
+            </div>
         </div>
             <div class="form-group">
                 <button type="button" onclick="editProduct('${prodId}')">Submit</button>
@@ -315,11 +327,11 @@ function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPr
         </div>
     `;
 
-
     document.getElementById('editProdModal').style.display = 'block';
 }
 
 function editProduct(prodId) {
+    console.log('supId called');
     var form = document.createElement("form");
     form.setAttribute("method", "post");
     form.setAttribute("action", '/Inventory/updateProduct');
@@ -338,6 +350,7 @@ function editProduct(prodId) {
     var updatedProdDesc = document.getElementById('prodDesc').value;
     var updatedProdPrice = document.getElementById('prodPrice').value;
     var updatedQoh = document.getElementById('qoh').value;
+    var updatedSup = document.getElementById('SupplierSelect').value;
 
     createHiddenInput("prodId", updatedProdId);
     createHiddenInput("prodName", updatedProdName);
@@ -345,7 +358,8 @@ function editProduct(prodId) {
     createHiddenInput("prodDesc", updatedProdDesc);
     createHiddenInput("prodPrice", updatedProdPrice);
     createHiddenInput("qoh", updatedQoh);
-   
+    createHiddenInput("supId", updatedSup);
+
 
     document.body.appendChild(form);
     form.submit();
@@ -353,7 +367,7 @@ function editProduct(prodId) {
 
 
 
-function openAddProduct(prodName,prodCat,prodDesc,prodPrice,qoh) {
+function openAddProduct(prodName, prodCat, prodDesc, prodPrice, qoh) {
     document.getElementById('addProd').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('addProd')" style="font-size: 35px !important;"></i>

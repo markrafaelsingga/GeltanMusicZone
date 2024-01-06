@@ -16,18 +16,63 @@ namespace InstrumentShop.Controllers
         // GET: Inventory
         public ActionResult Inventory()
         {
+            List<Supplier> suppList = new List<Supplier>();
             List<Product> prodList = new List<Product>();
-            using (var db = new SqlConnection(connString))
+            List<Product> prodSup = new List<Product>();
+
+            using(var db = new SqlConnection(connString))
             {
-              
                 db.Open();
-                using(var cmd = db.CreateCommand())
+                using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM INVENTORY JOIN PRODUCT ON PRODUCT.PROD_ID = INVENTORY.PROD_ID";
+                    cmd.CommandText = "SELECT * FROM SUPPLIER";
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     sda.Fill(dt);
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        Supplier supp = new Supplier
+                        {
+                            suppid = row.Field<int>("SUP_ID"),
+                            company = row.Field<string>("SUP_COMPANY")
+                        };
+                        suppList.Add(supp);
+                    }
+                    ViewBag.suppList = new SelectList(suppList, "suppid","company");
+                }              
+            }
+
+
+
+            using (var db = new SqlConnection(connString))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = @"
+            SELECT
+                I.PROD_ID,
+                P.PROD_DESC,
+                P.PROD_CODE,
+                P.PROD_NAME,
+                P.PROD_PRICE,
+                P.PROD_CAT,
+                I.INV_QOH,
+                S.SUP_COMPANY
+            FROM
+                INVENTORY I
+            JOIN
+                PRODUCT P ON I.PROD_ID = P.PROD_ID
+            LEFT JOIN
+                SUPPLIER S ON P.SUP_ID = S.SUP_ID
+        ";
+
+                    DataTable dt = new DataTable();
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    sda.Fill(dt);
+
                     foreach (DataRow row in dt.Rows)
                     {
                         Product prod = new Product
@@ -38,17 +83,21 @@ namespace InstrumentShop.Controllers
                             prodName = row.Field<string>("PROD_NAME"),
                             prodPrice = row.Field<decimal>("PROD_PRICE"),
                             cat = row.Field<string>("PROD_CAT"),
-                            qoh = row.Field<int>("INV_QOH")
-                         
+                            qoh = row.Field<int>("INV_QOH"),
+                            compName = row.Field<string>("SUP_COMPANY")
                         };
                         prodList.Add(prod);
                     }
                 }
             }
+
+
+
+
             return View(prodList);
         }
 
-        public ActionResult AddProduct(string prodName, string prodCat, string prodDesc, int prodPrice, int qoh)
+        public ActionResult AddProduct(string prodName, string prodCat, string prodDesc, decimal prodPrice, int qoh)
         {
             int prodId;
 
@@ -110,7 +159,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult updateProduct(string prodId,string prodName,string prodCat,string prodDesc,decimal prodPrice, int qoh)
+        public ActionResult updateProduct(string prodId,string prodName,string prodCat,string prodDesc,decimal prodPrice, int qoh, int supId)
         {
             using(var db = new SqlConnection(connString))
             {
@@ -118,12 +167,13 @@ namespace InstrumentShop.Controllers
                 using(var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE PRODUCT SET PROD_NAME = @PRODNAME,PROD_CAT = @PRODCAT,PROD_DESC = @PRODDESC,PROD_PRICE = @PRODPRICE WHERE PROD_ID = @PRODID";
+                    cmd.CommandText = "UPDATE PRODUCT SET PROD_NAME = @PRODNAME,PROD_CAT = @PRODCAT,PROD_DESC = @PRODDESC,PROD_PRICE = @PRODPRICE, SUP_ID = @supId WHERE PROD_ID = @PRODID";
                     cmd.Parameters.AddWithValue("@PRODID",prodId);
                     cmd.Parameters.AddWithValue("@PRODNAME",prodName);
                     cmd.Parameters.AddWithValue("@PRODCAT",prodCat);
                     cmd.Parameters.AddWithValue("@PRODDESC",prodDesc);
                     cmd.Parameters.AddWithValue("@PRODPRICE",prodPrice);
+                    cmd.Parameters.AddWithValue("@supId",supId);
                     var ctr = cmd.ExecuteNonQuery();
                     if(ctr > 0)
                     {
