@@ -26,6 +26,11 @@
         document.getElementById('addProd').style.display = 'block';
     });
 
+    document.getElementById('showEditProductBtn').addEventListener('click', function () {
+        console.log('showEditProductBtn clicked');
+        document.getElementById('editProdModal').style.display = 'block';
+    });
+
     document.getElementById('closeBtn').addEventListener('click', function () {
         console.log('closeBtn clicked');
         document.getElementById('editModal').style.display = 'none';
@@ -33,6 +38,7 @@
         document.getElementById('supDetailModal').style.display = 'none';
         document.getElementById('editSupModal').style.display = 'none';
         document.getElementById('addProd').style.display = 'none';
+        document.getElementById('editProdModal').style.display = 'none';
     });
 
     document.getElementById('mainCloseBtn').addEventListener('click', function () {
@@ -42,6 +48,7 @@
         document.getElementById('supDetailModal').style.display = 'none';
         document.getElementById('editSupModal').style.display = 'none';
         document.getElementById('addProd').style.display = 'none';
+        document.getElementById('editProdModal').style.display = 'none';
     });
 
     window.addEventListener('click', function (event) {
@@ -58,8 +65,11 @@
         if (event.target == document.getElementById('editSupModal')) {
             document.getElementById('editSupModal').style.display = 'none';
         }
-        if (event.target == document.getElementById('editSupModal')) {
+        if (event.target == document.getElementById('addProd')) {
             document.getElementById('addProd').style.display = 'none';
+        }
+        if (event.target == document.getElementById('editProdModal')) {
+            document.getElementById('editProdModal').style.display = 'none';
         }
     });
 });
@@ -179,7 +189,10 @@ function openSupEditModal(suppid,company, fname, mi, lname, phone, address, emai
                 <h1>Edit Supplier</h1>
             </div>
             <div class="form-container">
-            
+            <div class="form-group">
+                <label for="suppid">ID:</label>
+                <input type="text" id="suppid" name="suppid" class="textbox-style" style="width: 300px !important;" value="${suppid}" required autofocus  oninput="updateSuppModalContent('suppid', this.value)" />
+            </div>
             <div class="form-group">
                 <label for="company">Company:</label>
                 <input type="text" id="company" name="company" class="textbox-style" style="width: 300px !important;" value="${company}" required autofocus  oninput="updateSuppModalContent('company', this.value)" />
@@ -251,6 +264,88 @@ function editSupplier(suppid) {
     createHiddenInput("phone", updatedPhone);
     createHiddenInput("address", updatedAddress);
     createHiddenInput("email", updatedEmail); 
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function openProdEditModal(prodId, prodCode, prodCat, prodName, prodDesc, prodPrice, qoh) {
+    document.getElementById('editProdModal').innerHTML = `
+        <div class="modal-content">
+            <i class='bx bx-arrow-back' onclick="closeModal('editProdModal')" style="font-size: 35px !important;"></i>
+            <div class="centered-text">
+                <h1>Edit Product</h1>
+            </div>
+            <div class="form-container">
+            
+            <div class="form-group">
+                <label for="prodId">ID:</label>
+                <input type="text" id="prodId" name="prodId" class="textbox-style" style="width: 300px !important;" value="${prodId}" required autofocus  oninput="updateSuppModalContent('prodId', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="prodCode">Code:</label>
+                <input type="text" id="prodCode" name="prodCode" class="textbox-style" style="width: 300px !important;" value="${prodCode}" required autofocus  oninput="updateSuppModalContent('prodCode', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="prodCat">Category:</label>
+                <input type="text" id="prodCat" name="prodCat" class="textbox-style" style="width: 300px !important;" value="${prodCat}" required  oninput="updateSuppModalContent('prodCat', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="prodName">Name:</label>
+                <input type="text" id="prodName" name="prodName" class="textbox-style" style="width: 300px !important;" value="${prodName}" required  oninput="updateSuppModalContent('prodName', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="prodDesc">Description:</label>
+                <input type="text" id="prodDesc" name="prodDesc" class="textbox-style" style="width: 300px !important;" value="${prodDesc}" required oninput="updateSuppModalContent('prodDesc', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="prodPrice">Price:</label>
+                <input type="text" id="prodPrice" name="prodPrice" class="textbox-style" style="width: 300px !important;" value="${prodPrice}" required oninput="updateSuppModalContent('prodPrice', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="qoh">Quantity on Hand:</label>
+                <input type="number" min="0" id="qoh" name="qoh" class="textbox-style" style="width: 300px !important;" value="${qoh}" required oninput="updateSuppModalContent('qoh', this.value)" />
+            </div>               
+        </div>
+            <div class="form-group">
+                <button type="button" onclick="editProduct('${prodId}')">Submit</button>
+            </div>
+
+            </br></br>
+        </div>
+    `;
+
+
+    document.getElementById('editProdModal').style.display = 'block';
+}
+
+function editProduct(prodId) {
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/Inventory/updateProduct');
+
+    function createHiddenInput(name, value) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", name);
+        input.setAttribute("value", value);
+        form.appendChild(input);
+    }
+
+    var updatedProdId = document.getElementById('prodId').value;
+    var updatedProdName = document.getElementById('prodName').value;
+    var updatedProdCat = document.getElementById('prodCat').value;
+    var updatedProdDesc = document.getElementById('prodDesc').value;
+    var updatedProdPrice = document.getElementById('prodPrice').value;
+    var updatedQoh = document.getElementById('qoh').value;
+
+    createHiddenInput("prodId", updatedProdId);
+    createHiddenInput("prodName", updatedProdName);
+    createHiddenInput("prodCat", updatedProdCat);
+    createHiddenInput("prodDesc", updatedProdDesc);
+    createHiddenInput("prodPrice", updatedProdPrice);
+    createHiddenInput("qoh", updatedQoh);
+   
 
     document.body.appendChild(form);
     form.submit();

@@ -19,38 +19,35 @@
             <table class="fl-table">
                 <thead>
                     <tr>
-                        <th>Product Code</th>
-                        <th>Product Name</th>
-                        <th>Product Price</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Quantity on Hand</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var product in Model)
                     {
-                        <tr>
-                            <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
-                            <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
-                            <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.prodPrice}")</td>
-                            <td>
-                                <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
-                                    <i class='bx bxs-user-detail' style="color: darkblue"></i>
-                                </a>
+                    <tr>
+                        <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
+                        <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
+                        <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.qoh}")</td>
+                        <td>
+                            <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
+                                <i class='bx bxs-user-detail' style="color: darkblue"></i>
+                            </a>
 
-                                &nbsp;&nbsp;
-                                <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
-                                    <i class='bx bxs-edit-alt' style="color: orange"></i>
-                                </a>
+                            &nbsp;&nbsp;
+                            <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.cat', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh')">
+                                <i class='bx bxs-edit-alt' style="color: orange"></i>
+                            </a>
 
-                                &nbsp;&nbsp;
-                                @*<a href="@Url.Action("DeleteStaff", new { suppid = supplier.suppid })">
-                                    <i class='bx bxs-trash' style="color: red"></i>
-                                </a>
-                                <a href="@Url.Action("ReactivateStaff", new { suppid = supplier.suppid })">
-                                    <i class='bx bxs-bulb' style="color: green;"></i>
-                                </a>*@
-                            </td>
-                        </tr>
+                            &nbsp;&nbsp;
+                            @*<a href="@Url.Action("DeleteStaff", new { suppid = supplier.suppid })">
+                                <i class='bx bxs-trash' style="color: red"></i>
+                            </a>*@
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>
@@ -60,6 +57,7 @@
         <div id="supDetailModal"></div>
         <div id="editSupModal"></div>
         <div id="addProd"></div>
+        <div id="editProdModal"></div>
     </form>
 
     <script src="~/error.js"></script>

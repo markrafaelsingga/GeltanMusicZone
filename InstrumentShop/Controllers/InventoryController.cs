@@ -24,7 +24,7 @@ namespace InstrumentShop.Controllers
                 using(var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM PRODUCT";
+                    cmd.CommandText = "SELECT * FROM INVENTORY JOIN PRODUCT ON PRODUCT.PROD_ID = INVENTORY.PROD_ID";
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     sda.Fill(dt);
@@ -36,7 +36,10 @@ namespace InstrumentShop.Controllers
                             prodDesc = row.Field<string>("PROD_DESC"),
                             prodCode = row.Field<string>("PROD_CODE"),
                             prodName = row.Field<string>("PROD_NAME"),
-                            prodPrice = row.Field<decimal>("PROD_PRICE")
+                            prodPrice = row.Field<decimal>("PROD_PRICE"),
+                            cat = row.Field<string>("PROD_CAT"),
+                            qoh = row.Field<int>("INV_QOH")
+                         
                         };
                         prodList.Add(prod);
                     }
@@ -107,13 +110,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult updateProduct()
-        {
-            return View();
-        }
-
-
-        public ActionResult InsertItem(string cat,int qoh)
+        public ActionResult updateProduct(string prodId,string prodName,string prodCat,string prodDesc,decimal prodPrice, int qoh)
         {
             using(var db = new SqlConnection(connString))
             {
@@ -121,22 +118,35 @@ namespace InstrumentShop.Controllers
                 using(var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "INSERT INTO INVENTORY(inv_cat,inv_qoh)" +
-                        "VALUES(@cat,@qoh)";
-                    cmd.Parameters.AddWithValue("@cat", cat);
-                    cmd.Parameters.AddWithValue("@qoh", qoh);
-                    var ctr1 = cmd.ExecuteNonQuery();
-                    if (ctr1 > 0)
+                    cmd.CommandText = "UPDATE PRODUCT SET PROD_NAME = @PRODNAME,PROD_CAT = @PRODCAT,PROD_DESC = @PRODDESC,PROD_PRICE = @PRODPRICE WHERE PROD_ID = @PRODID";
+                    cmd.Parameters.AddWithValue("@PRODID",prodId);
+                    cmd.Parameters.AddWithValue("@PRODNAME",prodName);
+                    cmd.Parameters.AddWithValue("@PRODCAT",prodCat);
+                    cmd.Parameters.AddWithValue("@PRODDESC",prodDesc);
+                    cmd.Parameters.AddWithValue("@PRODPRICE",prodPrice);
+                    var ctr = cmd.ExecuteNonQuery();
+                    if(ctr > 0)
                     {
-                        return Json(new { success = true, message = "Inserted Successfully" }, JsonRequestBehavior.AllowGet);
-                    }
-                    else
+                        cmd.Parameters.Clear();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE INVENTORY SET INV_QOH = @QOH WHERE PROD_ID = @PRODID";
+                        cmd.Parameters.AddWithValue("@PRODID",prodId);
+                        cmd.Parameters.AddWithValue("@QOH",qoh);
+                        var ctr1 = cmd.ExecuteNonQuery();
+                        if(ctr1 > 0)
+                        {
+                            return Json(new { success = true, message = "Updated Successfully" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Insert Unsuccessful" }, JsonRequestBehavior.AllowGet);
+                        }
+                    }else
                     {
-                        return Json(new { success = false, message = "Unsuccessfull!" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, message = "Product unsuccessful" }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
-           
         }
     }
 }
