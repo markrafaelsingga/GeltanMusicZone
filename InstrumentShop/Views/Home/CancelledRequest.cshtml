@@ -2,8 +2,8 @@
 @{
     ViewBag.Title = "CancelledRequest";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
-    DateTime minDate = ViewBag.MinDate;
-    DateTime maxDate = ViewBag.MaxDate;
+    DateTime? minDate = ViewBag.MinDate;
+    DateTime? maxDate = ViewBag.MaxDate;
 }
 @model List<requisitionDetails>
 
@@ -24,9 +24,30 @@
 <!-- //inner banner -->
 <!-- Content block -->
 <div class="w3l-grids-block-5 py-5">
+
     @{
-        // Sort the requisitions based on the latest date
-        var sortedRequisitions = Model.OrderByDescending(r => r.rf_date_requested).ToList();
+        // Get the selected status and date from the updated query string
+        var fromDate = Request.QueryString["fromDate"];
+
+        // Define a variable to hold the requisitions
+        List<requisitionDetails> sortedRequisitions;
+
+        // Check if a specific date is selected and is in a valid format
+        if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out var parsedDate))
+        {
+            // Filter requisitions based on date
+            sortedRequisitions = Model
+                .Where(r => DateTime.Parse(r.rf_date_requested).Date == parsedDate.Date)
+                .OrderByDescending(r => DateTime.Parse(r.rf_date_requested))
+                .ToList();
+        }
+        else
+        {
+            // No specific date selected or invalid date format,
+            sortedRequisitions = Model
+                .OrderByDescending(r => DateTime.Parse(r.rf_date_requested))
+                .ToList();
+        }
     }
     @if (Model != null && Model.Any())
     {
@@ -35,22 +56,22 @@
                 <p class="text-uppercase">Geltan's Music Zone</p>
                 <h3 class="title-style">Cancelled Requisitions</h3>
             </div>
+
+            <!-- Search for requisition -->
+            <div class="search-container" style="display: flex">
+                <div class="search-wrapper">
+                    <label>
+                        Search through date: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;@* From: *@
+                    </label><br />
+                    <input type="date" name="fromSearch" class="search-box" id="searchBox1" min="@((minDate ?? DateTime.MinValue).ToString("yyyy-MM-dd"))" max="@((maxDate ?? DateTime.MaxValue).ToString("yyyy-MM-dd"))" onchange="updateRequisitions()">
+                    <button type="button" class="btn btn-style-3" onclick="window.location.href='/Home/CancelledRequest'">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <!-- Search for requisition -->
+
             <br />
-            <!-- Search for requisition -->
-            @*<div class="search-container">
-                    <form action="@Url.Action("SearchRequisition", "Home")" method="post">
-                        <div class="search-wrapper">
-                            <label>
-                                From: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;To:
-                            </label><br />
-                            <input type="date" name="Fromsearch" class="search-box" id="searchBox1" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
-                            <i class="fa fa-arrow-right"></i>
-                            <input type="date" name="Tosearch" class="search-box" id="searchBox2" min="@minDate.ToString("yyyy-MM-dd")" max="@maxDate.ToString("yyyy-MM-dd")">
-                            <button type="submit" class="btn btn-style-3"><i class="fa fa-search"></i></button>
-                        </div>
-                    </form>
-                </div>*@
-            <!-- Search for requisition -->
             <div class="row justify-content-center">
                 <div class="row">
                     @foreach (var details in sortedRequisitions)
@@ -126,4 +147,26 @@
     //        $('form').submit();
     //    });
     //});
+
+    // Get the selected date from the query string
+        var selectedDateFromQueryString = '@Request.QueryString["fromDate"]';
+
+        // Set the selected value of the date picker
+        $('#searchBox1').val(selectedDateFromQueryString);
+
+        function updateQueryString() {
+            var fromDate = $("#searchBox1").val();
+
+            // Update the URL with the new query string
+            var url = new URL(window.location.href);
+            url.searchParams.set("fromDate", fromDate);
+
+            // Redirect to the updated URL
+            window.location.href = url.toString();
+        }
+
+        // Attach the updateQueryString function to the onchange event of date picker
+        $("#searchBox1").on("change", function () {
+            updateQueryString();
+        });
 </script>

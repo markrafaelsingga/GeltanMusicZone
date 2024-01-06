@@ -19835,7 +19835,7 @@ h4.inner-text-title {
 
 /* //search section */
 .search-container {
-    margin-left: 800px;
+    margin-left: 75%;
     width: 400px;
     margin-bottom: 20px;
 }
@@ -19847,7 +19847,7 @@ h4.inner-text-title {
 
 .search-box {
     padding-right: 30px;
-    width: 150px;
+    width: 65%;
     height: 35px;
     border-radius: 5px;
     border: 2px solid black;
