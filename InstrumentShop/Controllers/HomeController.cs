@@ -112,11 +112,11 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
-                using(var cmd = db.CreateCommand())
+                using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "SELECT * FROM REQUISITION WHERE RF_STATUS = @status AND USER_ID = @userId";
-                    cmd.Parameters.AddWithValue("@userId",user);
+                    cmd.Parameters.AddWithValue("@userId", user);
                     cmd.Parameters.AddWithValue("@status", "Approved");
                 }
             }
@@ -842,8 +842,6 @@ namespace InstrumentShop.Controllers
                                 RF_Code = reader["rf_code"].ToString(),
                                 RF_Daterequested = reader["rf_date_requested"].ToString(),
                                 RF_Itemcode = reader["ri_code"].ToString(),
-                                RF_SupplierID = Convert.ToInt32(reader["sup_id"]),
-                                RF_Suppliercompany = reader["sup_company"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["ri_quantity"]),
@@ -915,8 +913,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader1["rf_code"].ToString(),
                                                 RF_Daterequested = reader1["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader1["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader1["sup_id"]),
-                                                RF_Suppliercompany = reader1["sup_company"].ToString(),
                                                 RF_Item = reader1["prod_name"].ToString(),
                                                 RF_Description = reader1["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
@@ -958,8 +954,6 @@ namespace InstrumentShop.Controllers
                                                 RF_Code = reader2["rf_code"].ToString(),
                                                 RF_Daterequested = reader2["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader2["ri_code"].ToString(),
-                                                RF_SupplierID = Convert.ToInt32(reader2["sup_id"]),
-                                                RF_Suppliercompany = reader2["sup_company"].ToString(),
                                                 RF_Item = reader2["prod_name"].ToString(),
                                                 RF_Description = reader2["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
