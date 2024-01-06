@@ -225,13 +225,13 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Call GetMinDate with a requisitionDetails instance
-                    requisitionDetails minDateModel = new requisitionDetails();
-                    GetMinDate(minDateModel, "Canceled");
+                    /// Find the minimum and maximum dates directly from the list
+                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
 
-                    // Call GetMaxDate with a requisitionDetails instance
-                    requisitionDetails maxDateModel = new requisitionDetails();
-                    GetMaxDate(maxDateModel, "Canceled");
+                    // Pass the paginated list, minimum date, and maximum date to the view
+                    ViewBag.MinDate = minDate;
+                    ViewBag.MaxDate = maxDate;
 
                     // Perform pagination logic
                     var paginatedModel = lemp.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -239,10 +239,6 @@ namespace InstrumentShop.Controllers
                     ViewBag.PageNumber = page;
                     ViewBag.PageSize = pageSize;
                     ViewBag.TotalItems = lemp.Count;
-
-                    // Pass the paginated list and minimum date model to the view
-                    ViewBag.MinDate = minDateModel.fromRequestdate;
-                    ViewBag.MaxDate = maxDateModel.toRequestdate;
 
                     // Pass the paginated list to the view
                     return View(paginatedModel);

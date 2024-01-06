@@ -46,6 +46,14 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
+                    // Find the minimum and maximum dates directly from the list
+                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
+
+                    // Pass the paginated list, minimum date, and maximum date to the view
+                    ViewBag.MinDate = minDate;
+                    ViewBag.MaxDate = maxDate;
+
                     Session["RequisitionForm"] = lemp;
 
                     DeleteCanvasItem();
@@ -279,6 +287,14 @@ namespace InstrumentShop.Controllers
                     }
 
                     db.Close();
+
+                    // Find the minimum and maximum dates directly from the list
+                    DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                    DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
+
+                    // Pass the paginated list, minimum date, and maximum date to the view
+                    ViewBag.MinDate = minDate;
+                    ViewBag.MaxDate = maxDate;
 
                     return View(lemp);
                 }
@@ -1088,6 +1104,44 @@ namespace InstrumentShop.Controllers
             }
 
             return user;
+        }
+        public ActionResult SearchRequisition(string fromSearch, string toSearch)
+        {
+            using (var db = new SqlConnection(mainconn))
+            {
+                db.Open();
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != 'Cancelled' AND rf_date_requested BETWEEN @fromDate AND @toDate";
+                    cmd.Parameters.AddWithValue("@fromDate", fromSearch);
+                    cmd.Parameters.AddWithValue("@toDate", toSearch);
+
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    DataSet ds = new DataSet();
+                    sda.Fill(ds);
+
+                    List<requisitionDetails> lemp = new List<requisitionDetails>();
+
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        requisitionDetails requisition = new requisitionDetails
+                        {
+                            rf_id = Convert.ToInt32(dr["rf_id"]),
+                            rf_date_requested = dr["rf_date_requested"].ToString(),
+                            rf_code = dr["rf_code"].ToString(),
+                            rf_status = dr["rf_status"].ToString(),
+                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
+                        };
+
+                        lemp.Add(requisition);
+                    }
+
+                    db.Close();
+
+                    return View("Requisition", lemp);
+                }
+            }
         }
     }
 }

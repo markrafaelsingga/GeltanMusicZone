@@ -56,12 +56,12 @@
 
             <!-- Dropdown for requisition -->
             <div class="row requisition-block" style="margin-left: 5px;">
-                <div class="col-sm-6" style=" width: 250px;">
+                <div class="col-sm-6" style="width: 250px;">
                     <select name="selectedStatus" id="selectedStatus" required="" class="requisition-select">
-                        <option value="All" @(Request.QueryString["selectedStatus"] == "All" ? "selected disabled" : "")>All</option>
-                        <option value="Pending" @(Request.QueryString["selectedStatus"] == "Pending" ? "selected disabled" : "")>Pending</option>
-                        <option value="Approved" @(Request.QueryString["selectedStatus"] == "Approved" ? "selected disabled" : "")>Approved</option>
-                        <option value="Declined" @(Request.QueryString["selectedStatus"] == "Declined" ? "selected disabled" : "")>Declined</option>
+                        <option value="All" @(string.IsNullOrEmpty(Request.QueryString["selectedStatus"]) ? "selected" : "")>All</option>
+                        <option value="Pending" @(Request.QueryString["selectedStatus"] == "Pending" ? "selected" : "")>Pending</option>
+                        <option value="Approved" @(Request.QueryString["selectedStatus"] == "Approved" ? "selected" : "")>Approved</option>
+                        <option value="Declined" @(Request.QueryString["selectedStatus"] == "Declined" ? "selected" : "")>Declined</option>
                     </select>
                 </div>
             </div>
@@ -192,25 +192,4 @@
     $("#selectedStatus, #searchBox1").on("change", function () {
         updateQueryString();
     });
-
-    function updateToDateMin() {
-        // Get the selected value from the "From" date input
-        var fromDateValue = document.getElementById("searchBox1").value;
-
-        // Get the "To" date input element
-        var toDateElement = document.getElementById("searchBox2");
-
-        // Set the minimum date for the "To" date input
-        toDateElement.min = fromDateValue;
-
-        // Update the "min" attribute of the "To" date input with the current date
-        var currentDate = new Date().toISOString().split('T')[0];
-        if (toDateElement.min > currentDate) {
-            toDateElement.min = currentDate;
-        }
-
-        // Trigger form submission when "From" date changes
-        updateQueryString();
-    }
-
 </script>
