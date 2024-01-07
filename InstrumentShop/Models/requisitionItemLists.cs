@@ -14,6 +14,7 @@ namespace InstrumentShop.Models
 
         // Properties for dropdown list
         public string ReqItem_Item { get; set; } // Dropdown list item
+        public string ReqItem_Cat { get; set; } // Dropdown list category
         public string ReqItem_Desc { get; set; } // Dropdown list description
         public decimal ReqItem_Price { get; set; } // Dropdown list price
         public int ReqItem_ID { get; set; } // Dropdown list ID

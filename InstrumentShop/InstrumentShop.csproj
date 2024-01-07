@@ -276,7 +276,6 @@
     <Content Include="Views\AdminRequisition\addItem.cshtml" />
     <Content Include="Views\AdminRequisition\_ApprovalPartialView.cshtml" />
     <Content Include="Views\AdminRequisition\_DeclinePartialView.cshtml" />
-    <Content Include="Views\Home\Purchasing.cshtml" />
     <Content Include="Views\Supplier\Supplier.cshtml" />
     <Content Include="Views\Inventory\Inventory.cshtml" />
     <Content Include="Views\Purchase\Purchase.cshtml" />
