@@ -11,60 +11,67 @@ namespace InstrumentShop.Controllers
 {
     public class AdminRequisitionController : Controller
     {
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         // GET: AdminRequisition
         public ActionResult Requisition()
         {
-            using (var db = new SqlConnection(mainconn))
+            try
             {
-                db.Open();
-                using (var cmd = db.CreateCommand())
+                using (var db = new SqlConnection(mainconn))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] where rf_status != 'Deleted' and rf_status != 'Cancelled'";
-
-                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                    DataSet ds = new DataSet();
-                    sda.Fill(ds);
-
-                    List<requisitionDetails> lemp = new List<requisitionDetails>();
-
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    db.Open();
+                    using (var cmd = db.CreateCommand())
                     {
-                        requisitionDetails request = new requisitionDetails
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status != 'Deleted' AND rf_status != 'Cancelled' ORDER BY rf_date_requested DESC";
+
+                        using (var reader = cmd.ExecuteReader())
                         {
-                           
-                            rf_id = Convert.ToInt32(dr["rf_id"]),
-                            rf_date_requested = dr["rf_date_requested"].ToString(),
-                            rf_code = dr["rf_code"].ToString(),
-                            rf_status = dr["rf_status"].ToString(),
-                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
-                        };
+                            List<requisitionDetails> lemp = new List<requisitionDetails>();
 
-                        lemp.Add(request);
+                            while (reader.Read())
+                            {
+                                requisitionDetails request = new requisitionDetails
+                                {
+                                    // Populate properties based on your database columns
+                                    rf_id = Convert.ToInt32(reader["rf_id"]),
+                                    rf_date_requested = reader["rf_date_requested"].ToString(),
+                                    rf_code = reader["rf_code"].ToString(),
+                                    rf_status = reader["rf_status"].ToString(),
+                                    rf_estimated_cost = Convert.ToDecimal(reader["rf_estimated_cost"]),
+                                };
+
+                                lemp.Add(request);
+                            }
+
+                            // Check if the list has items
+                            if (lemp.Any())
+                            {
+                                // Find the minimum and maximum dates directly from the list
+                                DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
+                                DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
+
+                                // Pass the paginated list, minimum date, and maximum date to the view
+                                ViewBag.MinDate = minDate;
+                                ViewBag.MaxDate = maxDate;
+                            }
+
+                            Session["RequisitionForm"] = lemp;
+
+                            // Call the DeleteCanvasItem method if it is relevant to this action
+                            DeleteCanvasItem();
+
+                            return View(lemp);
+                        }
                     }
-
-                    db.Close();
-
-                   
-                    if (lemp.Any())
-                    {
-                      
-                        DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
-                        DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
-
-                       
-                        ViewBag.MinDate = minDate;
-                        ViewBag.MaxDate = maxDate;
-                    }
-
-                    Session["RequisitionForm"] = lemp;
-
-                    DeleteCanvasItem();
-                    return View(lemp);
                 }
             }
+            catch (Exception ex)
+            {
+                return View();
+            }
         }
+
 
         public ActionResult ViewRequisition(int request_ID, string message)
         {
@@ -73,6 +80,10 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
+
+                List<originalData> originalDataList = RetrieveOriginalViewRequisitionData(db, request_ID);
+                Session["Items"] = originalDataList;
+
                 int user = UserDetails(db, request_ID);
 
                 using (var cmd1 = db.CreateCommand())
@@ -124,6 +135,7 @@ namespace InstrumentShop.Controllers
                                                 RF_Daterequested = reader1["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader1["ri_code"].ToString(),
                                                 RF_Item = reader1["prod_name"].ToString(),
+                                                RF_ItemCat = reader1["prod_cat"].ToString(),
                                                 RF_Description = reader1["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader1["ri_quantity"]),
                                                 RF_Unit = reader1["ri_unit"].ToString(),
@@ -133,7 +145,7 @@ namespace InstrumentShop.Controllers
 
                                             };
 
-                                         
+                                            // Retrieve user details
                                             using (var cmdUser = db.CreateCommand())
                                             {
                                                 cmdUser.CommandType = CommandType.Text;
@@ -185,6 +197,7 @@ namespace InstrumentShop.Controllers
                                                 RF_Daterequested = reader2["rf_date_requested"].ToString(),
                                                 RF_Itemcode = reader2["ri_code"].ToString(),
                                                 RF_Item = reader2["prod_name"].ToString(),
+                                                RF_ItemCat = reader2["prod_cat"].ToString(),
                                                 RF_Description = reader2["prod_desc"].ToString(),
                                                 RF_Quantity = Convert.ToInt32(reader2["ri_quantity"]),
                                                 RF_Unit = reader2["ri_unit"].ToString(),
@@ -193,7 +206,7 @@ namespace InstrumentShop.Controllers
                                                 RF_Estimatecost = Convert.ToDecimal(reader2["rf_estimated_cost"]),
                                             };
 
-                                         
+                                            // Retrieve user details
                                             using (var cmdUser = db.CreateCommand())
                                             {
                                                 cmdUser.CommandType = CommandType.Text;
@@ -220,8 +233,6 @@ namespace InstrumentShop.Controllers
                         }
                     }
                 }
-                List<originalData> originalDataList = RetrieveOriginalViewRequisitionData(db, request_ID);
-                Session["Items"] = originalDataList;
             }
             return View(details);
         }
@@ -232,7 +243,7 @@ namespace InstrumentShop.Controllers
             {
                 db.Open();
 
-               
+                // Get the recent status before updating
                 string status = RecentStatus(db, delete_ID);
 
                 using (var cmd = db.CreateCommand())
@@ -242,17 +253,17 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@id", delete_ID);
                     cmd.Parameters.AddWithValue("@recent", status);
 
-                 
+                    // Execute the UPDATE statement.
                     int rowsAffected = cmd.ExecuteNonQuery();
 
                     if (rowsAffected > 0)
                     {
-                     
+                        // Redirect to the "Requisition" action
                         return RedirectToAction("Requisition");
                     }
                     else
                     {
-                      
+                        // Item not found or no changes were made
                         return View("Error");
                     }
                 }
@@ -267,7 +278,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status = 'Deleted' OR rf_status = 'Cancelled'";
+                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status = 'Deleted' OR rf_status = 'Cancelled' ORDER BY rf_date_requested DESC";
 
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     DataSet ds = new DataSet();
@@ -279,7 +290,7 @@ namespace InstrumentShop.Controllers
                     {
                         requisitionDetails request = new requisitionDetails
                         {
-                           
+                            // Populate properties based on your database columns
                             rf_id = Convert.ToInt32(dr["rf_id"]),
                             rf_date_requested = dr["rf_date_requested"].ToString(),
                             rf_code = dr["rf_code"].ToString(),
@@ -292,14 +303,14 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                   
+                    // Check if the list has items
                     if (lemp.Any())
                     {
-                       
+                        // Find the minimum and maximum dates directly from the list
                         DateTime minDate = lemp.Min(r => DateTime.Parse(r.rf_date_requested));
                         DateTime maxDate = lemp.Max(r => DateTime.Parse(r.rf_date_requested));
 
-                       
+                        // Pass the paginated list, minimum date, and maximum date to the view
                         ViewBag.MinDate = minDate;
                         ViewBag.MaxDate = maxDate;
                     }
@@ -372,6 +383,7 @@ namespace InstrumentShop.Controllers
                                 RF_Daterequested = reader["rf_date_requested"].ToString(),
                                 RF_Itemcode = reader["ri_code"].ToString(),
                                 RF_Item = reader["prod_name"].ToString(),
+                                RF_ItemCat = reader["prod_cat"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
                                 RF_Unit = reader["canvas_unit"].ToString(),
@@ -399,6 +411,7 @@ namespace InstrumentShop.Controllers
                                 RF_ItemStatus = "Canvas",
                                 RF_ItemID = Convert.ToInt32(reader["canvas_id"]),
                                 RF_Item = reader["prod_name"].ToString(),
+                                RF_ItemCat = reader["prod_cat"].ToString(),
                                 RF_Description = reader["prod_desc"].ToString(),
                                 RF_Quantity = Convert.ToInt32(reader["canvas_quantity"]),
                                 RF_Unit = reader["canvas_unit"].ToString(),
@@ -421,7 +434,7 @@ namespace InstrumentShop.Controllers
             {
                 db.Open();
 
-            
+                // Fetch product data
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
@@ -454,7 +467,7 @@ namespace InstrumentShop.Controllers
                             {
                                 int productId = Convert.ToInt32(dr["prod_id"]);
 
-                               
+                                // Check if the product ID is not in canvasIds
                                 if (!canvasIds.Contains(productId))
                                 {
                                     addItemLists product = new addItemLists
@@ -462,6 +475,7 @@ namespace InstrumentShop.Controllers
                                         ReqItem_ID = productId,
                                         ReqItem_Item = dr["prod_name"].ToString(),
                                         ReqItem_Desc = dr["prod_desc"].ToString(),
+                                        ReqItem_Cat = dr["prod_cat"].ToString(),
                                         ReqItem_Price = Convert.ToDecimal(dr["prod_price"]),
                                     };
                                     productList.Add(product);
@@ -491,7 +505,7 @@ namespace InstrumentShop.Controllers
                         InsertCanvasRecord(connection, transaction, quantity, totalValue, product, unit);
                         transaction.Commit();
 
-                     
+                        // Retrieve the request_ID from the session
                         int request_ID = (int)Session["edit_ID"];
                         return RedirectToAction("editRequisition", new { edit_ID = request_ID });
                     }
@@ -567,6 +581,7 @@ namespace InstrumentShop.Controllers
                         {
                             CanvasID = Convert.ToInt32(reader["canvas_id"]),
                             CanvasItem = reader["prod_name"].ToString(),
+                            CanvasItemCat = reader["prod_cat"].ToString(),
                             CanvasDesc = reader["prod_desc"].ToString(),
                             CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]),
                             CanvasUnit = reader["canvas_unit"].ToString(),
@@ -597,18 +612,18 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@total", ItemEdit_Total);
                     cmd.Parameters.AddWithValue("@id", ItemEdit_ID);
 
-                 
+                    // Execute the UPDATE statement.
                     int rowsAffected = cmd.ExecuteNonQuery();
 
                     if (rowsAffected > 0)
                     {
                         int edit_ID = (int)Session["edit_ID"];
-                       
+                        // Redirect to the "editRequisition" action with the original form's ID
                         return RedirectToAction("editRequisition", new { edit_ID = edit_ID });
                     }
                     else
                     {
-                        
+                        // Item not found or no changes were made
                         return View("Error");
                     }
                 }
@@ -631,7 +646,7 @@ namespace InstrumentShop.Controllers
             {
                 db.Open();
 
-               
+                // Update the status and the cost
                 UpdateRF_Status(db, selectedStatus, request_ID);
                 UpdateCost(db, EstimateTotal, request_ID);
                 InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
@@ -648,7 +663,7 @@ namespace InstrumentShop.Controllers
 
                 ViewBag.Message = "Requisition form approved successfully!";
 
-              
+                // Redirect to the "ViewRequisition" action
                 return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
             }
         }
@@ -657,7 +672,7 @@ namespace InstrumentShop.Controllers
         public ActionResult DeclineRequest(int request_ID, string selectedStatus, string ApprovalNote)
         {
             int user = (int)Session["user_id"];
-         
+            // Retrieve the original requisition data from the session
             var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
             var originalDataList = Session["Items"] as List<originalData>;
             using (var db = new SqlConnection(mainconn))
@@ -669,13 +684,13 @@ namespace InstrumentShop.Controllers
                 {
                     ViewBag.Message = "This requisition form is already declined";
 
-                 
+                    // Use the original requisition data to reset changes
                     ResetRequisitionChanges(db, originalRequisitionData);
 
-                   
+                    // Use the original view requisition data to reset changes
                     UpdateViewRequisitionData(db, originalDataList);
 
-                   
+                    // Delete canvas items
                     DeleteCanvasItem();
                 }
                 else
@@ -687,10 +702,10 @@ namespace InstrumentShop.Controllers
                         Status(originalData.origDetail_ID, selectedStatus);
                     }
 
-                  
+                    // Delete canvas items
                     DeleteCanvasItem();
 
-                  
+                    // Update the status
                     UpdateRF_Status(db, selectedStatus, request_ID);
                     InsertApproval(db, selectedStatus, ApprovalNote, user, request_ID);
 
@@ -698,41 +713,48 @@ namespace InstrumentShop.Controllers
                     ViewBag.Message = "Requisition form declined successfully!";
                 }
 
-               
+                // Redirect to the "ViewRequisition" action
                 return RedirectToAction("ViewRequisition", new { request_ID = request_ID, message = ViewBag.Message });
             }
         }
 
         public ActionResult CancelAction()
         {
-           
-            var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
-            var originalDataList = Session["Items"] as List<originalData>;
-
-            if (originalRequisitionData == null || originalDataList == null)
+            try
             {
-               
-                return RedirectToAction("Requisition");
+                // Retrieve the original requisition data from the session
+                var originalRequisitionData = Session["RequisitionForm"] as List<requisitionDetails>;
+                var originalDataList = Session["Items"] as List<originalData>;
+
+                if (originalRequisitionData == null || originalDataList == null)
+                {
+                    // No changes, redirect to Requisition directly
+                    return RedirectToAction("Requisition");
+                }
+
+                using (var db = new SqlConnection(mainconn))
+                {
+                    db.Open();
+
+                    // Use the original requisition data to reset changes
+                    ResetRequisitionChanges(db, originalRequisitionData);
+
+                    // Use the original view requisition data to reset changes
+                    UpdateViewRequisitionData(db, originalDataList);
+
+                    // Delete canvas items
+                    DeleteCanvasItem();
+
+                    return RedirectToAction("Requisition");
+                }
             }
-
-            using (var db = new SqlConnection(mainconn))
+            catch (Exception ex)
             {
-                db.Open();
-
-                
-                ResetRequisitionChanges(db, originalRequisitionData);
-
-               
-                UpdateViewRequisitionData(db, originalDataList);
-
-
-                DeleteCanvasItem();
-
-                return RedirectToAction("Requisition");
+                // Log the exception or handle it appropriately
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                return RedirectToAction("Error");
             }
         }
-
-
         private List<originalData> RetrieveOriginalViewRequisitionData(SqlConnection db, int request_ID)
         {
             List<originalData> details = new List<originalData>();
@@ -784,7 +806,6 @@ namespace InstrumentShop.Controllers
 
         private void ResetRequisitionChanges(SqlConnection db, List<requisitionDetails> originalRequisitionData)
         {
-           
             foreach (var originalData in originalRequisitionData)
             {
                 using (var cmd = db.CreateCommand())
@@ -797,25 +818,23 @@ namespace InstrumentShop.Controllers
                                       "    rf_estimated_cost = @estimated_cost " +
                                       "WHERE rf_id = @id";
 
-                  
                     cmd.Parameters.AddWithValue("@id", originalData.rf_id);
                     cmd.Parameters.AddWithValue("@date_requested", originalData.rf_date_requested);
                     cmd.Parameters.AddWithValue("@code", originalData.rf_code);
                     cmd.Parameters.AddWithValue("@status", originalData.rf_status);
                     cmd.Parameters.AddWithValue("@estimated_cost", originalData.rf_estimated_cost);
 
-                   
+                    // Execute the UPDATE statement
                     cmd.ExecuteNonQuery();
                 }
             }
 
-            
+            // Clear the session after resetting
             Session["RequisitionForm"] = null;
         }
 
         private void InsertRequisitionItem(SqlConnection db, int canvas, int quantity, string unit, decimal total, int rfForm, string status)
         {
-            
             using (var insertCmd = db.CreateCommand())
             {
                 insertCmd.CommandType = CommandType.Text;
@@ -865,21 +884,21 @@ namespace InstrumentShop.Controllers
             {
                 cmd.CommandType = CommandType.Text;
 
-               
+                // Use a single INSERT statement with conditional parameter inclusion
                 cmd.CommandText = "INSERT INTO ApprovalStatus (approval_status, approval_note, user_id, rf_id) VALUES (@status, @note, @user, @form)";
 
                 cmd.Parameters.AddWithValue("@status", status);
                 cmd.Parameters.AddWithValue("@user", userID);
                 cmd.Parameters.AddWithValue("@form", formID);
 
-            
+                // Add the note parameter only if it is not null
                 if (note != null)
                 {
                     cmd.Parameters.AddWithValue("@note", note);
                 }
                 else
                 {
-                 
+                    // If note is null, set it to DBNull.Value
                     cmd.Parameters.AddWithValue("@note", DBNull.Value);
                 }
 
@@ -901,7 +920,7 @@ namespace InstrumentShop.Controllers
         }
         public void InsertNewItem(SqlConnection db, int request_ID, string selectedStatus)
         {
-          
+            //New item iserted by the admin
             using (var cmd1 = db.CreateCommand())
             {
                 cmd1.CommandType = CommandType.Text;
@@ -926,7 +945,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
                 }
-               
+                // Update canvas status
                 cmd1.CommandType = CommandType.Text;
                 cmd1.CommandText = "UPDATE canvas SET canvas_status = 1 WHERE canvas_status = 0";
                 cmd1.ExecuteNonQuery();
@@ -944,7 +963,7 @@ namespace InstrumentShop.Controllers
                 {
                     while (reader.Read())
                     {
-                     
+                        // Updated the records of requisition items if ever there are changes made in canvas
                         int riID = Convert.ToInt32(reader["ri_id"]);
                         int CanvasID = Convert.ToInt32(reader["canvas_id"]);
                         int CanvasQuantity = Convert.ToInt32(reader["canvas_quantity"]);
@@ -953,7 +972,7 @@ namespace InstrumentShop.Controllers
 
                         Update(db, CanvasID, CanvasQuantity, CanvasUnit, CanvasTotal);
 
-                        
+                        //Update the status of requisition items based on the status of requisition form
                         string status = reader["ri_status"].ToString();
                         if (selectedStatus == "Declined")
                         {
@@ -1042,7 +1061,6 @@ namespace InstrumentShop.Controllers
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "UPDATE requisition SET rf_status = @stat WHERE rf_id = @id;";
 
-               
                 cmd.Parameters.AddWithValue("@stat", status);
                 cmd.Parameters.AddWithValue("@id", id);
 
@@ -1062,7 +1080,6 @@ namespace InstrumentShop.Controllers
                 {
                     if (reader.Read())
                     {
-                        
                         recentStatus = reader["rf_status"].ToString();
                     }
                 }
@@ -1085,7 +1102,6 @@ namespace InstrumentShop.Controllers
                 {
                     if (reader.Read())
                     {
-                      
                         recentStatus = reader["rf_recentStatus"].ToString();
                     }
                 }

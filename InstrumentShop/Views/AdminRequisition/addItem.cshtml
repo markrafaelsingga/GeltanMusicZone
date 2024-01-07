@@ -47,7 +47,7 @@
 
                                         @foreach (var product in Model)
                                         {
-                                            <option value="@product.ReqItem_ID" data-desc="@product.ReqItem_Desc" data-price="@product.ReqItem_Price">@product.ReqItem_Item</option>
+                                            <option value="@product.ReqItem_ID" data-desc="@product.ReqItem_Desc" data-price="@product.ReqItem_Price">@product.ReqItem_Item - @product.ReqItem_Cat</option>
                                         }
                                     </select>
                                 </div>

@@ -11,10 +11,10 @@ using System.Configuration;
 namespace InstrumentShop.Controllers
 {
     public class PurchaseController : Controller
-    { 
-    
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
-         // GET: Purchase
+    {
+
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        // GET: Purchase
         public ActionResult Index()
         {
             return View();

@@ -1,1 +1,0 @@
-﻿update users set dep_id = null where user_id = 5

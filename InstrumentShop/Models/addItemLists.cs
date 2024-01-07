@@ -13,6 +13,7 @@ namespace InstrumentShop.Models
         public string ReqItem_Unit { get; set; } // Unit for creating new data
         public int request_ID { get; set; }
         public string ReqItem_Item { get; set; } // Dropdown list item
+        public string ReqItem_Cat { get; set; } // Dropdown list category
         public string ReqItem_Desc { get; set; } // Dropdown list description
         public decimal ReqItem_Price { get; set; } // Dropdown list price
         public int ReqItem_ID { get; set; } // Dropdown list ID
