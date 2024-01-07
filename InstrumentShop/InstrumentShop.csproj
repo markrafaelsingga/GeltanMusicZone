@@ -152,6 +152,7 @@
     <Compile Include="Models\Register.cs" />
     <Compile Include="Models\requisitionItemLists.cs" />
     <Compile Include="Models\requisitionModel.cs" />
+    <Compile Include="Models\ShowRF.cs" />
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Models\StaffProfile.cs" />
     <Compile Include="Models\Supplier.cs" />

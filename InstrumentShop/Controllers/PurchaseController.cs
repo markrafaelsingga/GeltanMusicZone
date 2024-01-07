@@ -399,5 +399,10 @@ namespace InstrumentShop.Controllers
 
             return View();
         }
+
+        public ActionResult ShowRF()
+        {
+            return View();
+        }
     }
 }

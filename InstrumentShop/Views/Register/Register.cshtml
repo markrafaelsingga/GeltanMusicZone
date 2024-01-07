@@ -118,7 +118,6 @@
                     @Html.LabelFor(model => model.Uimg, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
                         <input type="file" name="file" />
-                        @Html.EditorFor(model => model.Uimg, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.Uimg, "", new { @class = "text-danger" })
                     </div>
                 </div>

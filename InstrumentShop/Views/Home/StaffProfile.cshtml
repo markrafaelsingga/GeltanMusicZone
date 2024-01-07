@@ -27,9 +27,14 @@
         <div class="row pb-xl-5 align-items-center">
             <div class="col-lg-3 col-6 text-center">
                 <a>
-                    <img src="@Url.Content(Model.uimg)?" class="arrow-png img-responsive" />
-
-
+                    @if (!string.IsNullOrEmpty(Model.uimg))
+                    {
+                        <img src="@Url.Content(Model.uimg)" alt="User Image" class="arrow-png img-responsive" />
+                    }
+                    else
+                    {
+                        <img src="~/images/logo.jpg" alt="~/images/logo.jpg" class="arrow-png img-responsive" />
+                    }
                     <h4>Staff</h4>
                 </a>
             </div>

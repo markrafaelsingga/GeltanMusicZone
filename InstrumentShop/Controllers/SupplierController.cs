@@ -71,7 +71,7 @@ namespace InstrumentShop.Controllers
                 }
             }
         }
-        public ActionResult ReactivateSuppler(int suppid)
+        public ActionResult ReactivateSupplier(int suppid)
         {
             using (var db = new SqlConnection(connString))
             {
@@ -79,21 +79,24 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE SUPPLIER SET SUPPLIER_ISACTIVE = @status WHERE SUP_ID = @suppid";
+                    cmd.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
                     cmd.Parameters.AddWithValue("@status", "ACTIVE");
                     cmd.Parameters.AddWithValue("@suppid", suppid);
                     var ctr = cmd.ExecuteNonQuery();
                     if (ctr >= 1)
                     {
-                        return Json(new { success = true, message = "Activated!" }, JsonRequestBehavior.AllowGet);
+                        ViewBag.SuccessMessage = "Activated!";
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Error!" }, JsonRequestBehavior.AllowGet);
+                        ViewBag.ErrorMessage = "Error!";
                     }
                 }
-            }         
+            }
+
+            return PartialView("_AlertPartialView");
         }
+
         [HttpPost]
         public ActionResult EditSupplier(int suppid,string company,string fname,string mi,string lname,string phone,string address,string email,Supplier model)
         {
