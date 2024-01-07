@@ -22,9 +22,11 @@ h2 {
 /* Table Styles */
 
 .table-wrapper {
-    margin: 10px 70px 70px;
-    box-shadow: 0px 35px 50px rgba( 0, 0, 0, 0.2 );
+    max-height: 400px;
+    overflow-y: auto;
+    position: relative;
 }
+
 
 .fl-table {
     border-radius: 5px;
@@ -51,7 +53,10 @@ h2 {
     .fl-table thead th {
         color: #ffffff;
         background: #4FC3A1;
+        position: sticky;
+        top: 0; /* Fixed positioning for the header */
     }
+
 
 
         .fl-table thead th:nth-child(odd) {
@@ -95,7 +100,7 @@ h2 {
     .fl-table tbody {
         width: auto;
         position: relative;
-        overflow-x: auto;
+        overflow-y: auto;
     }
 
     .fl-table td, .fl-table th {

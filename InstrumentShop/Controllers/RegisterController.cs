@@ -14,7 +14,7 @@ namespace InstrumentShop.Controllers
 
     public class RegisterController : Controller
     {
-        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
 
 
         private List<Department> GetDepartments()
@@ -62,109 +62,98 @@ namespace InstrumentShop.Controllers
 
             return View(new Register());
 
-        }
+        }     
         [HttpPost]
         public ActionResult Register(Register model, HttpPostedFileBase file)
         {
-            string user = model.Username;
-            string pass = model.Password;
-            string fname = model.fname;
-            string mi = model.mi;
-
-            // If mi is not provided, set it to null
-            mi = string.IsNullOrEmpty(mi) ? null : mi;
-            string lname = model.lname;
-            DateTime dob = model.DateofBirth;
-            string phone = model.Phone;
-            string address = model.Address;
-            string email = model.Email;
-            int dep_id = model.Department;          
-            string checkUser;
-            string checkPass;
-
-            using (var db = new SqlConnection(connString))
+            try
             {
-                db.Open();
-                using(var cmd = db.CreateCommand())
+                string user = model.Username;
+                string pass = model.Password;
+                string fname = model.fname;
+                string mi = model.mi;
+                mi = string.IsNullOrEmpty(mi) ? null : mi;
+                string lname = model.lname;
+                DateTime dob = model.DateofBirth;
+                string phone = model.Phone;
+                string address = model.Address;
+                string email = model.Email;
+                int dep_id = model.Department;
+                string checkUser;
+                string checkPass;
+
+                List<Department> departments = GetDepartments();
+                ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
+
+                if (file != null && file.ContentLength > 0)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM USERS WHERE USER_FNAME like @fname OR USER_MI like @mi OR USER_LNAME like @lname";
-                    cmd.Parameters.AddWithValue("@fname",fname);
-                    cmd.Parameters.AddWithValue("@mi",mi);
-                    cmd.Parameters.AddWithValue("@lname",lname);
-                    using(var reader = cmd.ExecuteReader())
+                    string filename = Path.GetFileName(file.FileName);
+                    string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
+                    file.SaveAs(imgpath);
+                }
+
+                using (var db = new SqlConnection(connString))
+                {
+                    db.Open();
+
+                    using (var cmd = db.CreateCommand())
                     {
-                        if (reader.Read())
-                        {
-                            checkUser = reader["USER_USERNAME"].ToString();
-                            checkPass = reader["USER_PASSWORD"].ToString();
-                            if(checkUser == user && checkPass == pass)
-                            {
-                                return Json(new { success = true, message = "Username or password existed!" });
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                List<Department> departments = GetDepartments();
-                                ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "SELECT * FROM USERS WHERE USER_USERNAME = @user AND USER_PASSWORD = @pass";
+                        cmd.Parameters.AddWithValue("@user", user);
+                        cmd.Parameters.AddWithValue("@pass", pass);
 
-                                using (var db1 = new SqlConnection(connString))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                checkUser = reader["USER_USERNAME"].ToString();
+                                checkPass = reader["USER_PASSWORD"].ToString();
+                                // Check if the username and password already exist
+                                if (checkUser == user && checkPass == pass)
                                 {
-                                    db1.Open();
-                                    using (var cmd1 = db1.CreateCommand())
-                                    {
-                                        cmd1.CommandType = CommandType.Text;
-                                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id,user_pic)" +
-                                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId,@pic)";
-                                        cmd1.Parameters.AddWithValue("@fname", fname);
-                                        cmd1.Parameters.AddWithValue("@mi", mi);
-                                        cmd1.Parameters.AddWithValue("@lname", lname);
-                                        cmd1.Parameters.AddWithValue("@dob", dob);
-                                        cmd1.Parameters.AddWithValue("@phone", phone);
-                                        cmd1.Parameters.AddWithValue("@address", address);
-                                        cmd1.Parameters.AddWithValue("@email", email);
-                                        cmd1.Parameters.AddWithValue("@user", user);
-                                        cmd1.Parameters.AddWithValue("@pass", pass);
-                                        cmd1.Parameters.AddWithValue("@role_id", 2);
-                                        cmd1.Parameters.AddWithValue("@DepartmentId", dep_id);
-                                        if (file != null && file.ContentLength > 0)
-                                        {
-                                            string filename = Path.GetFileName(file.FileName);
-                                            string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
-                                            file.SaveAs(imgpath);
-                                        }
-                                        cmd1.Parameters.AddWithValue("@pic", "~/images/" + (file?.FileName ?? "default.jpg"));
-                                        var ctr = cmd1.ExecuteNonQuery();
-                                        // ViewData["Message"] = "User recorded" + fname + " is saved successfully";
-
-                                        if (ctr >= 1)
-                                        {
-                                            ViewData["Message"] = "User recorded" + fname + " is saved successfully";
-                                            return View();
-                                            // return Json(new { success = true, message = "Data is saved" });
-                                        }
-                                        else
-                                        {
-                                            return Json(new { success = false, message = "Failed to save data" });
-                                        }
-                                    }
+                                    return Json(new { success = false, message = "Username or password already exists!" });
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                ModelState.AddModelError("", e.Message);
-                                return View(model);
                             }
                         }
                     }
-                }
-                return View();
-            }
-          
-        }
 
+                    // If the username and password do not exist, proceed with registration
+                    using (var cmd1 = db.CreateCommand())
+                    {
+                        cmd1.CommandType = CommandType.Text;
+                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id,user_pic)" +
+                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId,@pic)";
+                        cmd1.Parameters.AddWithValue("@fname", fname);
+                        cmd1.Parameters.AddWithValue("@mi", mi);
+                        cmd1.Parameters.AddWithValue("@lname", lname);
+                        cmd1.Parameters.AddWithValue("@dob", dob);
+                        cmd1.Parameters.AddWithValue("@phone", phone);
+                        cmd1.Parameters.AddWithValue("@address", address);
+                        cmd1.Parameters.AddWithValue("@email", email);
+                        cmd1.Parameters.AddWithValue("@user", user);
+                        cmd1.Parameters.AddWithValue("@pass", pass);
+                        cmd1.Parameters.AddWithValue("@role_id", 2);
+                        cmd1.Parameters.AddWithValue("@DepartmentId", dep_id);
+                        cmd1.Parameters.AddWithValue("@pic", "~/images/" + file.FileName);
+                        var ctr = cmd1.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            return Json(new { success = true, message = "Data is saved" });
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Failed to save data" });
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", e.Message);
+                return View(model);
+            }
+        }
     }
 }
 

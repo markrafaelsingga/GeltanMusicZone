@@ -11,7 +11,7 @@ namespace InstrumentShop.Controllers
 {
     public class InventoryController : Controller
     {
-        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
 
         // GET: Inventory
         public ActionResult Inventory()
@@ -59,6 +59,7 @@ namespace InstrumentShop.Controllers
                 P.PROD_NAME,
                 P.PROD_PRICE,
                 P.PROD_CAT,
+                P.PROD_ISACTIVE,
                 I.INV_QOH,
                 S.SUP_COMPANY
             FROM
@@ -67,6 +68,7 @@ namespace InstrumentShop.Controllers
                 PRODUCT P ON I.PROD_ID = P.PROD_ID
             LEFT JOIN
                 SUPPLIER S ON P.SUP_ID = S.SUP_ID
+            ORDER BY P.PROD_ID DESC
         ";
 
                     DataTable dt = new DataTable();
@@ -84,7 +86,8 @@ namespace InstrumentShop.Controllers
                             prodPrice = row.Field<decimal>("PROD_PRICE"),
                             cat = row.Field<string>("PROD_CAT"),
                             qoh = row.Field<int>("INV_QOH"),
-                            compName = row.Field<string>("SUP_COMPANY")
+                            compName = row.Field<string>("SUP_COMPANY"),
+                            status = row.Field<string>("PROD_ISACTIVE")
                         };
                         prodList.Add(prod);
                     }
@@ -113,6 +116,7 @@ namespace InstrumentShop.Controllers
                     cmd.Parameters.AddWithValue("@prodCat", prodCat);
                     cmd.Parameters.AddWithValue("@prodDesc", prodDesc);
                     cmd.Parameters.AddWithValue("@prodPrice", prodPrice);
+                  
 
                     var ctr = cmd.ExecuteNonQuery();
 
@@ -197,6 +201,108 @@ namespace InstrumentShop.Controllers
                     }
                 }
             }
+        }
+
+        public ActionResult DeleteProduct(int prodId)
+        {
+            using (var db = new SqlConnection(connString))
+            {
+                db.Open();
+
+                // Check if the product is already inactive
+                bool isAlreadyInactive = false;
+                using (var checkCmd = db.CreateCommand())
+                {
+                    checkCmd.CommandType = CommandType.Text;
+                    checkCmd.CommandText = "SELECT PROD_ISACTIVE FROM PRODUCT WHERE PROD_ID = @prodId";
+                    checkCmd.Parameters.AddWithValue("@prodId", prodId);
+
+                    object statusObj = checkCmd.ExecuteScalar();
+                    if (statusObj != null && statusObj != DBNull.Value)
+                    {
+                        string currentStatus = statusObj.ToString();
+                        if (currentStatus == "INACTIVE")
+                        {
+                            isAlreadyInactive = true;
+                        }
+                    }
+                }
+
+                // Inactivate the product only if it's not already inactive
+                if (!isAlreadyInactive)
+                {
+                    using (var cmd = db.CreateCommand())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE PRODUCT SET PROD_ISACTIVE = @status WHERE PROD_ID = @prodId";
+                        cmd.Parameters.AddWithValue("@status", "INACTIVE");
+                        cmd.Parameters.AddWithValue("@prodId", prodId);
+                        var ctr = cmd.ExecuteNonQuery();
+
+                        if (ctr >= 1)
+                        {
+                            return Json(new { success = true, message = "Deleted Successfully" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Operation unsuccessful!" }, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Product is already inactive!" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
+        public ActionResult ReactivateProduct(int prodId)
+        {
+            using (var db = new SqlConnection(connString))
+            {
+                db.Open();
+
+                bool isAlreadyActive = false;
+                using (var checkCmd = db.CreateCommand())
+                {
+                    checkCmd.CommandType = CommandType.Text;
+                    checkCmd.CommandText = "SELECT PROD_ISACTIVE FROM PRODUCT WHERE PROD_ID = @prodId";
+                    checkCmd.Parameters.AddWithValue("@prodId", prodId);
+
+                    object statusObj = checkCmd.ExecuteScalar();
+                    if (statusObj != null && statusObj != DBNull.Value)
+                    {
+                        string currentStatus = statusObj.ToString();
+                        if (currentStatus == "ACTIVE")
+                        {
+                            isAlreadyActive = true;
+                        }
+                    }
+                }
+                if (!isAlreadyActive)
+                {
+                    using (var cmd = db.CreateCommand())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE PRODUCT SET PROD_ISACTIVE = @status WHERE PROD_ID = @prodId";
+                        cmd.Parameters.AddWithValue("@prodId", prodId);
+                        cmd.Parameters.AddWithValue("@status", "ACTIVE");
+                        var ctr = cmd.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            return Json(new { success = true, message = "Reactivated Successfully" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Operation unsuccessful!" }, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Product is already Active!" }, JsonRequestBehavior.AllowGet);
+                }
+            }          
         }
     }
 }

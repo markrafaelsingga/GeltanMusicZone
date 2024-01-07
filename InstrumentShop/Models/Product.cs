@@ -20,5 +20,6 @@ namespace InstrumentShop.Models
         public int supId { get; set; }
         public string comp { get; set; }
         public string compName { get; set; }
+        public string status { get; set; }
     }
 }

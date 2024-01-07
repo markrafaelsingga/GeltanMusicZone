@@ -368,6 +368,11 @@ function editProduct(prodId) {
 
 
 function openAddProduct(prodName, prodCat, prodDesc, prodPrice, qoh) {
+    prodName = prodName || "";
+    prodCat = prodCat || "";
+    prodDesc = prodDesc || "";
+    prodPrice = prodPrice || "";
+    qoh = qoh || "";
     document.getElementById('addProd').innerHTML = `
         <div class="modal-content">
             <i class='bx bx-arrow-back' onclick="closeModal('addProd')" style="font-size: 35px !important;"></i>

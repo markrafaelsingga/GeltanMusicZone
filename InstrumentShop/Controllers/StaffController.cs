@@ -12,7 +12,7 @@ namespace InstrumentShop.Controllers
 {
     public class StaffController : Controller
     {
-        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         public ActionResult Staff(Staff model)
         {
             string name = Session["uname"].ToString();
@@ -157,9 +157,13 @@ namespace InstrumentShop.Controllers
             }
         }
         [HttpPost]
-        public ActionResult EditStaff(int userId,string fname,string mi,string lname,int department, string phone,string address, string email, string uname,string pword,Staff model)
+        public ActionResult EditStaff(int userId, string fname, string mi, string lname, int department, string phone, string address, string email, string uname, string pword, Staff model)
         {
-            
+            if (string.IsNullOrEmpty(fname) || string.IsNullOrEmpty(lname) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(uname) || string.IsNullOrEmpty(pword))
+            {
+                return Json(new { success = false, message = "Please fill in all required fields." });
+            }
+
             using (var db = new SqlConnection(connString))
             {
                 db.Open();

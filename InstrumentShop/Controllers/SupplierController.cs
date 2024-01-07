@@ -11,7 +11,7 @@ namespace InstrumentShop.Controllers
 {
     public class SupplierController : Controller
     {
-        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\Source\Repos\markrafaelsingga\GeltanMusicZone\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         // GET: Supplier
         public ActionResult Supplier(Supplier model)
         {
@@ -22,7 +22,7 @@ namespace InstrumentShop.Controllers
                 using(var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM SUPPLIER";
+                    cmd.CommandText = "SELECT * FROM SUPPLIER ORDER BY SUP_ID DESC";
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     sda.Fill(dt);
@@ -76,58 +76,102 @@ namespace InstrumentShop.Controllers
             using (var db = new SqlConnection(connString))
             {
                 db.Open();
-                using (var cmd = db.CreateCommand())
+
+                // Check if the supplier is already activated
+                bool isAlreadyActivated = false;
+                using (var checkCmd = db.CreateCommand())
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
-                    cmd.Parameters.AddWithValue("@status", "ACTIVE");
-                    cmd.Parameters.AddWithValue("@suppid", suppid);
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
+                    checkCmd.CommandType = CommandType.Text;
+                    checkCmd.CommandText = "SELECT SUP_ISACTIVE FROM SUPPLIER WHERE SUP_ID = @suppid";
+                    checkCmd.Parameters.AddWithValue("@suppid", suppid);
+
+                    object statusObj = checkCmd.ExecuteScalar();
+                    if (statusObj != null && statusObj != DBNull.Value)
                     {
-                        ViewBag.SuccessMessage = "Activated!";
+                        string currentStatus = statusObj.ToString();
+                        if (currentStatus == "ACTIVE")
+                        {
+                            isAlreadyActivated = true;
+                        }
                     }
-                    else
+                }
+
+                // Reactivate the supplier only if it's not already activated
+                if (!isAlreadyActivated)
+                {
+                    using (var cmd = db.CreateCommand())
                     {
-                        ViewBag.ErrorMessage = "Error!";
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
+                        cmd.Parameters.AddWithValue("@status", "ACTIVE");
+                        cmd.Parameters.AddWithValue("@suppid", suppid);
+                        var ctr = cmd.ExecuteNonQuery();
+
+                        if (ctr >= 1)
+                        {
+                            return Json(new { success = true, message = "Updated Successfully!" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Operation unsuccessful!" }, JsonRequestBehavior.AllowGet);
+                        }
                     }
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Supplier is already activated!" }, JsonRequestBehavior.AllowGet);
                 }
             }
 
-            return PartialView("_AlertPartialView");
+            
         }
+
 
         [HttpPost]
-        public ActionResult EditSupplier(int suppid,string company,string fname,string mi,string lname,string phone,string address,string email,Supplier model)
+        public ActionResult EditSupplier(int suppid, string company, string fname, string mi, string lname, string phone, string address, string email, Supplier model)
         {
-            using (var db = new SqlConnection(connString))
+            try
             {
-                db.Open();
-                using (var cmd = db.CreateCommand())
+                // Check if any input fields contain only whitespace
+                if (string.IsNullOrWhiteSpace(company) || string.IsNullOrWhiteSpace(fname) || string.IsNullOrWhiteSpace(lname) || string.IsNullOrWhiteSpace(phone) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(email))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE SUPPLIER SET SUP_COMPANY = @company ,SUP_FNAME = @fname, SUP_MI = @mi, SUP_LNAME = @lname, SUP_PHONE = @phone, SUP_ADDRESS = @address, SUP_EMAIL=@email WHERE SUP_ID = @suppid";
-                    cmd.Parameters.AddWithValue("@suppid", suppid);
-                    cmd.Parameters.AddWithValue("@company", company);
-                    cmd.Parameters.AddWithValue("@fname", fname);
-                    cmd.Parameters.AddWithValue("@mi", mi);
-                    cmd.Parameters.AddWithValue("@lname", lname);
-                    cmd.Parameters.AddWithValue("@phone", phone);
-                    cmd.Parameters.AddWithValue("@address", address);
-                    cmd.Parameters.AddWithValue("@email", email);
+                    return Json(new { success = false, message = "Input all fields" }, JsonRequestBehavior.AllowGet);
+                }
 
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
+                using (var db = new SqlConnection(connString))
+                {
+                    db.Open();
+                    using (var cmd = db.CreateCommand())
                     {
-                        return Json(new { success = true, message = "Updated Successfully!" });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = "Unsuccessful" });
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE SUPPLIER SET SUP_COMPANY = @company, SUP_FNAME = @fname, SUP_MI = @mi, SUP_LNAME = @lname, SUP_PHONE = @phone, SUP_ADDRESS = @address, SUP_EMAIL = @email WHERE SUP_ID = @suppid";
+                        cmd.Parameters.AddWithValue("@suppid", suppid);
+                        cmd.Parameters.AddWithValue("@company", company);
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@mi", mi);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        cmd.Parameters.AddWithValue("@phone", phone);
+                        cmd.Parameters.AddWithValue("@address", address);
+                        cmd.Parameters.AddWithValue("@email", email);
+
+                        var ctr = cmd.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            return Json(new { success = true, message = "Updated Successfully!" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "No records were updated. Check if the supplier ID exists." }, JsonRequestBehavior.AllowGet);
+                        }
                     }
                 }
             }
-           
+            catch
+            {
+                // Log the exception or handle it as needed
+                return Json(new { success = false, message = "An error occurred" }, JsonRequestBehavior.AllowGet);
+            }
         }
+
     }
 }
