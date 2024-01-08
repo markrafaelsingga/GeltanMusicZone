@@ -1,0 +1,1 @@
+﻿select count(*) from supplier where sup_fname = 'Bob' and sup_mi = ' ' and sup_lname = 'Johnson'
