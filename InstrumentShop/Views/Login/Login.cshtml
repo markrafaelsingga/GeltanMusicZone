@@ -79,7 +79,8 @@
     <section id="home" class="w3l-banner py-5">
         <div id="login-panel">
             <h1>Welcome back!</h1>
-            <form method="post" asp-action="Login" class="login-form">
+            <form method="post" action="@Url.Action("Login", "Login")" class="login-form">
+                @Html.AntiForgeryToken()
                 <div class="form-group">
                     <label for="Username">Username:</label>
                     <input type="text" id="Username" name="Username" class="form-control" required autofocus />
@@ -110,5 +111,15 @@
         </div>
     </section>
     <script src="~/error.js"></script>
-</body>
+
+    @{
+        var alertMessage = TempData["AlertMessage"] as string;
+        if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <script>
+                    alert('@alertMessage');
+            </script>
+            }
+        }
+    </body>
 </html>

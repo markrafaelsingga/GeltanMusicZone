@@ -149,6 +149,7 @@
     <Compile Include="Models\originalData.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\productLists.cs" />
+    <Compile Include="Models\PurchaseLists.cs" />
     <Compile Include="Models\Register.cs" />
     <Compile Include="Models\requisitionItemLists.cs" />
     <Compile Include="Models\requisitionModel.cs" />

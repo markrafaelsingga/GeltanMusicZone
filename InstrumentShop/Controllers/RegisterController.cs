@@ -14,7 +14,7 @@ namespace InstrumentShop.Controllers
 
     public class RegisterController : Controller
     {
-        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
 
 
         private List<Department> GetDepartments()
@@ -79,9 +79,17 @@ namespace InstrumentShop.Controllers
                 string address = model.Address;
                 string email = model.Email;
                 int dep_id = model.Department;
-                string checkUser;
-                string checkPass;
+               
 
+
+                // Check if the user already exists
+                if (IsUserExists(user, pass))
+                {
+                    TempData["AlertAcc"] = "Account already exists!";
+                    return RedirectToAction("Register");
+                }
+
+                // Rest of your code for file handling and other validations...
                 List<Department> departments = GetDepartments();
                 ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
 
@@ -91,52 +99,26 @@ namespace InstrumentShop.Controllers
                     return RedirectToAction("Register");
                 }
 
-          
+
                 if (!ModelState.IsValid)
                 {
-            
+
                     return View(model);
                 }
-
-
-                string filename = Path.GetFileName(file.FileName);
-                string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
-                file.SaveAs(imgpath);
-
+                // Insert the new user
                 using (var db = new SqlConnection(connString))
                 {
                     db.Open();
 
-                    using (var cmd = db.CreateCommand())
-                    {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = "SELECT * FROM USERS WHERE USER_USERNAME = @user AND USER_PASSWORD = @pass";
-                        cmd.Parameters.AddWithValue("@user", user);
-                        cmd.Parameters.AddWithValue("@pass", pass);
-
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                checkUser = reader["USER_USERNAME"].ToString();
-                                checkPass = reader["USER_PASSWORD"].ToString();
-                              
-                                if (checkUser == user && checkPass == pass)
-                                {
-                                    TempData["AlertAcc"] = "Account already exist!";
-                                }
-                            }
-                        }
-                    }
-
-                
                     using (var cmd1 = db.CreateCommand())
                     {
                         cmd1.CommandType = CommandType.Text;
-                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname,user_mi,user_lname,user_dob,user_phone,user_address,user_email,user_username,user_password,role_id,dep_id,user_pic)" +
-                            "VALUES(@fname,@mi,@lname,@dob,@phone,@address,@email,@user,@pass,@role_id,@DepartmentId,@pic)";
+                        cmd1.CommandText = "INSERT INTO [USERS] (user_fname, user_mi, user_lname, user_dob, user_phone, user_address, user_email, user_username, user_password, role_id, dep_id, user_pic)" +
+                            "VALUES(@fname, @mi, @lname, @dob, @phone, @address, @email, @user, @pass, @role_id, @DepartmentId, @pic)";
+
+                        // Add parameters for the insert command
                         cmd1.Parameters.AddWithValue("@fname", fname);
-                        cmd1.Parameters.AddWithValue("@mi", mi);
+                        cmd1.Parameters.AddWithValue("@mi", string.IsNullOrEmpty(mi) ? DBNull.Value : (object)mi);
                         cmd1.Parameters.AddWithValue("@lname", lname);
                         cmd1.Parameters.AddWithValue("@dob", dob);
                         cmd1.Parameters.AddWithValue("@phone", phone);
@@ -148,6 +130,7 @@ namespace InstrumentShop.Controllers
                         cmd1.Parameters.AddWithValue("@DepartmentId", dep_id);
                         cmd1.Parameters.AddWithValue("@pic", "~/images/" + file.FileName);
                         var ctr = cmd1.ExecuteNonQuery();
+
                         if (ctr >= 1)
                         {
                             TempData["AlertMessage"] = "Registered!";
@@ -164,19 +147,28 @@ namespace InstrumentShop.Controllers
             catch (Exception ex)
             {
                 TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
-                
             }
+
             return RedirectToAction("Register");
+        }
+
+        private bool IsUserExists(string username, string password)
+        {
+            using (var db = new SqlConnection(connString))
+            {
+                db.Open();
+
+                using (var cmd = db.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT COUNT(*) FROM USERS WHERE USER_USERNAME = @user AND USER_PASSWORD = @pass";
+                    cmd.Parameters.AddWithValue("@user", username);
+                    cmd.Parameters.AddWithValue("@pass", password);
+
+                    int count = (int)cmd.ExecuteScalar();
+                    return count > 0;
+                }
+            }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

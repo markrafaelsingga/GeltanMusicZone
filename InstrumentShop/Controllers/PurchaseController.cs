@@ -13,7 +13,7 @@ namespace InstrumentShop.Controllers
     public class PurchaseController : Controller
     {
 
-        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Dell\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+        string mainconn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
         // GET: Purchase
         public ActionResult Index()
         {
@@ -308,7 +308,7 @@ namespace InstrumentShop.Controllers
             }
         }
 
-        public ActionResult Purchase()
+        public ActionResult Purchase(PurchaseLists model)
         {
             return View();
         }
@@ -316,35 +316,29 @@ namespace InstrumentShop.Controllers
         public ActionResult ViewApproveRF()
         {
             int user = (int)Session["user_id"];
-
+            List<PurchaseLists> lemp = new List<PurchaseLists>();
             using (var db = new SqlConnection(mainconn))
             {
                 db.Open();
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM [dbo].[requisition] WHERE rf_status like @Approve OR rf_recentStatus like @Approve2 ";
-                    cmd.Parameters.AddWithValue("@Approve", "Approved");
-                    cmd.Parameters.AddWithValue("@Approve2", "Approved");
-
+                    cmd.CommandText = "SELECT * FROM REQUISITION WHERE RF_STATUS LIKE @approve OR RF_RECENTSTATUS like @approve1";
+                    cmd.Parameters.AddWithValue("@approve", "Approved");
+                    cmd.Parameters.AddWithValue("@approve1", "Approved");
+                    DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                    DataSet ds = new DataSet();
-                    sda.Fill(ds);
-
-                    List<requisitionDetails> lemp = new List<requisitionDetails>();
-
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    sda.Fill(dt);
+                    foreach (DataRow row in dt.Rows)
                     {
-                        requisitionDetails request = new requisitionDetails
+                        PurchaseLists request = new PurchaseLists
                         {
-                            rf_id = Convert.ToInt32(dr["rf_id"]),
-                            rf_date_requested = dr["rf_date_requested"].ToString(),
-                            rf_code = dr["rf_code"].ToString(),
-                            rf_status = dr["rf_status"].ToString(),
-                            rf_estimated_cost = Convert.ToDecimal(dr["rf_estimated_cost"]),
+                            rf_id = row.Field<int>("RF_ID"),
+                            rf_code = row.Field<string>("RF_CODE")
+                            
                         };
-
                         lemp.Add(request);
+                        
                     }
 
                     db.Close();

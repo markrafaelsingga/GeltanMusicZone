@@ -1,9 +1,7 @@
-﻿@using InstrumentShop.Models
-@{
-    ViewBag.Title = "CreateNewPurchase";
-    Layout = "~/Views/Shared/_PurchaseLayout.cshtml";
-}
-@model List<requisitionDetails>
+﻿@model List<InstrumentShop.Models.PurchaseLists>
+@{ ViewBag.Title = "CreateNewPurchase";
+    Layout = "~/Views/Shared/_PurchaseLayout.cshtml"; }
+
 <!-- inner banner -->
 <section class="inner-banner py-5">
     <div class="w3l-breadcrumb py-lg-5">
@@ -37,7 +35,7 @@
                         <option value="" disabled selected style="text-align: center">--- Select Requisition ---</option>
                         @foreach (var canvasRF in Model)
                         {
-                            <option value="@canvasRF.rf_id">@canvasRF.rf_code</option>
+                             <option value="@canvasRF.rf_id">@canvasRF.rf_code</option>
                         }
                     </select>
                 </div>
@@ -55,7 +53,6 @@
         </div>
     </div>
     <!--Add Requisition Items-->
-
     <!--View Requisition Items-->
     <div class="row requisition-block">
         <div class="col-md-7 mx-auto requisition-right" style="width: 80%">
@@ -82,7 +79,6 @@
                     </tr>
                 </thead>
                 <tbody id="item-list-body">
-
                 </tbody>
             </table>
             <div class="text-start">
@@ -265,4 +261,14 @@
         }
     }
 
+</script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Add change event listener to the select element
+        $('#ReqItem_Requisition').change(function () {
+            // Submit the form when an option is selected
+            $('#requisitionForm').submit();
+        });
+    });
 </script>
