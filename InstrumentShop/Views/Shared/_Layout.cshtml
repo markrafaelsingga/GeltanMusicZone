@@ -59,16 +59,6 @@
                 </ul>
             </li>
 
-
-            <li>
-                <a href="@Url.Action("AdminDepartment", "AdminDepartment")">
-                    <i class='bx bxs-buildings'></i>
-                    <span class="link_name">Department</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Department</a></li>
-                </ul>
-            </li>
             <li>
                 <a href="@Url.Action("Supplier","Supplier")">
                     <i class='bx bxs-package'></i>
@@ -98,16 +88,16 @@
             </li>
             <li>
                 <div class="profile-details">
-                    <div class="profile-content">
-                        <!--<img src="image/profile.jpg" alt="profileImg">-->
+                    @*<div class="profile-content">
+                        <img src="@Url.Content(Model.uimg)" alt="profileImg">
                     </div>
                     <div class="name-job">
                         <div class="profile_name">@ViewBag.name</div>
                         <div class="job">Admin</div>
-                    </div>
+                    </div>*@
 
                     <a href="@Url.Action("Login", "Login")">
-                        <i class='bx bx-log-out'>
+                        <i class='bx bx-log-out' style="margin-left:230%;">
                         </i>
                     </a>
 

@@ -31,12 +31,14 @@ namespace InstrumentShop.Models
         public DateTime DateofBirth { get; set; }
         [DisplayName("Phone")]
         [Required(ErrorMessage = "Please enter your phone.")]
+        [RegularExpression(@"^(?:\+63|09)\d{9}$", ErrorMessage = "Please enter a valid phone number.")]
         public string Phone { get; set; }
         [DisplayName("Address")]
         [Required(ErrorMessage = "Please enter your address.")]
         public string Address { get; set; }
         [DisplayName("Email")]
         [Required(ErrorMessage = "Please enter your email.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; }
        
         public string imagePath { get; set; }

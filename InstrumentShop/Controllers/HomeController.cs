@@ -39,10 +39,11 @@ namespace InstrumentShop.Controllers
                                 role = reader["role_desc"].ToString(),
                                 Phone = reader["user_phone"].ToString(),
                                 Email = reader["user_email"].ToString(),
-                                Address = reader["user_address"].ToString(),
+                                Address = reader["user_address"].ToString()
                             };
                             ViewBag.uname = $"{model.fname} {model.mi} {model.lname}";
                             Session["uname"] = $"{model.fname} {model.mi} {model.lname}";
+                           
                         }
 
                     }

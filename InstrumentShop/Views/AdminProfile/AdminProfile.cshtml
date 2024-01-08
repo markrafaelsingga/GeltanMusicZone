@@ -15,9 +15,17 @@
     <div class="profile-container">
         <div class="profile-column">
             <div class="profile-header">
-                <img src="~/images/mark.jpg" alt="Profile Picture" class="profile-picture" width="100" height="100">
 
-                <h1>Mark Rafael Singga</h1>
+                <a>
+                    @if (!string.IsNullOrEmpty(Model.uimg))
+                    {
+                        <img src="@Url.Content(Model.uimg)" class="profile-picture" width="100" height="100" /> }
+                    else
+                    {
+                        <img src="~/images/mark.jpg" alt="~/images/mark.jpg" class="profile-picture" width="100" height="100" />}
+                </a>
+
+                <h1>@Model.firstName @Model.mi @Model.lastName</h1>
 
             </div>
         </div>
@@ -58,4 +66,22 @@
 
     </div>
     <script src="~/error.js"></script>
+    @{
+        var alertMessage = TempData["AlertMessage"] as string;
+        if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <script>
+                    alert('@alertMessage');
+            </script>
+        }
+
+        var failedMessage = TempData["AlertFailed"] as string;
+        if (!string.IsNullOrEmpty(failedMessage))
+        {
+            <scipt>
+                alert('@failedMessage');
+            </scipt>
+        }
+    }
+
 </section>

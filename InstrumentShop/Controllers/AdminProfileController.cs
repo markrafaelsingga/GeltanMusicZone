@@ -41,7 +41,7 @@ namespace InstrumentShop.Controllers
                                 firstName = reader["user_fname"].ToString(),
                                 mi = reader["user_mi"].ToString(),
                                 lastName = reader["user_lname"].ToString(),
-
+                                uimg = reader["user_pic"].ToString(),
                                 Phone = reader["user_phone"].ToString(),
                                 Email = reader["user_email"].ToString(),
                                 Address = reader["user_address"].ToString(),
@@ -78,11 +78,13 @@ namespace InstrumentShop.Controllers
                     var ctr = cmd.ExecuteNonQuery();
                     if (ctr >= 1)
                     {
-                        return Json(new { success = true, message = "Updated successfully" });
+                        TempData["AlertMessage"] = "Updated Successfully";
+                        return RedirectToAction("AdminProfile");
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Failed to save data" });
+                        TempData["Alertfailed"] = "Failed to update";
+                        return RedirectToAction("AdminProfile");
                     }
                 }
             }

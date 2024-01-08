@@ -85,12 +85,23 @@ namespace InstrumentShop.Controllers
                 List<Department> departments = GetDepartments();
                 ViewBag.DepList = new SelectList(departments, "DepartmentId", "DepartmentName");
 
-                if (file != null && file.ContentLength > 0)
+                if (file == null || file.ContentLength == 0)
                 {
-                    string filename = Path.GetFileName(file.FileName);
-                    string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
-                    file.SaveAs(imgpath);
+                    TempData["AlertImage"] = "Image is Required!";
+                    return RedirectToAction("Register");
                 }
+
+                // Check if the model is valid after adding errors
+                if (!ModelState.IsValid)
+                {
+                    // Model is not valid, return the view with errors
+                    return View(model);
+                }
+
+
+                string filename = Path.GetFileName(file.FileName);
+                string imgpath = Path.Combine(Server.MapPath("~/images/"), filename);
+                file.SaveAs(imgpath);
 
                 using (var db = new SqlConnection(connString))
                 {
@@ -112,7 +123,7 @@ namespace InstrumentShop.Controllers
                                 // Check if the username and password already exist
                                 if (checkUser == user && checkPass == pass)
                                 {
-                                    return Json(new { success = false, message = "Username or password already exists!" });
+                                    TempData["AlertAcc"] = "Account already exist!";
                                 }
                             }
                         }
@@ -139,20 +150,23 @@ namespace InstrumentShop.Controllers
                         var ctr = cmd1.ExecuteNonQuery();
                         if (ctr >= 1)
                         {
-                            return Json(new { success = true, message = "Data is saved" });
+                            TempData["AlertMessage"] = "Registered!";
+                            return RedirectToAction("Register");
                         }
                         else
                         {
-                            return Json(new { success = false, message = "Failed to save data" });
+                            TempData["AlertFailed"] = "Failed to Register!";
+                            return RedirectToAction("Register");
                         }
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", e.Message);
-                return View(model);
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+                
             }
+            return RedirectToAction("Register");
         }
     }
 }

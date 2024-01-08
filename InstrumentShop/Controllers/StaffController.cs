@@ -54,7 +54,7 @@ namespace InstrumentShop.Controllers
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_username,users.user_password,users.user_pic,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2;";
+                    cmd.CommandText = "select users.user_id, users.user_fname, users.user_mi, users.user_lname,department.dep_name,users.user_username,users.user_password,users.user_pic,users.user_isActive,users.user_phone,users.user_address,users.user_email from [users] join department on department.dep_id = users.dep_id  where users.role_id = 2 ORDER BY USERS.USER_ID DESC;";
                     cmd.Parameters.AddWithValue("@role_id", 2);
                     DataTable dt = new DataTable();
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -86,113 +86,176 @@ namespace InstrumentShop.Controllers
 
         public ActionResult DeleteStaff(int userId)
         {
-            using (var db = new SqlConnection(connString))
+            try
             {
-                db.Open();
-                using (var cmd = db.CreateCommand())
+                using (var db = new SqlConnection(connString))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE USERS SET USER_ISACTIVE = @STATUS WHERE USER_ID = @USER_ID";
-                    cmd.Parameters.AddWithValue("@STATUS", "INACTIVE");
-                    cmd.Parameters.AddWithValue("@USER_ID", userId);
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
+                    db.Open();
+
+                    // Check if the staff is already inactive
+                    bool isAlreadyInactive = false;
+                    using (var checkCmd = db.CreateCommand())
                     {
-                        return Json(new { success = true, message = "Deleted Successfully!" }, JsonRequestBehavior.AllowGet);
+                        checkCmd.CommandType = CommandType.Text;
+                        checkCmd.CommandText = "SELECT USER_ISACTIVE FROM USERS WHERE USER_ID = @userId";
+                        checkCmd.Parameters.AddWithValue("@userId", userId);
+
+                        object statusObj = checkCmd.ExecuteScalar();
+                        if (statusObj != null && statusObj != DBNull.Value)
+                        {
+                            string currentStatus = statusObj.ToString();
+                            if (currentStatus == "INACTIVE")
+                            {
+                                isAlreadyInactive = true;
+                            }
+                        }
+                    }
+
+                    // Inactivate the staff only if it's not already inactive
+                    if (!isAlreadyInactive)
+                    {
+                        using (var cmd = db.CreateCommand())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = "UPDATE USERS SET USER_ISACTIVE = @status WHERE USER_ID = @userId";
+                            cmd.Parameters.AddWithValue("@status", "INACTIVE");
+                            cmd.Parameters.AddWithValue("@userId", userId);
+                            var ctr = cmd.ExecuteNonQuery();
+
+                            if (ctr >= 1)
+                            {
+                                TempData["AlertMessage"] = "Deleted Successfully";
+                                return RedirectToAction("Staff");
+                            }
+                            else
+                            {
+                                TempData["AlertFailed"] = "Failed to delete";
+                                return RedirectToAction("Staff");
+                            }
+                        }
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Unsuccessful" }, JsonRequestBehavior.AllowGet);
+                        TempData["AlertDelFailed"] = "Staff is already Inactive!";
+                        return RedirectToAction("Staff");
                     }
                 }
             }
-        }
-
-        public ActionResult ViewStaff(int userId)
-        {
-            using (var db = new SqlConnection(connString))
+            catch (Exception ex)
             {
-                db.Open();
-                using (var cmd = db.CreateCommand())
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM USERS WHERE ROLE_ID = @role and USER_ID = @user_id";
-                    cmd.Parameters.AddWithValue("@role", 2);
-                    cmd.Parameters.AddWithValue("@user_id", userId);
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
-                    {
-                        return Json(new { success = true, message = "Deactivated!" }, JsonRequestBehavior.AllowGet);
-                        
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = "Error!" }, JsonRequestBehavior.AllowGet);
-                    }
-                }
+                TempData["AlertDelFailed"] = $"Failed! Error: {ex.Message}";
             }
+            return RedirectToAction("Staff");
         }
-
+      
         public ActionResult ReactivateStaff(int userId)
         {
-            using(var db = new SqlConnection(connString))
+            try
             {
-                db.Open();
-                using(var cmd = db.CreateCommand())
+                using (var db = new SqlConnection(connString))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE USERS SET USER_ISACTIVE = @status WHERE USER_ID = @id";
-                    cmd.Parameters.AddWithValue("@status","ACTIVE");
-                    cmd.Parameters.AddWithValue("@id",userId);
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr>=1)
+                    db.Open();
+                    bool isAlreadyActive = false;
+                    using (var checkCmd = db.CreateCommand())
                     {
-                        return Json(new { success = true, message = "Activated!" }, JsonRequestBehavior.AllowGet);
+                        checkCmd.CommandType = CommandType.Text;
+                        checkCmd.CommandText = "SELECT USER_ISACTIVE FROM USERS WHERE USER_ID = @userId";
+                        checkCmd.Parameters.AddWithValue("@userId", userId);
+
+                        object statusObj = checkCmd.ExecuteScalar();
+                        if (statusObj != null && statusObj != DBNull.Value)
+                        {
+                            string currentStatus = statusObj.ToString();
+                            if (currentStatus == "ACTIVE")
+                            {
+                                isAlreadyActive = true;
+                            }
+                        }
+                    }
+                    if (!isAlreadyActive)
+                    {
+                        using (var cmd = db.CreateCommand())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = "UPDATE USERS SET USER_ISACTIVE = @status WHERE USER_ID = @id";
+                            cmd.Parameters.AddWithValue("@status", "ACTIVE");
+                            cmd.Parameters.AddWithValue("@id", userId);
+                            var ctr = cmd.ExecuteNonQuery();
+
+                            if (ctr >= 1)
+                            {
+                                TempData["AlertMessage"] = "Activated Successfully";
+                                return RedirectToAction("Staff");
+                            }
+                            else
+                            {
+                                TempData["AlertFailed"] = "Operation Failed!";
+                                return RedirectToAction("Staff");
+                            }
+                        }
                     }
                     else
                     {
-                        return Json(new { success = false, message = "Error!" }, JsonRequestBehavior.AllowGet);
+                        TempData["AlertDelFailed"] = "Staff is already activated!";
+                        return RedirectToAction("Staff");
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+            }
+            return RedirectToAction("Staff");
         }
+
         [HttpPost]
         public ActionResult EditStaff(int userId, string fname, string mi, string lname, int department, string phone, string address, string email, string uname, string pword, Staff model)
         {
-            if (string.IsNullOrEmpty(fname) || string.IsNullOrEmpty(lname) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(uname) || string.IsNullOrEmpty(pword))
+            try
             {
-                return Json(new { success = false, message = "Please fill in all required fields." });
-            }
-
-            using (var db = new SqlConnection(connString))
-            {
-                db.Open();
-                using (var cmd = db.CreateCommand())
+                if (string.IsNullOrEmpty(fname) || string.IsNullOrEmpty(lname) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(uname) || string.IsNullOrEmpty(pword))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_PHONE = @phone, USER_ADDRESS = @address, USER_USERNAME = @uname,USER_PASSWORD = @pword,USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
-                    cmd.Parameters.AddWithValue("@id", userId);
-                    cmd.Parameters.AddWithValue("@fname", fname);
-                    cmd.Parameters.AddWithValue("@mi", mi);
-                    cmd.Parameters.AddWithValue("@lname", lname);
-                    cmd.Parameters.AddWithValue("@phone", phone);
-                    cmd.Parameters.AddWithValue("@address", address);
-                    cmd.Parameters.AddWithValue("@uname", uname);
-                    cmd.Parameters.AddWithValue("@pword", pword);
-                    cmd.Parameters.AddWithValue("@email", email);
-                    cmd.Parameters.AddWithValue("@dep", department);
+                    TempData["ALertField"] = "Input all fields!";
+                    return RedirectToAction("Staff");
+                }
 
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
+                using (var db = new SqlConnection(connString))
+                {
+                    db.Open();
+                    using (var cmd = db.CreateCommand())
                     {
-                        return Json(new { success = true, message = "Updated Successfully!" });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = "Unsuccessful" });
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "UPDATE USERS SET USER_FNAME = @fname, USER_MI = @mi, USER_LNAME = @lname, USER_PHONE = @phone, USER_ADDRESS = @address, USER_USERNAME = @uname,USER_PASSWORD = @pword,USER_EMAIL=@email, DEP_ID=@dep WHERE USER_ID = @id";
+                        cmd.Parameters.AddWithValue("@id", userId);
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@mi", mi);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        cmd.Parameters.AddWithValue("@phone", phone);
+                        cmd.Parameters.AddWithValue("@address", address);
+                        cmd.Parameters.AddWithValue("@uname", uname);
+                        cmd.Parameters.AddWithValue("@pword", pword);
+                        cmd.Parameters.AddWithValue("@email", email);
+                        cmd.Parameters.AddWithValue("@dep", department);
+
+                        var ctr = cmd.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            TempData["AlertMessage"] = "Updated!";
+                            return RedirectToAction("Staff");
+                        }
+                        else
+                        {
+                            TempData["AlertFailed"] = "Failed to updated!";
+                            return RedirectToAction("Staff");
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+            }
+            return RedirectToAction("Staff");
         }
     }
 }

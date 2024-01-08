@@ -31,6 +31,16 @@
         document.getElementById('editProdModal').style.display = 'block';
     });
 
+    document.getElementById('showAddSuppBtn').addEventListener('click', function () {
+        console.log('showAddSuppBtn clicked');
+        document.getElementById('addSupp').style.display = 'block';
+    });
+
+    document.getElementById('showProdDetailModalBtn').addEventListener('click', function () {
+        console.log('showProdDetailModalBtn clicked');
+        document.getElementById('prodDetailModal').style.display = 'block';
+    });
+
     document.getElementById('closeBtn').addEventListener('click', function () {
         console.log('closeBtn clicked');
         document.getElementById('editModal').style.display = 'none';
@@ -39,6 +49,8 @@
         document.getElementById('editSupModal').style.display = 'none';
         document.getElementById('addProd').style.display = 'none';
         document.getElementById('editProdModal').style.display = 'none';
+        document.getElementById('addSupp').style.display = 'none';
+        document.getElementById('prodDetailModal').style.display = 'none';
     });
 
     document.getElementById('mainCloseBtn').addEventListener('click', function () {
@@ -49,6 +61,8 @@
         document.getElementById('editSupModal').style.display = 'none';
         document.getElementById('addProd').style.display = 'none';
         document.getElementById('editProdModal').style.display = 'none';
+        document.getElementById('addSupp').style.display = 'none';
+        document.getElementById('prodDetailModal').style.display = 'none';
     });
 
     window.addEventListener('click', function (event) {
@@ -70,6 +84,12 @@
         }
         if (event.target == document.getElementById('editProdModal')) {
             document.getElementById('editProdModal').style.display = 'none';
+        }
+        if (event.target == document.getElementById('addSupp')) {
+            document.getElementById('addSupp').style.display = 'none';
+        }
+        if (event.target == document.getElementById('prodDetailModal')) {
+            document.getElementById('prodDetailModal').style.display = 'none';
         }
     });
 });
@@ -365,6 +385,92 @@ function editProduct(prodId) {
     form.submit();
 }
 
+function openAddSupplier(company, fname, mi, lname, address, email, phone) {
+    company = company || "";
+    fname = fname || "";
+    mi = mi || "";
+    lname = lname || "";
+    address = address || "";
+    email = email || "";
+    phone = phone || "";
+    document.getElementById('addSupp').innerHTML = `
+        <div class="modal-content">
+            <i class='bx bx-arrow-back' onclick="closeModal('addSupp')" style="font-size: 35px !important;"></i>
+            <div class="centered-text">
+                <h1>Add Supplier</h1>
+            </div>
+            <div class="form-container">
+             <div class="form-group">
+                <label for="company">Company:</label>
+                <input type="text" id="company" name="company" class="textbox-style" style="width: 300px !important;" value="${company}" required autofocus  oninput="updateModalContent('company', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="fname">Firstname:</label>
+                <input type="text" id="fname" name="fname" class="textbox-style" style="width: 300px !important;" value="${fname}" required autofocus  oninput="updateModalContent('fname', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="mi">M.I:</label>
+                <input type="text" id="mi" name="mi" class="textbox-style" style="width: 300px !important;" value="${mi}" required autofocus  oninput="updateModalContent('mi', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="lname">Lastname:</label>
+                <input type="text" id="lname" name="lname" class="textbox-style" style="width: 300px !important;" value="${lname}" required autofocus  oninput="updateModalContent('lname', this.value)" />
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" class="textbox-style" style="width: 300px !important;" value="${address}" required autofocus  oninput="updateModalContent('address', this.value)" />
+            </div>
+             <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" class="textbox-style" style="width: 300px !important;" value="${email}" required autofocus  oninput="updateModalContent('email', this.value)" />
+            </div>
+             <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone" class="textbox-style" style="width: 300px !important;" value="${phone}" required autofocus  oninput="updateModalContent('phone', this.value)" />
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="addSupplier()">Submit</button>
+            </div>
+            </br></br>
+        </div>
+    `;
+
+    document.getElementById('addSupp').style.display = 'block';
+}
+
+
+function addSupplier() {
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/Supplier/AddSupplier');
+
+    function createHiddenInput(name, value) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", name);
+        input.setAttribute("value", value);
+        form.appendChild(input);
+    }
+
+    var sComp = document.getElementById('company').value;
+    var sFname = document.getElementById('fname').value;
+    var sMi = document.getElementById('mi').value;
+    var sLname = document.getElementById('lname').value;
+    var sAddress = document.getElementById('address').value;
+    var sEmail = document.getElementById('email').value;
+    var sPhone = document.getElementById('phone').value;
+
+    createHiddenInput("company", sComp);
+    createHiddenInput("fname", sFname);
+    createHiddenInput("mi", sMi);
+    createHiddenInput("lname", sLname);
+    createHiddenInput("address", sAddress);
+    createHiddenInput("email", sEmail);
+    createHiddenInput("phone", sPhone);
+
+    document.body.appendChild(form);
+    form.submit();
+}
 
 
 function openAddProduct(prodName, prodCat, prodDesc, prodPrice, qoh) {
@@ -494,6 +600,33 @@ function openSupDetailModal(suppid,company, fname, mi, lname, phone, email,addre
         </div>
     `;
     document.getElementById('supDetailModal').style.display = 'block';
+}
+
+function openProdDetailModal(prodCode, prodName, prodDesc, prodPrice, qoh, company) {
+    console.log('gitawag si product detail');
+    document.getElementById('prodDetailModal').innerHTML = `
+        <div class="modal-content">
+            <i class='bx bx-arrow-back' onclick="closeModal('prodDetailModal')" style="font-size: 35px !important;"></i>
+            
+            <div class="centered-text">
+                <h1>Product Details</h1>
+            </div>
+            <div class="details-container">
+                <p><strong>Product Code:</strong> ${prodCode}</p>
+                <p><strong>Product Name:</strong> ${prodName}</p>
+                <p><strong>Product Description:</strong> ${prodDesc}</p>
+                <p><strong>Product Price:</strong> ${prodPrice}</p>
+                <p><strong>Quantity on Hand:</strong>${qoh}</p
+                <p><strong>Supplier:</strong>${company}</p>
+                <!-- Add more fields as needed -->
+            </div>
+
+            <!-- Add any additional content for viewing details -->
+
+        </div>
+    `;
+    document.getElementById('prodDetailModal').style.display = 'block';
+    console.log('gi tawag siya');
 }
 
 function closeModal(modalId) {

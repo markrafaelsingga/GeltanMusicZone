@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using System.Data;
 using System.Data.SqlClient;
 using InstrumentShop.Models;
+using System.Text.RegularExpressions;
+
 
 namespace InstrumentShop.Controllers
 {
@@ -50,82 +52,207 @@ namespace InstrumentShop.Controllers
 
         public ActionResult DeleteSupplier(int suppid)
         {
-            using(var db = new SqlConnection(connString))
+            try
             {
-                db.Open();
-                using(var cmd = db.CreateCommand())
+                using (var db = new SqlConnection(connString))
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
-                    cmd.Parameters.AddWithValue("@status", "INACTIVE");
-                    cmd.Parameters.AddWithValue("@suppid", suppid);
-                    var ctr = cmd.ExecuteNonQuery();
-                    if (ctr >= 1)
-                    {
-                        return Json(new { success = true, message = "Deleted Successfully!" }, JsonRequestBehavior.AllowGet);
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = "Unsuccessful" }, JsonRequestBehavior.AllowGet);
-                    }
-                }
-            }
-        }
-        public ActionResult ReactivateSupplier(int suppid)
-        {
-            using (var db = new SqlConnection(connString))
-            {
-                db.Open();
+                    db.Open();
 
-                // Check if the supplier is already activated
-                bool isAlreadyActivated = false;
-                using (var checkCmd = db.CreateCommand())
-                {
-                    checkCmd.CommandType = CommandType.Text;
-                    checkCmd.CommandText = "SELECT SUP_ISACTIVE FROM SUPPLIER WHERE SUP_ID = @suppid";
-                    checkCmd.Parameters.AddWithValue("@suppid", suppid);
-
-                    object statusObj = checkCmd.ExecuteScalar();
-                    if (statusObj != null && statusObj != DBNull.Value)
+                    // Check if the supplier is already inactive
+                    using (var cmdCheckStatus = db.CreateCommand())
                     {
-                        string currentStatus = statusObj.ToString();
-                        if (currentStatus == "ACTIVE")
+                        cmdCheckStatus.CommandType = CommandType.Text;
+                        cmdCheckStatus.CommandText = "SELECT SUP_ISACTIVE FROM SUPPLIER WHERE SUP_ID = @suppid";
+                        cmdCheckStatus.Parameters.AddWithValue("@suppid", suppid);
+
+                        using (var reader = cmdCheckStatus.ExecuteReader())
                         {
-                            isAlreadyActivated = true;
+                            if (reader.Read())
+                            {
+                                string currentStatus = reader["SUP_ISACTIVE"].ToString();
+
+                                // Check if the current status is already "INACTIVE"
+                                if (currentStatus == "INACTIVE")
+                                {
+                                    TempData["AlertDelFailed"] = "Supplier is already inactive!";
+                                    return RedirectToAction("Supplier");
+                                }
+                            }
                         }
                     }
-                }
 
-                // Reactivate the supplier only if it's not already activated
-                if (!isAlreadyActivated)
-                {
-                    using (var cmd = db.CreateCommand())
+                    // If the supplier is not already inactive, proceed with the deletion
+                    using (var cmdUpdateStatus = db.CreateCommand())
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
-                        cmd.Parameters.AddWithValue("@status", "ACTIVE");
-                        cmd.Parameters.AddWithValue("@suppid", suppid);
-                        var ctr = cmd.ExecuteNonQuery();
+                        cmdUpdateStatus.CommandType = CommandType.Text;
+                        cmdUpdateStatus.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
+                        cmdUpdateStatus.Parameters.AddWithValue("@status", "INACTIVE");
+                        cmdUpdateStatus.Parameters.AddWithValue("@suppid", suppid);
 
+                        var ctr = cmdUpdateStatus.ExecuteNonQuery();
                         if (ctr >= 1)
                         {
-                            return Json(new { success = true, message = "Updated Successfully!" }, JsonRequestBehavior.AllowGet);
+                            TempData["AlertMessage"] = "Supplier Deleted!";
+                            return RedirectToAction("Supplier");
                         }
                         else
                         {
-                            return Json(new { success = false, message = "Operation unsuccessful!" }, JsonRequestBehavior.AllowGet);
+                            TempData["AlertFailed"] = "Error!";
+                            return RedirectToAction("Supplier");
                         }
                     }
                 }
-                else
-                {
-                    return Json(new { success = false, message = "Supplier is already activated!" }, JsonRequestBehavior.AllowGet);
-                }
             }
-
-            
+            catch (Exception ex)
+            {
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+            }
+            return RedirectToAction("Supplier");
         }
 
+
+        public ActionResult ReactivateSupplier(int suppid)
+        {
+            try
+            {
+                using (var db = new SqlConnection(connString))
+                {
+                    db.Open();
+
+                    // Check if the supplier is already activated
+                    using (var cmdCheckStatus = db.CreateCommand())
+                    {
+                        cmdCheckStatus.CommandType = CommandType.Text;
+                        cmdCheckStatus.CommandText = "SELECT SUP_ISACTIVE FROM SUPPLIER WHERE SUP_ID = @suppid";
+                        cmdCheckStatus.Parameters.AddWithValue("@suppid", suppid);
+
+                        using (var reader = cmdCheckStatus.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string currentStatus = reader["SUP_ISACTIVE"].ToString();
+
+                                // Check if the current status is already "ACTIVE"
+                                if (currentStatus == "ACTIVE")
+                                {
+                                    TempData["AlertDelFailed"] = "Supplier is already active!";
+                                    return RedirectToAction("Supplier");
+                                }
+                            }
+                        }
+                    }
+
+                    // If the supplier is not already active, proceed with reactivation
+                    using (var cmdUpdateStatus = db.CreateCommand())
+                    {
+                        cmdUpdateStatus.CommandType = CommandType.Text;
+                        cmdUpdateStatus.CommandText = "UPDATE SUPPLIER SET SUP_ISACTIVE = @status WHERE SUP_ID = @suppid";
+                        cmdUpdateStatus.Parameters.AddWithValue("@status", "ACTIVE");
+                        cmdUpdateStatus.Parameters.AddWithValue("@suppid", suppid);
+
+                        var ctr = cmdUpdateStatus.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            TempData["AlertMessage"] = "Supplier Activated!";
+                            return RedirectToAction("Supplier");
+                        }
+                        else
+                        {
+                            TempData["AlertFailed"] = "Error!";
+                            return RedirectToAction("Supplier");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+            }
+            return RedirectToAction("Supplier");
+        }
+
+
+        public ActionResult AddSupplier(string company, string fname, string mi, string lname, string address, string email, string phone)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fname) || string.IsNullOrWhiteSpace(lname) || string.IsNullOrWhiteSpace(phone) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(email))
+                {
+                    TempData["AlertField"] = "Input all Fields!";
+                    return RedirectToAction("Supplier");
+                }
+
+                // Perform phone validation
+                if (!Regex.IsMatch(phone, @"\d+(?:\s-\s\d+)*$"))
+                {
+                    TempData["AlertRegFailed"] = "Invalid Contact Format!";
+                    return RedirectToAction("Supplier");
+                }
+                else if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    TempData["AlertRegFailed"] = "Invalid Email Format!";
+                    return RedirectToAction("Supplier");
+                }
+
+                
+                // Additional validation for the phone format, if needed
+                // You can customize this part based on your specific phone format requirements
+
+                using (var db = new SqlConnection(connString))
+                {
+                    db.Open();
+
+                    // Check if the supplier already exists based on fname, mi, and lname
+                    using (var checkCmd = db.CreateCommand())
+                    {
+                        checkCmd.CommandType = CommandType.Text;
+                        checkCmd.CommandText = "SELECT COUNT(*) FROM SUPPLIER WHERE SUP_FNAME = @fname AND SUP_LNAME = @lname";
+                        checkCmd.Parameters.AddWithValue("@fname", fname);
+                        checkCmd.Parameters.AddWithValue("@lname", lname);
+
+                        int existingCount = (int)checkCmd.ExecuteScalar();
+
+                        if (existingCount > 0)
+                        {
+                            TempData["AlertExistFailed"] = "Supplier existed already!";
+                            return RedirectToAction("Supplier");
+                        }
+                    }
+
+                    // If the supplier doesn't exist and phone is valid, proceed with the insertion
+                    using (var cmd = db.CreateCommand())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "INSERT INTO SUPPLIER (SUP_COMPANY, SUP_FNAME, SUP_MI, SUP_LNAME, SUP_ADDRESS, SUP_EMAIL, SUP_PHONE) VALUES (@comp, @fname, @mi, @lname, @address, @email, @phone)";
+                        cmd.Parameters.AddWithValue("@comp", company);
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@mi", string.IsNullOrEmpty(mi) ? (object)DBNull.Value : mi);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        cmd.Parameters.AddWithValue("@address", address);
+                        cmd.Parameters.AddWithValue("@email", email);
+                        cmd.Parameters.AddWithValue("@phone", phone);
+
+                        var ctr = cmd.ExecuteNonQuery();
+                        if (ctr >= 1)
+                        {
+                            TempData["AlertMessage"] = "Added Successfully";
+                            return RedirectToAction("Supplier");
+                        }
+                        else
+                        {
+                            TempData["AlertFailed"] = "Failed!";
+                            return RedirectToAction("Supplier");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
+            }
+
+            return RedirectToAction("Supplier");
+        }
 
         [HttpPost]
         public ActionResult EditSupplier(int suppid, string company, string fname, string mi, string lname, string phone, string address, string email, Supplier model)
@@ -135,7 +262,20 @@ namespace InstrumentShop.Controllers
                 // Check if any input fields contain only whitespace
                 if (string.IsNullOrWhiteSpace(company) || string.IsNullOrWhiteSpace(fname) || string.IsNullOrWhiteSpace(lname) || string.IsNullOrWhiteSpace(phone) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(email))
                 {
-                    return Json(new { success = false, message = "Input all fields" }, JsonRequestBehavior.AllowGet);
+                    TempData["AlertField"] = "Input all fields!";
+                    return RedirectToAction("Supplier");
+                }
+
+                // Perform phone validation
+                if (!Regex.IsMatch(phone, @"\d+(?:\s-\s\d+)*$"))
+                {
+                    TempData["AlertRegFailed"] = "Invalid Contact Format!";
+                    return RedirectToAction("Supplier");
+                }
+                else if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    TempData["AlertRegFailed"] = "Invalid Email Format!";
+                    return RedirectToAction("Supplier");
                 }
 
                 using (var db = new SqlConnection(connString))
@@ -157,20 +297,21 @@ namespace InstrumentShop.Controllers
                         var ctr = cmd.ExecuteNonQuery();
                         if (ctr >= 1)
                         {
-                            return Json(new { success = true, message = "Updated Successfully!" }, JsonRequestBehavior.AllowGet);
+                            TempData["AlertMessage"] = "Updated Successfully";
+                            return RedirectToAction("Supplier");
                         }
                         else
                         {
-                            return Json(new { success = false, message = "No records were updated. Check if the supplier ID exists." }, JsonRequestBehavior.AllowGet);
+                            TempData["AlertFailed"] = "Failed";
                         }
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                // Log the exception or handle it as needed
-                return Json(new { success = false, message = "An error occurred" }, JsonRequestBehavior.AllowGet);
+                TempData["AlertFailed"] = $"Failed! Error: {ex.Message}";
             }
+            return RedirectToAction("Supplier");
         }
 
     }

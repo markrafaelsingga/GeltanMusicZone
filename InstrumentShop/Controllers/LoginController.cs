@@ -67,7 +67,7 @@ namespace InstrumentShop.Controllers
                             }
                             else
                             {
-                                return Json(new { success = false, message = "Invalid Account" });
+                                return Json(new { success = false, message = "Invalid Account" }, JsonRequestBehavior.AllowGet);
                             }
                         }
                         else

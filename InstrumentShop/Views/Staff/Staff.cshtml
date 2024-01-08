@@ -102,14 +102,40 @@
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script>
-    // Check if CustomAlertMessage is set in TempData
-    var customAlertMessage = '@TempData["CustomAlertMessage"]';
+    
+   @{
+        var failedMessage = TempData["AlertFailed"] as string;
+        if (!string.IsNullOrEmpty(failedMessage))
+        {
+            <scipt>
+                alert('@failedMessage');
+            </scipt>
+        }
 
-    if (customAlertMessage) {
-        alert(customAlertMessage);
+        var alertMessage = TempData["AlertMessage"] as string;
+        if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <script>
+                alert('@alertMessage');
+            </script>
+        }
+
+        var fieldAlert = TempData["AlertField"] as string;
+        if (!string.IsNullOrEmpty(fieldAlert))
+        {
+            <script>
+                alert('@fieldAlert');
+            </script>
+        }
+
+        var delAlert = TempData["AlertDelFailed"] as string;
+        if (!string.IsNullOrEmpty(delAlert))
+        {
+            <script>
+                alert('@delAlert');
+            </script>
+        }
     }
-    </script>
 
 
 </section>

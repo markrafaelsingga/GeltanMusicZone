@@ -22,7 +22,9 @@ namespace InstrumentShop.Models
         public string address { get; set; }
         [Required(ErrorMessage = "Enter Email")]
         public string email { get; set; }
+
         [Required(ErrorMessage = "Enter Phone")]
+        [RegularExpression(@"\d+(?:\s-\s\d+)*$")]
         public string phone { get; set; }
         
         public string status { get; set; }

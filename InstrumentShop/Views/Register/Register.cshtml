@@ -147,5 +147,23 @@
         </div>*@
     <script src="~/error.js"></script>
     <script src="~/Register.js"></script>
+    @{
+        var alertMessage = TempData["AlertMessage"] as string;
+        if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <script>
+                    alert('@alertMessage');
+            </script>
+        }
+
+        var failedMessage = TempData["AlertFailed"] as string;
+        if (!string.IsNullOrEmpty(failedMessage))
+        {
+            <scipt>
+                alert('@failedMessage');
+            </scipt>
+        }
+    }
+
 </body>
 </html>

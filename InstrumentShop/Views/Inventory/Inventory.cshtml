@@ -14,7 +14,7 @@
     <form class="register-form">
         <div class="form-group">
             @* <button type="button" style="margin-left: 75%;" onclick="openAddProduct()" class="bx bx-cart-add">Submit</button>*@
-            
+
             <i class='bx bxs-cart-add' onclick="openAddProduct()" style="margin-left:90%; font-size: 35px; color: darkgreen;"></i>
 
         </div>
@@ -32,41 +32,41 @@
                 <tbody>
                     @foreach (var product in Model)
                     {
-                    <tr>
-                        <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
-                        <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>                    
-                        <td>
-                            @if (product.status == "ACTIVE")
-                            {
-                                <i class='bx bxs-check-circle' style="color: green"></i>
-                                <strong>ACTIVE</strong>
-                            }
-                            else if (product.status == "INACTIVE")
-                            {
-                                <i class='bx bxs-x-circle' style="color: red"></i>
-                                <strong>INACTIVE</strong>
-                            }
-                        </td>
-                        <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.qoh}")</td>
-                        <td>
-                            <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodId', '@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice')">
-                                <i class='bx bxs-user-detail' style="color: darkblue"></i>
-                            </a>
+                        <tr>
+                            <td>@Html.Raw($"<i class='bx bx-qr-scan'></i> {product.prodCode}")</td>
+                            <td>@Html.Raw($"<i class='bx bxs-user'></i> {product.prodName}")</td>
+                            <td>
+                                @if (product.status == "ACTIVE")
+                                {
+                                    <i class='bx bxs-check-circle' style="color: green"></i>
+                                    <strong>ACTIVE</strong>
+                                }
+                                else if (product.status == "INACTIVE")
+                                {
+                                    <i class='bx bxs-x-circle' style="color: red"></i>
+                                    <strong>INACTIVE</strong>
+                                }
+                            </td>
+                            <td>@Html.Raw($"<i class='bx bxs-coin-stack'></i> {product.qoh}")</td>
+                            <td>
+                                <a href="javascript:void(0);" onclick="openProdDetailModal('@product.prodCode', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh', '@product.compName')">
+                                    <i class='bx bxs-user-detail' style="color: darkblue"></i>
+                                </a>
 
-                            &nbsp;&nbsp;
-                            <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.cat', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh', '@product.comp', supList, '@product.compName')">
-                                <i class='bx bxs-edit-alt' style="color: orange"></i>
-                            </a>
+                                &nbsp;&nbsp;
+                                <a href="javascript:void(0);" onclick="openProdEditModal('@product.prodId', '@product.prodCode', '@product.cat', '@product.prodName', '@product.prodDesc', '@product.prodPrice', '@product.qoh', '@product.comp', supList, '@product.compName')">
+                                    <i class='bx bxs-edit-alt' style="color: orange"></i>
+                                </a>
 
-                            &nbsp;&nbsp;
-                            <a href="@Url.Action("DeleteProduct", new { prodId = product.prodId})">
-                                <i class='bx bxs-trash' style="color: red"></i>
-                            </a>
-                            <a href="@Url.Action("ReactivateProduct", new { prodId = product.prodId})">
-                                <i class='bx bxs-bulb' style="color: green;"></i>
-                            </a>
-                        </td>
-                    </tr>
+                                &nbsp;&nbsp;
+                                <a href="@Url.Action("DeleteProduct", new { prodId = product.prodId})">
+                                    <i class='bx bxs-trash' style="color: red"></i>
+                                </a>
+                                <a href="@Url.Action("ReactivateProduct", new { prodId = product.prodId})">
+                                    <i class='bx bxs-bulb' style="color: green;"></i>
+                                </a>
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -77,6 +77,7 @@
         <div id="editSupModal"></div>
         <div id="addProd"></div>
         <div id="editProdModal"></div>
+        <div id="prodDetailModal"></div>
     </form>
     @{
         var serializedSupList = Json.Encode(ViewBag.suppList);
@@ -98,14 +99,46 @@
     // Call the function with the department list when needed
         openProdEditModal('prodIdValue', 'prodCodeValue', 'prodCatValue', 'prodNameValue', 'prodDescValue', 'prodPriceValue', 'qohValue', 'selectedCompanyValue', supList,'compNameValue');
     </script>
- 
+
 
 
     <script src="~/error.js"></script>
     <script src="~/Scripts/modal.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+    @{
+        var failedMessage = TempData["AlertFailed"] as string;
+        if (!string.IsNullOrEmpty(failedMessage))
+        {
+            <scipt>
+                alert('@failedMessage');
+            </scipt>
+        }
 
+        var alertMessage = TempData["AlertMessage"] as string;
+        if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <script>
+                    alert('@alertMessage');
+            </script>
+        }
+
+        var fieldAlert = TempData["AlertField"] as string;
+        if (!string.IsNullOrEmpty(fieldAlert))
+        {
+            <script>
+                    alert('@fieldAlert');
+            </script>
+        }
+
+        var delAlert = TempData["AlertDelFailed"] as string;
+        if (!string.IsNullOrEmpty(delAlert))
+        {
+            <script>
+                alert('@delAlert');
+            </script>
+        }
+    }
 
 </section>
 
