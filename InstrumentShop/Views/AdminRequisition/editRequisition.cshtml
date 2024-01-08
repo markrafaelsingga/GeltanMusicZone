@@ -27,7 +27,10 @@
     </style>
 </head>
 <body>
-
+    @{
+        var isPending = Model.Any(form => form.RF_ItemStatus != "Declined");
+        var isDeclined = Model.Any(form => form.RF_ItemStatus == "Declined");
+    }
     <section class="home-section">
         <div class="home-content">
             <i class='bx bx-menu'></i>
@@ -54,10 +57,10 @@
                 <div class="col-sm-6" style="margin-left: 280px; width: 250px">
                     <p style="font-size: 15px">Update Status: (Required)</p>
                     <div class="requisition-select">
-                        <select name="selectedStatus" id="selectedStatus" required="">
+                        <select name="selectedStatus" id="selectedStatus" required="" @(isPending ? "" : "disabled")>
                             @foreach (var statusOption in new[] { "Pending", "Approved", "Declined" })
                             {
-                                <option value="@statusOption" @(Model.First().RF_Status == statusOption ? "selected" : "")>
+                                <option value="@statusOption" @(statusOption == "Declined" && !isPending ? "selected" : "")>
                                     @statusOption
                                 </option>
                             }
@@ -67,16 +70,12 @@
 
             </div>
 
-            @{
-                var isPending = Model.Any(form => form.RF_ItemStatus != "Declined");
-                var isDeclined = Model.Any(form => form.RF_ItemStatus == "Declined");
-            }
-
             @if (isPending)
             {
                 <table class="fl-table mx-auto" id="item-list" style="width: 96%">
                     <colgroup>
                         <col width="3%">
+                        <col width="12%">
                         <col width="12%">
                         <col width="25%">
                         <col width="6%">
@@ -90,6 +89,7 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Category</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -118,6 +118,7 @@
                                         <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                     </td>
                                     <td>@form.RF_Item</td>
+                                    <td>@form.RF_ItemCat</td>
                                     <td>@form.RF_Description</td>
                                     <td>
                                         <input disabled type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
@@ -160,6 +161,7 @@
                                         <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                     </td>
                                     <td>@form.RF_Item</td>
+                                    <td>@form.RF_ItemCat</td>
                                     <td>@form.RF_Description</td>
                                     <td>
                                         <input disabled type="number" name="ItemEdit_Qty" id="ItemEdit_Qty_@form.RF_ItemID" placeholder="Quantity" class="requisition-input" required="" value="@form.RF_Quantity" style="border-color: transparent; text-align: center; background-color: transparent; width: 100%" />
@@ -199,7 +201,7 @@
 
 
                         <tr style="text-align: center; font-weight:600">
-                            <td colspan="6" style="text-align: right; font-size: medium">
+                            <td colspan="7" style="text-align: right; font-size: medium">
                                 <a href="/AdminRequisition/addItem?request_ID=@Model.First().RF_ID" class="btn btn-style-3">
                                     <i class='bx bxs-plus-square'></i>&emsp;<strong>Add Item</strong>
                                 </a>
@@ -213,31 +215,15 @@
                         </tr>
                     </tbody>
                 </table>
-                <br />
-                <div class="text-center" style="display: flex; justify-content: center;">
-                    <form class="save-form" method="post">
-                        <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
-                        <button type="button" class="btn btn-style btn-style-3" style="width: 200px" data-toggle="modal" data-target="#myModal" onclick="setModalTarget()">
-                            <strong>SAVE</strong>
-                        </button>
-                    </form>
-                    &emsp;
-                    <form class="cancel-form" method="post" action="@Url.Action("CancelAction", "AdminRequisition")">
-                        <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
-                        <button class="btn btn-style btn-style-3" type="submit" style="width: 200px">
-                            <strong>CANCEL</strong>
-                        </button>
-                    </form>
-                </div>
-                <br />
             }
-            <br /><br />
+            <br />
             @if (isDeclined)
             {
                 <p style="margin-left: 25px">Declined Items:</p>
                 <table class="fl-table mx-auto" id="item-list" style="width: 96%">
                     <colgroup>
                         <col width="3%">
+                        <col width="12%">
                         <col width="12%">
                         <col width="25%">
                         <col width="6%">
@@ -250,6 +236,7 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Category</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -267,6 +254,7 @@
                                     <input type="hidden" value="@form.RF_ItemID" name="ItemEdit_ID" />
                                 </td>
                                 <td>@form.RF_Item</td>
+                                <td>@form.RF_ItemCat</td>
                                 <td>@form.RF_Description</td>
                                 <td>@form.RF_Quantity</td>
                                 <td>@form.RF_Unit</td>
@@ -286,6 +274,22 @@
                     </tbody>
                 </table>
             }
+            <br />
+            <div class="text-center" style="display: flex; justify-content: center;">
+                <form class="save-form" method="post">
+                    <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+                    <button type="button" class="btn btn-style btn-style-3" style="width: 200px" data-toggle="modal" data-target="#myModal" onclick="setModalTarget()">
+                        <strong>SAVE</strong>
+                    </button>
+                </form>
+                &emsp;
+                <form class="cancel-form" method="post" action="@Url.Action("CancelAction", "AdminRequisition")">
+                    <input type="hidden" name="request_ID" value="@Model.First().RF_ID" />
+                    <button class="btn btn-style btn-style-3" type="submit" style="width: 200px">
+                        <strong>CANCEL</strong>
+                    </button>
+                </form>
+            </div>
             <br />
         </div>
     </section>
@@ -341,7 +345,6 @@
                 alert("This requisition form is still pending"); // Display an alert if it is pending
             }
         }
-
 
         // Submit form with selected status
         $("form.save-form").submit(function () {

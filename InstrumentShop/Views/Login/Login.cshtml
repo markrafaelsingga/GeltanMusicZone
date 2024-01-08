@@ -89,12 +89,11 @@
                     <input type="password" id="Password" name="Password" class="form-control" required />
                 </div>
                 <div class="login-actions">
-                    <a href="/forgot-password">Forgot Password?</a>
+                    <div class="login-info">
+                        Don't have an account?
+                        <a href="@Url.Action("Register", "Register")">Create Account</a>
+                    </div>
                     <button type="submit" class="login-button">Login</button>
-                </div>
-                <div class="login-info">
-                    Don't have an account?
-                    <a href="@Url.Action("Register", "Register")">Create Account</a>
                 </div>
                 @if (Request.HttpMethod == "POST" && !ViewData.ModelState.IsValid)
                 {

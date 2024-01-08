@@ -9,6 +9,7 @@ namespace InstrumentShop.Models
     {
         public int CanvasID { get; set; }
         public string CanvasItem { get; set; }
+        public string CanvasCat { get; set; }
         public string CanvasDesc { get; set; }
         public int CanvasQuantity { get; set; }
         public string CanvasUnit { get; set; }
@@ -28,6 +29,7 @@ namespace InstrumentShop.Models
         public int Canvas_FormID { get; set; }
         public int CanvasID { get; set; }
         public string CanvasItem { get; set; }
+        public string CanvasItemCat { get; set; }
         public string CanvasDesc { get; set; }
         public int CanvasQuantity { get; set; }
         public string CanvasUnit { get; set; }
@@ -59,6 +61,7 @@ namespace InstrumentShop.Models
         public string RF_Daterequested { get; set; }
         public string RF_Itemcode { get; set; }
         public string RF_Item { get; set; }
+        public string RF_ItemCat { get; set; }
         public string RF_Description { get; set; }
         public int RF_Quantity { get; set; }
         public string RF_Unit { get; set; }

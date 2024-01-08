@@ -97,6 +97,7 @@
                     <colgroup>
                         <col width="3%">
                         <col width="10%">
+                        <col width="10%">
                         <col width="31%">
                         <col width="10%">
                         <col width="10%">
@@ -109,6 +110,7 @@
                         <tr style="background-color: #fbb034; color: #000000;">
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Category</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -124,6 +126,7 @@
                             <tr style="text-align: center">
                                 <td><p class="row-number"></p></td>
                                 <td>@canvas.CanvasItem</td>
+                                <td>@canvas.CanvasCat</td>
                                 <td>@canvas.CanvasDesc</td>
                                 <td>@canvas.CanvasQuantity</td>
                                 <td>@canvas.CanvasUnit</td>
@@ -149,7 +152,7 @@
                         }
 
                         <tr style="text-align: center; font-weight:600">
-                            <td colspan="6" style="text-align: right">Total estimated cost: &emsp;</td>
+                            <td colspan="7" style="text-align: right">Total estimated cost: &emsp;</td>
                             <td style="border-right-color: transparent"><p class="total-cost"></p></td>
                             <td colspan="2"></td>
                         </tr>

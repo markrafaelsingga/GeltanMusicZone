@@ -7,7 +7,7 @@
         <span class="text">GELTAN MUSIC ZONE</span>
     </div>
 
-    @if(Model.pendingDetails != null && Model.pendingDetails.Any())
+    @if (Model.pendingDetails != null && Model.pendingDetails.Any())
     {
         <div class="w3l-grids-block-5 py-5">
             <div class="container py-md-5 py-4">
@@ -33,8 +33,8 @@
                                         <p><strong>Estimated cost:</strong>&emsp; @details.rf_estimated_cost.ToString("C", new System.Globalization.CultureInfo("en-PH"))</p>
                                         <p><strong>Status:</strong>&emsp; @details.rf_status</p>
                                         <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
-                                            <a class="btn btn-style-primary" style="margin-left: 200px" href="/AdminRequisition/ViewRequisition?request_ID=@details.rf_id">
-                                                Know Details <i class='bx bx-right-arrow-alt'></i>
+                                            <a class="btn btn-style-primary" style="margin-left: 180px" href="/AdminRequisition/Requisition">
+                                                Go to requisition <i class='bx bx-right-arrow-alt'></i>
                                             </a>
                                         </div>
                                     </div>

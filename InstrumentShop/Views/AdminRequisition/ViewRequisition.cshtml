@@ -44,7 +44,7 @@
 
         <div class="table-wrapper">
             <br />
-            @if (Model.First().RF_Status != "Cancelled" && Model.First().RF_Status != "Deleted" && Model.First().RF_Status != "Approved")
+            @if (Model.First().RF_Status == "Pending")
             {
                 <div style="margin-left: 91%">
                     <form class="edit-form" method="post" action="@Url.Action("editRequisition", "AdminRequisition")">
@@ -94,6 +94,7 @@
                         <col width="3%">
                         <col width="12%">
                         <col width="10%">
+                        <col width="10%">
                         <col width="25%">
                         <col width="6%">
                         <col width="6%">
@@ -105,6 +106,7 @@
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Requisition code</th>
                             <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Category</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -119,6 +121,7 @@
                                 <td><p class="row-number"></p></td>
                                 <td>@form.RF_Itemcode</td>
                                 <td>@form.RF_Item</td>
+                                <td>@form.RF_ItemCat</td>
                                 <td>@form.RF_Description</td>
                                 <td>@form.RF_Quantity</td>
                                 <td>@form.RF_Unit</td>
@@ -145,6 +148,7 @@
                         <col width="3%">
                         <col width="12%">
                         <col width="10%">
+                        <col width="10%">
                         <col width="25%">
                         <col width="6%">
                         <col width="6%">
@@ -156,6 +160,7 @@
                             <th class="px-1 py-1 text-center">#</th>
                             <th class="px-1 py-1 text-center">Requisition code</th>
                             <th class="px-1 py-1 text-center">Item</th>
+                            <th class="px-1 py-1 text-center">Category</th>
                             <th class="px-1 py-1 text-center">Description</th>
                             <th class="px-1 py-1 text-center">Quantity</th>
                             <th class="px-1 py-1 text-center">Unit</th>
@@ -170,6 +175,7 @@
                                 <td><p class="row-number"></p></td>
                                 <td>@form.RF_Itemcode</td>
                                 <td>@form.RF_Item</td>
+                                <td>@form.RF_ItemCat</td>
                                 <td>@form.RF_Description</td>
                                 <td>@form.RF_Quantity</td>
                                 <td>@form.RF_Unit</td>
@@ -194,11 +200,11 @@
                         <div class="input-grids">
                             <div class="row">
                                 <div class="col-sm-6" style="margin-left: 200px; margin-top: 45px">
-                                    <p>Date approved:</p>
+                                    <p>Date authorized:</p>
                                     <input style="font-weight: 600; text-align: center" type="text" name="date" id="date" placeholder="Date requested" class="requisition-input" disabled value="@Model.First().approvalDate" />
                                 </div>
                                 <div class="col-sm-6" style="margin-top: 45px">
-                                    <p>Approved by:</p>
+                                    <p>Authorized by:</p>
                                     <input style="font-weight: 600; text-align: center" type="text" name="price" id="price" class="requisition-input" disabled value="@Model.First().approvalName" />
                                 </div>
                             </div>
