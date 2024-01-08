@@ -28,7 +28,7 @@ namespace InstrumentShop.Controllers
             {
                 db.Open();
 
-                // Fetch product data
+               
                 using (var cmd = db.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
@@ -56,7 +56,7 @@ namespace InstrumentShop.Controllers
                 }
             }
 
-            // Assuming you want to return the list to a view, you can pass it to the View method
+          
             return View(lemp);
         }
 
@@ -64,14 +64,14 @@ namespace InstrumentShop.Controllers
         public ActionResult GetDistinctSuppliersForRequisition(int requisitionId)
         {
             Session["id"] = requisitionId;
-            // Retrieve distinct supplier companies based on the selected requisitionId
+         
             List<string> suppliers = GetDistinctSuppliersFromDatabase(requisitionId);
 
-            // Return suppliers as JSON
+           
             return Json(suppliers, JsonRequestBehavior.AllowGet);
         }
 
-        // Sample method to retrieve items from the database
+       
         private List<string> GetDistinctSuppliersFromDatabase(int requisitionId)
         {
             List<string> suppliers = new List<string>();
@@ -111,14 +111,14 @@ namespace InstrumentShop.Controllers
         [HttpGet]
         public ActionResult GetDetailsForSelectedSupplier(string supplier)
         {
-            // Call a method to retrieve details from the database based on the selected supplier
+           
             var details = GetDetailsFromDatabase(supplier);
 
-            // Return details as JSON
+           
             return Json(details, JsonRequestBehavior.AllowGet);
         }
 
-        // Sample method to retrieve items from the database
+
         private List<viewRequisition> GetDetailsFromDatabase(string supplier)
         {
             int id = Convert.ToInt32(Session["id"]);
@@ -181,7 +181,7 @@ namespace InstrumentShop.Controllers
                     {
                         supplierDetails supplier = new supplierDetails
                         {
-                            // Populate properties based on your database columns
+                          
                             sup_id = Convert.ToInt32(dr["sup_id"]),
                             sup_company = dr["sup_company"].ToString(),
                             sup_address = dr["sup_address"].ToString(),
@@ -197,14 +197,14 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Perform pagination logic
+                   
                     var paginatedSuppliers = suppliers.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
                     ViewBag.PageNumber = page;
                     ViewBag.PageSize = pageSize;
                     ViewBag.TotalItems = suppliers.Count;
 
-                    // Pass the paginated list to the view
+                  
                     return View(paginatedSuppliers);
                 }
             }
@@ -227,7 +227,7 @@ namespace InstrumentShop.Controllers
 
                         if (reader.HasRows)
                         {
-                            // Close the previous reader
+                          
                             reader.Close();
 
                             using (var cmd2 = db.CreateCommand())
@@ -254,12 +254,10 @@ namespace InstrumentShop.Controllers
                                         sup_phone = supplierReader["sup_phone"].ToString(),
                                     };
 
-                                    supplierReader.Close();  // Close the supplierReader
-
-                                    // Create a list to store product details
+                                    supplierReader.Close();  
                                     List<productLists> productList = new List<productLists>();
 
-                                    // Fetch all products associated with the supplier
+                                  
                                     using (var cmd3 = db.CreateCommand())
                                     {
                                         cmd3.CommandType = CommandType.Text;
@@ -282,10 +280,10 @@ namespace InstrumentShop.Controllers
                                             productList.Add(product);
                                         }
 
-                                        // Close the productReader
+
                                         productReader.Close();
 
-                                        // Pass both objects to the view
+                                       
                                         var combinedData = new Tuple<supplierDetails, List<productLists>>(supplier, productList);
                                         return View(combinedData);
                                     }
@@ -297,16 +295,15 @@ namespace InstrumentShop.Controllers
                     {
                         Console.WriteLine(ex.Message);
                         Console.WriteLine(ex.StackTrace);
-                        return View("Error"); // You might want to create an error view
+                        return View("Error"); 
                     }
                     finally
                     {
-                        // Close the connection in a finally block to ensure it's closed even in case of an exception
                         db.Close();
                     }
                 }
 
-                // Handle the case where the supplier with the given supId is not found
+              
                 return HttpNotFound();
             }
         }
@@ -352,7 +349,7 @@ namespace InstrumentShop.Controllers
 
                     db.Close();
 
-                    // Pass the paginated list to the view
+                   
                     return View(lemp);
                 }
             }

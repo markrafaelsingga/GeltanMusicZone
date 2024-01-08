@@ -92,7 +92,6 @@ namespace InstrumentShop.Controllers
                 {
                     db.Open();
 
-                    // Check if the staff is already inactive
                     bool isAlreadyInactive = false;
                     using (var checkCmd = db.CreateCommand())
                     {
@@ -111,7 +110,6 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // Inactivate the staff only if it's not already inactive
                     if (!isAlreadyInactive)
                     {
                         using (var cmd = db.CreateCommand())

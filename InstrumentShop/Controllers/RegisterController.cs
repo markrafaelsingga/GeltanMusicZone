@@ -91,10 +91,10 @@ namespace InstrumentShop.Controllers
                     return RedirectToAction("Register");
                 }
 
-                // Check if the model is valid after adding errors
+          
                 if (!ModelState.IsValid)
                 {
-                    // Model is not valid, return the view with errors
+            
                     return View(model);
                 }
 
@@ -120,7 +120,7 @@ namespace InstrumentShop.Controllers
                             {
                                 checkUser = reader["USER_USERNAME"].ToString();
                                 checkPass = reader["USER_PASSWORD"].ToString();
-                                // Check if the username and password already exist
+                              
                                 if (checkUser == user && checkPass == pass)
                                 {
                                     TempData["AlertAcc"] = "Account already exist!";
@@ -129,7 +129,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // If the username and password do not exist, proceed with registration
+                
                     using (var cmd1 = db.CreateCommand())
                     {
                         cmd1.CommandType = CommandType.Text;

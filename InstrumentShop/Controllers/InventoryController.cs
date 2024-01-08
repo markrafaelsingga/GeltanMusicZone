@@ -229,7 +229,7 @@ namespace InstrumentShop.Controllers
                 {
                     db.Open();
 
-                    // Check if the product is already inactive
+                  
                     bool isAlreadyInactive = false;
                     using (var checkCmd = db.CreateCommand())
                     {
@@ -248,7 +248,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // Inactivate the product only if it's not already inactive
+                 
                     if (!isAlreadyInactive)
                     {
                         using (var cmd = db.CreateCommand())

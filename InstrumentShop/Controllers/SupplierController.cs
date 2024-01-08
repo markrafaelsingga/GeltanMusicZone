@@ -14,7 +14,7 @@ namespace InstrumentShop.Controllers
     public class SupplierController : Controller
     {
         string connString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Mark\source\repos\InstrumentShop\InstrumentShop\App_Data\Database1.mdf;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
-        // GET: Supplier
+      
         public ActionResult Supplier(Supplier model)
         {
             List<Supplier> suppList = new List<Supplier>();
@@ -58,7 +58,7 @@ namespace InstrumentShop.Controllers
                 {
                     db.Open();
 
-                    // Check if the supplier is already inactive
+                 
                     using (var cmdCheckStatus = db.CreateCommand())
                     {
                         cmdCheckStatus.CommandType = CommandType.Text;
@@ -71,7 +71,7 @@ namespace InstrumentShop.Controllers
                             {
                                 string currentStatus = reader["SUP_ISACTIVE"].ToString();
 
-                                // Check if the current status is already "INACTIVE"
+                              
                                 if (currentStatus == "INACTIVE")
                                 {
                                     TempData["AlertDelFailed"] = "Supplier is already inactive!";
@@ -81,7 +81,7 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // If the supplier is not already inactive, proceed with the deletion
+                   
                     using (var cmdUpdateStatus = db.CreateCommand())
                     {
                         cmdUpdateStatus.CommandType = CommandType.Text;
@@ -119,7 +119,7 @@ namespace InstrumentShop.Controllers
                 {
                     db.Open();
 
-                    // Check if the supplier is already activated
+                 
                     using (var cmdCheckStatus = db.CreateCommand())
                     {
                         cmdCheckStatus.CommandType = CommandType.Text;
@@ -132,7 +132,7 @@ namespace InstrumentShop.Controllers
                             {
                                 string currentStatus = reader["SUP_ISACTIVE"].ToString();
 
-                                // Check if the current status is already "ACTIVE"
+                              
                                 if (currentStatus == "ACTIVE")
                                 {
                                     TempData["AlertDelFailed"] = "Supplier is already active!";
@@ -142,7 +142,6 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // If the supplier is not already active, proceed with reactivation
                     using (var cmdUpdateStatus = db.CreateCommand())
                     {
                         cmdUpdateStatus.CommandType = CommandType.Text;
@@ -182,7 +181,7 @@ namespace InstrumentShop.Controllers
                     return RedirectToAction("Supplier");
                 }
 
-                // Perform phone validation
+               
                 if (!Regex.IsMatch(phone, @"\d+(?:\s-\s\d+)*$"))
                 {
                     TempData["AlertRegFailed"] = "Invalid Contact Format!";
@@ -192,24 +191,19 @@ namespace InstrumentShop.Controllers
                 {
                     TempData["AlertRegFailed"] = "Invalid Email Format!";
                     return RedirectToAction("Supplier");
-                }
-
-                
-                // Additional validation for the phone format, if needed
-                // You can customize this part based on your specific phone format requirements
-
+                }               
                 using (var db = new SqlConnection(connString))
                 {
                     db.Open();
 
-                    // Check if the supplier already exists based on fname, mi, and lname
+                  
                     using (var checkCmd = db.CreateCommand())
                     {
                         checkCmd.CommandType = CommandType.Text;
-                        checkCmd.CommandText = "SELECT COUNT(*) FROM SUPPLIER WHERE SUP_FNAME = @fname AND SUP_LNAME = @lname";
+                        checkCmd.CommandText = "SELECT COUNT(*) FROM SUPPLIER WHERE (SUP_FNAME = @fname OR SUP_LNAME = @lname) AND SUP_MI = @mi";
                         checkCmd.Parameters.AddWithValue("@fname", fname);
                         checkCmd.Parameters.AddWithValue("@lname", lname);
-
+                        checkCmd.Parameters.AddWithValue("@mi", string.IsNullOrEmpty(mi) ? (object)DBNull.Value : mi);
                         int existingCount = (int)checkCmd.ExecuteScalar();
 
                         if (existingCount > 0)
@@ -219,7 +213,6 @@ namespace InstrumentShop.Controllers
                         }
                     }
 
-                    // If the supplier doesn't exist and phone is valid, proceed with the insertion
                     using (var cmd = db.CreateCommand())
                     {
                         cmd.CommandType = CommandType.Text;
@@ -259,14 +252,14 @@ namespace InstrumentShop.Controllers
         {
             try
             {
-                // Check if any input fields contain only whitespace
+                
                 if (string.IsNullOrWhiteSpace(company) || string.IsNullOrWhiteSpace(fname) || string.IsNullOrWhiteSpace(lname) || string.IsNullOrWhiteSpace(phone) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(email))
                 {
                     TempData["AlertField"] = "Input all fields!";
                     return RedirectToAction("Supplier");
                 }
 
-                // Perform phone validation
+             
                 if (!Regex.IsMatch(phone, @"\d+(?:\s-\s\d+)*$"))
                 {
                     TempData["AlertRegFailed"] = "Invalid Contact Format!";
